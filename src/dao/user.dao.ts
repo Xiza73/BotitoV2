@@ -34,7 +34,7 @@ export const readUsers = async () => {
 export const readUserByName = async (name: any) => {
   try {
     if(!name) return new ErrorHandler(400, "Error al recibir datos");
-    const data = await User.findOne({ name });
+    const data = await User.findOne({ name: capitalize(name) });
     if(!data) return new ErrorHandler(400, "Usuario no encontrado");
     return new ResponseData(200, "Usuario obtenido correctamente", data);
   } catch (error) {
