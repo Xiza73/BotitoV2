@@ -6,7 +6,6 @@ import cors from "cors";
 import morgan from "morgan";
 import _router from "./router";
 import ErrorHandler from "./helpers/ErrorHandler";
-import _discordRouter from "./routes/discordRouter";
 
 const _app: Application = express();
 
@@ -20,7 +19,6 @@ _app.use(express.json());
 _app.use(cors());
 
 //routes
-_app.use('/', _discordRouter);
 _app.use("/api", _router);
 _app.use(
   (err: ErrorHandler, req: Request, res: Response, _: NextFunction) => {

@@ -58,6 +58,9 @@ function getCMD(client: ClientDiscord, message: Message, input: string) {
   if (cmd.usage) {
     info += `\n**Uso**: ${cmd.usage}`;
   }
+  if (cmd.aliases) {
+    info += `\n**Alias**: ${cmd.aliases}`;
+  }
 
   return message.channel.send(embed.setColor("GREEN").setDescription(info));
 }

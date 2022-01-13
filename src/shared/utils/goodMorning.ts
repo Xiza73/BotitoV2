@@ -1,5 +1,5 @@
-import _config from "../config/config";
-import client from "../discord";
+import _config from "../../config/config";
+import ClientDiscord from '../classes/ClientDiscord';
 
 const root = _config.photodb;
 const estrellitas = [
@@ -11,17 +11,16 @@ const estrellitas = [
   "1.gif",
   "3.gif",
 ];
-const gmi2Gaming = client.channels.cache.find(
-  (channel) => channel.id === "752251099355938856"
-);
 
-export const goodMorning = () => {
+export const goodMorning = (client: ClientDiscord) => {
   let hoy = new Date();
-
+  const gmi2Gaming: any = client.channels.cache.find(
+    (channel) => channel.id === "752251099355938856"
+  );
   //Buenos días +5hours 0dom
   if (hoy.getHours() === 13 && hoy.getMinutes() >= 0 && hoy.getMinutes() <= 4) {
     let img = `${root}/estrellitas/${estrellitas[hoy.getDay()]}`;
-    const myEmbed = {
+    const embed = {
       color: 0xecff07,
       title: "Buenos días estrellitas!",
       description: `La tierra les dice holaaaaa`,
@@ -33,7 +32,7 @@ export const goodMorning = () => {
       },
       timestamp: hoy,
     };
-    if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed: myEmbed });
+    if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed });
     //Jueves
     if (hoy.getDay() == 4) {
       const jEmbed = {

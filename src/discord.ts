@@ -2,9 +2,11 @@ import { Message } from "discord.js";
 import { readdirSync } from 'fs'
 import path from "path";
 import _config from "./config/config";
+import { goodMorning } from "./shared/utils/goodMorning";
 
 import ClientDiscord from "./shared/classes/ClientDiscord";
 import { action } from "./shared/utils/actions";
+import { reminder } from "./shared/utils/birthdayReminder";
 
 const client: ClientDiscord = new ClientDiscord();
 client.categories = readdirSync(path.join(__dirname, "commands"));
@@ -17,6 +19,8 @@ const prefix: string = _config.prefix;
 try {
   client.on("ready", () => {
     console.log(`${client.user!.tag} is up!`);
+    goodMorning(client)
+    reminder(client)
     client.user!.setPresence({
       status: "online",
       activity: {
