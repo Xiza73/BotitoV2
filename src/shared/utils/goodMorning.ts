@@ -1,5 +1,6 @@
 import _config from "../../config/config";
 import ClientDiscord from '../classes/ClientDiscord';
+import { dateToUTC_5 } from "./helpers";
 
 const root = _config.photodb;
 const estrellitas = [
@@ -13,13 +14,13 @@ const estrellitas = [
 ];
 
 export const goodMorning = (client: ClientDiscord) => {
-  let hoy = new Date();
+  const hoy = dateToUTC_5(new Date());
   const gmi2Gaming: any = client.channels.cache.find(
     (channel) => channel.id === "752251099355938856"
   );
-  //Buenos días +5hours 0dom
-  if (hoy.getHours() === 13 && hoy.getMinutes() >= 0 && hoy.getMinutes() <= 4) {
-    let img = `${root}/estrellitas/${estrellitas[hoy.getDay()]}`;
+  // 8 0 4
+  if (hoy.hours === 8 && hoy.minutes >= 0 && hoy.minutes <= 4) {
+    let img = `${root}/estrellitas/${estrellitas[hoy.week]}`;
     const embed = {
       color: 0xecff07,
       title: "Buenos días estrellitas!",
@@ -34,7 +35,7 @@ export const goodMorning = (client: ClientDiscord) => {
     };
     if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed });
     //Jueves
-    if (hoy.getDay() == 4) {
+    if (hoy.week == 4) {
       const jEmbed = {
         color: 0xf14d00,
         title: "Feliz Jueves!",
@@ -47,7 +48,7 @@ export const goodMorning = (client: ClientDiscord) => {
       if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed: jEmbed });
     }
     //Viernes
-    if (hoy.getDay() == 5) {
+    if (hoy.week == 5) {
       const exampleEmbed = {
         color: 0x0099ff,
         title: "PREPARATE LA PUTA QUE TE RE PARIÓ",

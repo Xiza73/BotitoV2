@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import _config from "../../config/config";
-import { random } from "./helpers";
+import { dateToUTC_5, random } from "./helpers";
 import client from "../../discord";
 
 const estrellitas = [
@@ -32,7 +32,7 @@ export const action = (comando: string, msg: Message): any => {
       }
       let mentions = msg.mentions.users.map((x) => x.id);
       if (!mentions) msg.channel.send(`Mencione un usuario!`);
-      const user = await client.users.fetch(mentions[0])
+      const user = await client.users.fetch(mentions[0]);
       msg.channel.send(`Suma: ${user}`);
     },
     suma: function () {
@@ -55,7 +55,11 @@ export const action = (comando: string, msg: Message): any => {
         msg.channel.send(`Suma: ${suma}`);
       }
     },
-
+    time: function () {
+      const hoy = dateToUTC_5(new Date());
+      const format = `${hoy.day}/${hoy.month}/${hoy.year} - ${hoy.hours}:${hoy.minutes} - ${hoy.week}`;
+      msg.channel.send(format);
+    },
     attack: function () {
       let s = msg.toString();
       let texto = s.split(" ");

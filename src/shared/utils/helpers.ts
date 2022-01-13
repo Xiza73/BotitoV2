@@ -23,6 +23,29 @@ export const setParams = (params: Param[]) => {
   return param;
 };
 
+export const dateToUTC_5 = (date: Date) => {
+  let day, hours, week
+
+  if (date.getUTCHours() < 5) {
+    week = date.getDay() - 1;
+    day = date.getUTCDate() - 1;
+    hours = date.getUTCHours() + 19;
+  } else {
+    week = date.getDay();
+    day = date.getUTCDate();
+    hours = date.getUTCHours() - 5;
+  }
+  
+  return {
+    day,
+    month: date.getUTCMonth() + 1,
+    year: date.getUTCFullYear(),
+    hours,
+    minutes: date.getUTCMinutes(),
+    week,
+  };
+};
+
 export const month: string[] = [
   "Enero",
   "Febrero",
