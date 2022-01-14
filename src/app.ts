@@ -1,7 +1,6 @@
 import express, { Application, Response, Request, NextFunction } from "express";
 import "./database";
 import _config from './config/config'
-import path from "path";
 import cors from "cors";
 import morgan from "morgan";
 import _router from "./router";

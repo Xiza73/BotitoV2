@@ -1,7 +1,4 @@
 import { IDate, Param } from "../types/types";
-import cron, { CronJob } from "cron";
-import ClientDiscord from '../classes/ClientDiscord';
-import ScheduleMessage from "../classes/ScheculeMessage";
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;

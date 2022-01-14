@@ -3,7 +3,6 @@ import { readdirSync } from 'fs'
 import path from "path";
 import _config from "./config/config";
 import { goodMorning } from "./shared/utils/goodMorning";
-
 import ClientDiscord from "./shared/classes/ClientDiscord";
 import { action } from "./shared/utils/actions";
 import { reminder } from "./shared/utils/birthdayReminder";
@@ -16,8 +15,6 @@ const prefix: string = _config.prefix;
 ["command"].forEach((handler) => {
   require(`./handlers/${handler}`)(client);
 });
-
-
 
 try {
   client.on("ready", () => {
