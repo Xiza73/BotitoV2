@@ -7,6 +7,7 @@ import { goodMorning } from "./shared/utils/goodMorning";
 import ClientDiscord from "./shared/classes/ClientDiscord";
 import { action } from "./shared/utils/actions";
 import { reminder } from "./shared/utils/birthdayReminder";
+import ScheduleMessage from "./shared/classes/ScheculeMessage";
 
 const client: ClientDiscord = new ClientDiscord();
 client.categories = readdirSync(path.join(__dirname, "commands"));
@@ -16,15 +17,19 @@ const prefix: string = _config.prefix;
   require(`./handlers/${handler}`)(client);
 });
 
+
+
 try {
   client.on("ready", () => {
-    console.log(`${client.user!.tag} is up!`);
-    goodMorning(client)
-    reminder(client)
+    console.log(`${client.user!.username} is up!`);
+    const morning = new ScheduleMessage(goodMorning, client)
+    morning.action.start()
+    const birthday = new ScheduleMessage(reminder, client)
+    birthday.action.start()
     client.user!.setPresence({
       status: "online",
       activity: {
-        name: "b!help",
+        name: `${_config.prefix}help`,
         type: "PLAYING",
       },
     });

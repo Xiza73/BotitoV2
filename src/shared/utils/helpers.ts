@@ -1,4 +1,7 @@
-import { Param } from "../types/types";
+import { IDate, Param } from "../types/types";
+import cron, { CronJob } from "cron";
+import ClientDiscord from '../classes/ClientDiscord';
+import ScheduleMessage from "../classes/ScheculeMessage";
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -24,7 +27,7 @@ export const setParams = (params: Param[]) => {
 };
 
 export const dateToUTC_5 = (date: Date) => {
-  let day, hours, week
+  let day, hours, week;
 
   if (date.getUTCHours() < 5) {
     week = date.getDay() - 1;
@@ -35,8 +38,8 @@ export const dateToUTC_5 = (date: Date) => {
     day = date.getUTCDate();
     hours = date.getUTCHours() - 5;
   }
-  
-  return {
+
+  const utc_5: IDate = {
     day,
     month: date.getUTCMonth() + 1,
     year: date.getUTCFullYear(),
@@ -44,6 +47,8 @@ export const dateToUTC_5 = (date: Date) => {
     minutes: date.getUTCMinutes(),
     week,
   };
+
+  return utc_5;
 };
 
 export const month: string[] = [

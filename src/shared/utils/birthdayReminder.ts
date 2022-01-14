@@ -24,7 +24,7 @@ export const reminder = async (client: ClientDiscord) => {
   const users: any = res.data;
 
   // 0 0 4
-  if (hoy.hours === 16 && hoy.minutes >= 0 && hoy.minutes <= 55) {
+  if (hoy.hours === 0) {
     users.forEach(async (e: any) => {
       if (
         hoy.day === e.birthdayDay &&

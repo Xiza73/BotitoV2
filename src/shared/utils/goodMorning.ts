@@ -1,5 +1,6 @@
 import _config from "../../config/config";
 import ClientDiscord from '../classes/ClientDiscord';
+import { IDate } from "../types/types";
 import { dateToUTC_5 } from "./helpers";
 
 const root = _config.photodb;
@@ -14,12 +15,12 @@ const estrellitas = [
 ];
 
 export const goodMorning = (client: ClientDiscord) => {
-  const hoy = dateToUTC_5(new Date());
+  const hoy: IDate = dateToUTC_5(new Date());
   const gmi2Gaming: any = client.channels.cache.find(
     (channel) => channel.id === "752251099355938856"
   );
   // 8 0 4
-  if (hoy.hours === 8 && hoy.minutes >= 0 && hoy.minutes <= 4) {
+  if (hoy.hours === 8) {
     let img = `${root}/estrellitas/${estrellitas[hoy.week]}`;
     const embed = {
       color: 0xecff07,

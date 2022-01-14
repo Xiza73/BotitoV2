@@ -16,6 +16,7 @@
     "ascii-table": "0.0.9",
     "common-tags": "^1.8.2",
     "cors": "^2.8.5",
+    "cron": "^1.8.2",
     "cross-fetch": "^3.1.4",
     "death-games": "^1.2.2",
     "discord.js": "^12.5.1",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@types/common-tags": "^1.8.1",
     "@types/cors": "^2.8.12",
+    "@types/cron": "^1.7.3",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.13",
     "@types/morgan": "^1.9.3",

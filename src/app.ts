@@ -30,9 +30,10 @@ _app.use(
   }
 );
 
-_app.use(express.static(path.join(__dirname, "public")));
+//_app.use(express.static(path.join(__dirname, "public")));
 _app.get("*", (_: Request, res: Response) => {
-  res.sendFile(path.resolve(__dirname, "public/index.html"));
+  //res.sendFile(path.resolve(__dirname, "public/index.html"));
+  res.send('Hello World');
 });
 
 _app.listen(_app.get("port"));
