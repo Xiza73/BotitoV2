@@ -2,6 +2,7 @@ import { Message, MessageEmbed } from "discord.js";
 import _config from "../../config/config";
 import { dateToUTC_5, random } from "./helpers";
 import client from "../../discord";
+import { reminder } from "./birthdayReminder";
 
 const estrellitas = [
   "0.png",
@@ -64,6 +65,9 @@ export const action = (comando: string, msg: Message): any => {
       let s = msg.toString();
       let texto = s.split(" ");
       msg.channel.send(`${texto[1]} muere rechuchatumare >:v`);
+    },
+    cum: function () {
+      reminder(client);
     },
     morning: function () {
       const exampleEmbed = {

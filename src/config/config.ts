@@ -8,4 +8,5 @@ export default {
   prefix: process.env.prefix ?? "b!",
   photodb: process.env.photodb ?? "",
   api: process.env.api ?? "http://localhost:3000",
+  apiytb: process.env.API_YTB ?? "",
 };

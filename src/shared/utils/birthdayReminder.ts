@@ -48,7 +48,8 @@ export const reminder = async (client: ClientDiscord) => {
                   },
                 ], */
             image: {
-              url: "https://frasesabias.com/wp-content/uploads/2019/10/gif-feliz-cumplea%C3%B1os-amiga-gatito.gif",
+              //url: "https://frasesabias.com/wp-content/uploads/2019/10/gif-feliz-cumplea%C3%B1os-amiga-gatito.gif",
+              url: "https://i.pinimg.com/736x/f8/28/57/f82857d4da012fba311ea8040e163d5e.jpg"
             },
             timestamp: new Date(),
           };
