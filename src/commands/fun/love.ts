@@ -7,7 +7,7 @@ const pull: ICommand = {
   description: "Shipea >w<!",
   usage: "<user1> <user2>",
   aliases: [],
-  run: async (__: Client, msg: Message, args: string[]) => {
+  run: async (__: Client, msg: Message, args: string[], _: string) => {
     if (args[1]) {
       msg
         .delete({ timeout: 1000 })

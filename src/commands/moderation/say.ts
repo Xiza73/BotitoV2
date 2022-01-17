@@ -1,5 +1,5 @@
 import { ICommand } from "../../shared/types/types";
-import { Client, Message, MessageEmbed } from 'discord.js';
+import { Client, Message, MessageEmbed } from "discord.js";
 
 const pull: ICommand = {
   name: "say",
@@ -7,7 +7,7 @@ const pull: ICommand = {
   description: "Botito repite lo que dices",
   usage: "<input>",
   aliases: [],
-  run: (__: Client, message: Message, args: string[]) => {
+  run: (__: Client, message: Message, args: string[], _: string) => {
     message.delete();
 
     if (!message.member!.hasPermission("MANAGE_MESSAGES"))
@@ -31,9 +31,9 @@ const pull: ICommand = {
         .setDescription(args.slice(1).join(" "))
         .setColor("#ffffff");
 
-      message.channel.send(embed);
+      return message.channel.send(embed);
     } else {
-      message.channel.send(args.join(" "));
+      return message.channel.send(args.join(" "));
     }
   },
 };

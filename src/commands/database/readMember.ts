@@ -12,7 +12,7 @@ const pull: ICommand = {
   description: "Leer datos de usuario",
   usage: "<param>",
   aliases: ["whois", "wi", "read"],
-  run: async (client: Client, msg: Message, args: string[]) => {
+  run: async (client: Client, msg: Message, args: string[], _: string) => {
     if (!args[0]) {
       msg.channel.send("Falta agregar un nombre");
       return;
@@ -77,7 +77,7 @@ const pull: ICommand = {
               month[parseInt(res.data.birthdayMonth) - 1]
             }`,
           },
-        ]
+        ],
       };
 
       msg.channel.send({ embed });

@@ -7,7 +7,7 @@ const pull: ICommand = {
   description: "Limpia el chat",
   usage: "[cantidad]",
   aliases: [],
-  run: async (__: Client, message: Message, args: string[]) => {
+  run: async (__: Client, message: Message, args: string[], _: string) => {
     /* if (message.deletable) {
       message.delete();
     } */
@@ -71,4 +71,4 @@ const pull: ICommand = {
   },
 };
 
-export default pull
+export default pull;

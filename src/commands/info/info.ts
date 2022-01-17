@@ -7,7 +7,7 @@ const pull: ICommand = {
   description: "Info facherita",
   usage: null,
   aliases: [],
-  run: async (client: Client, msg: Message, args: string[]) => {
+  run: async (client: Client, msg: Message, __: string[], _: string) => {
     const exampleEmbed: MessageEmbed | MessageEmbedOptions | undefined = {
       color: 0xff2d00,
       title: "Información del Servidor",
@@ -53,4 +53,4 @@ const pull: ICommand = {
   },
 };
 
-export default pull
+export default pull;

@@ -7,14 +7,14 @@ const pull: ICommand = {
   usage: null,
   aliases: [],
   description: "Tu ping!",
-  run: async (client: Client, message: Message, _: string[]) => {
+  run: async (___: Client, message: Message, _: string[], __: string) => {
     const msg = await message.channel.send(`🏓 Pinging....`);
 
     msg.edit(`🏓 Pong!
         Latency is ${Math.floor(
-      msg.createdTimestamp - message.createdTimestamp
-    )}ms`);
+          msg.createdTimestamp - message.createdTimestamp
+        )}ms`);
   },
 };
 
-export default pull
+export default pull;

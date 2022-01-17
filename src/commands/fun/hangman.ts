@@ -18,7 +18,7 @@ const pull: ICommand = {
   **Modo de juego 2:** Te incluyes entre las menciones y Botito escoge una palabra al azar para que todos jueguen.`,
   usage: "<player>(+)",
   aliases: [],
-  run: async (__: Client, message: Message, _: string[]) => {
+  run: async (__: Client, message: Message, _: string[], ___: string) => {
     let author = [message.author.id];
     let turn = 0;
     let mencion = message.mentions.users.map((x) => x.id);

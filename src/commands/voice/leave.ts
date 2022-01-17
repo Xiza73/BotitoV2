@@ -7,15 +7,15 @@ const pull: ICommand = {
   description: "Desconectarse del canal de voz",
   usage: "<>",
   aliases: ["quick", "disconnect", "q"],
-  run: async (__: Client, msg: Message, args: string[]) => {
-    const { voice } = msg.member!
+  run: async (__: Client, msg: Message, _: string[], ___: string) => {
+    const { voice } = msg.member!;
 
-    if(!voice.channelID) {
-      msg.reply("Debes estar en un canal de voz!")
-      return
+    if (!voice.channelID) {
+      msg.reply("Debes estar en un canal de voz!");
+      return;
     }
 
-    voice.channel?.leave()
+    voice.channel?.leave();
   },
 };
 

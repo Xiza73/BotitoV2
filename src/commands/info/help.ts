@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ICommand } from "../../shared/types/types";
 import { stripIndents } from "common-tags";
@@ -9,12 +9,13 @@ const pull: ICommand = {
   description: "Muestra todos los comandos o un comando específico",
   usage: "[comando]",
   aliases: [],
-  run: async (client: ClientDiscord, message: Message, args: string[]) => {
-    if (args[0]) {
-      return getCMD(client, message, args[0]);
-    } else {
-      return getAll(client, message);
-    }
+  run: async (client: Client, message: Message, args: string[], _: string) => {
+    if (client instanceof ClientDiscord)
+      if (args[0]) {
+        return getCMD(client, message, args[0]);
+      } else {
+        return getAll(client, message);
+      }
   },
 };
 

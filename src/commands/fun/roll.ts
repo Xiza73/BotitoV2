@@ -8,7 +8,7 @@ const pull: ICommand = {
   description: `Tirar un(os) dado(s)\nLímite de tiros: 20\nLímite de caras: 100`,
   usage: "[<tiros>d<caras>]",
   aliases: [],
-  run: async (__: Client, msg: Message, args: string[]) => {
+  run: async (__: Client, msg: Message, args: string[], _: string) => {
     const root =
       "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612837856";
     if (args[0] === undefined) {

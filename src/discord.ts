@@ -51,7 +51,7 @@ client.on("message", async (message: Message) => {
   let command = client.commands.get(cmd);
   if (!command) command = client.commands.get(client.aliases.get(cmd));
 
-  if (command) command.run(client, message, args);
+  if (command) command.run(client, message, args, cmd);
 
   if (cmd !== "") {
     action(cmd, message); //135
