@@ -1,6 +1,7 @@
 import { Client, Message, MessageEmbed, MessageEmbedOptions } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import { random as getRandom } from "../../shared/utils/helpers";
+import fetch from "cross-fetch";
 
 const pull: ICommand = {
   name: "poke",
