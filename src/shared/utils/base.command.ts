@@ -7,6 +7,7 @@ const pull: ICommand = {
   description: "",
   usage: "",
   aliases: [],
+  ownerOnly: false,
   run: async (__: Client, msg: Message, args: string[]) => {
     
   },

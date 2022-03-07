@@ -7,6 +7,7 @@ const pull: ICommand = {
   name: "poke",
   category: "fun",
   description: "Genera un Pokémon aleatorio",
+  ownerOnly: false,
   run: async (client: Client, message: Message, args: string[], _: string) => {
     const types = [
       "bug",
@@ -41,7 +42,7 @@ const pull: ICommand = {
           title: `Types`,
           description: s,
         };
-        message.channel.send({ embed: myEmbed });
+        message.channel.send({ embeds: [myEmbed] });
       } else if (args[0] === "shiny") {
         message.channel.send(`No seas marik ${message.member!.user} >:v`);
       } else if (args[0] === "battle") {
@@ -149,7 +150,8 @@ function pintarCard(poke: any, message: Message) {
       icon_url: message.author.avatarURL()!,
     },
   };
-  if (message.channel?.isText()) message.channel.send({ embed: exampleEmbed });
+  if (message.channel?.isText())
+    message.channel.send({ embeds: [exampleEmbed] });
 }
 
 function modelData(data: any, id: number) {

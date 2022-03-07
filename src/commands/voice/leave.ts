@@ -1,3 +1,4 @@
+import { getVoiceConnection } from "@discordjs/voice";
 import { Client, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 
@@ -7,15 +8,16 @@ const pull: ICommand = {
   description: "Desconectarse del canal de voz",
   usage: "<>",
   aliases: ["quick", "disconnect", "q"],
+  ownerOnly: false,
   run: async (__: Client, msg: Message, _: string[], ___: string) => {
     const { voice } = msg.member!;
 
-    if (!voice.channelID) {
+    if (!voice.channelId) {
       msg.reply("Debes estar en un canal de voz!");
       return;
     }
 
-    voice.channel?.leave();
+    getVoiceConnection(voice.channelId)?.destroy();
   },
 };
 

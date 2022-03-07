@@ -1,4 +1,4 @@
-import { Client, Message, User } from "discord.js";
+import { Client, Message, MessageEmbedOptions, User } from "discord.js";
 import { ICommand, Param } from "../../shared/types/types";
 import _config from "../../config/config";
 import fetch from "cross-fetch";
@@ -12,6 +12,7 @@ const pull: ICommand = {
   description: "Leer datos de usuario",
   usage: "<param>",
   aliases: ["whois", "wi", "read"],
+  ownerOnly: false,
   run: async (client: Client, msg: Message, args: string[], _: string) => {
     if (!args[0]) {
       msg.channel.send("Falta agregar un nombre");
@@ -60,7 +61,7 @@ const pull: ICommand = {
       }
       if (res.statusCode !== 200) return msg.channel.send(`${res.message}`);
 
-      const embed = {
+      const embed: MessageEmbedOptions = {
         color: "RANDOM",
         title: "Información de usuario",
         author: {
@@ -80,7 +81,7 @@ const pull: ICommand = {
         ],
       };
 
-      msg.channel.send({ embed });
+      msg.channel.send({ embeds: [embed] });
       return;
     } catch (error) {
       msg.channel.send(`Error al obtener usuario: ${error}`);

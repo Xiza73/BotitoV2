@@ -1,148 +1,114 @@
-import { Client, Guild, Message, StreamDispatcher } from "discord.js";
-import { ICommand, Song, SongQueue } from "../../shared/types/types";
-import ytdl from "ytdl-core";
-import ytSearch from "yt-search";
+import {
+  GuildTextBasedChannel,
+  Message,
+  MessageEmbed,
+  MessageEmbedOptions,
+} from "discord.js";
+import { ICommand } from "../../shared/types/types";
 import _config from "../../config/config";
-
-const queue = new Map<string | undefined, SongQueue>();
-const streamOptions = { seek: 0, volume: 1 };
-
+import ClientDiscord from "../../shared/classes/ClientDiscord";
+import ytdl from "ytdl-core";
 const pull: ICommand = {
   name: "play",
   category: "voice",
   description: "Reproduce musiquita",
   usage: "<something>",
-  aliases: ["p", "skip", "s", "stop", "pause", "resume", "queue", "q"],
-  run: async (__: Client, msg: Message, args: string[], cmd: string) => {
-    const voice_channel = msg.member!.voice.channel;
-    if (!voice_channel) return msg.reply("Debes estar en un canal de voz!");
+  aliases: [
+    "p",
+    "skip",
+    "s",
+    "stop",
+    "pause",
+    "resume",
+    "queue",
+    "q",
+    "volume",
+  ],
+  ownerOnly: false,
+  run: async (
+    client: ClientDiscord,
+    msg: Message,
+    args: string[],
+    cmd: string
+  ) => {
+    const { member, guild, channel } = msg;
+    const voiceChannel = member?.voice.channel;
 
-    const permissions = voice_channel.permissionsFor(msg.client.user!);
-    if (!permissions?.has("CONNECT"))
-      return msg.channel.send("No cuentas con los permisos correctos");
-    if (!permissions?.has("SPEAK"))
-      return msg.channel.send("No cuentas con los permisos correctos");
+    if (!voiceChannel)
+      return msg.reply({ content: "Debes estar en un canal de voz!" });
+
+    if (
+      guild?.me?.voice.channelId &&
+      voiceChannel.id !== guild.me.voice.channelId
+    )
+      return msg.reply({
+        content: `Ya estoy reproduciendo música en <#${guild.me.voice.channelId}>`,
+      });
 
     try {
-      const server_queue = queue.get(msg.guild?.id);
-
-      if (cmd === "play" || cmd === "p") {
-        if (!args || args.length === 0) return msg.reply("play what?");
-        const song: Song = { title: "", url: "" };
-
-        //set song
-        if (ytdl.validateURL(args[0])) {
-          // si es una url http/https
-          const song_info = await ytdl.getInfo(args[0]);
-          song.title = song_info.videoDetails.title;
-          song.url = song_info.videoDetails.video_url;
-        } else {
-          const video = await videoFinder(args.join(" "));
-          if (!video) return msg.channel.send("No se encontraron resultados");
-          song.title = video.title;
-          song.url = video.url;
+      const queue = client.distube.getQueue(voiceChannel);
+      if (cmd !== "play" && cmd !== "p" && !queue)
+        return msg.reply({ content: "⁉️ Nada reproduciendo" });
+      switch (cmd) {
+        case "play":
+        case "p": {
+          if (!args || args.length === 0) return msg.reply("play what?");
+          client.distube.play(voiceChannel, args[0], {
+            member,
+            textChannel: channel as GuildTextBasedChannel,
+          });
+          return;
         }
-
-        if (!server_queue) {
-          const queue_constructor: SongQueue = {
-            voice_channel,
-            text_channel: msg.channel,
-            connection: null,
-            songs: [],
+        case "volume": {
+          if (!args || args.length === 0) return msg.reply("<volume>% pls");
+          let volume = parseInt(args[0]);
+          if (volume > 100) volume = 100;
+          if (volume < 1) volume = 1;
+          client.distube.setVolume(voiceChannel, volume);
+          return msg.channel.send({
+            embeds: [
+              new MessageEmbed()
+                .setColor("BLUE")
+                .setDescription(`📶 Volumen al \`${volume}%\``),
+            ],
+          });
+        }
+        case "skip": {
+          await queue!.skip();
+          return msg.channel.send({ content: "⏭️" });
+        }
+        case "stop": {
+          await queue!.stop();
+          return msg.channel.send({ content: "⏹️" });
+        }
+        case "pause": {
+          queue!.pause();
+          return msg.channel.send({ content: "⏸️" });
+        }
+        case "resume": {
+          queue!.resume();
+          return msg.channel.send({ content: "⏯️" });
+        }
+        case "queue": {
+          const embed: MessageEmbedOptions = {
+            color: "BLUE",
+            description: `${queue?.songs.map(
+              (song, id) =>
+                `\n**${id + 1}**. ${song.name} - \`${song.formattedDuration}\``
+            )}`,
           };
-
-          queue.set(msg.guild?.id, queue_constructor);
-          queue_constructor.songs.push(song);
-
-          try {
-            queue_constructor.connection = await voice_channel.join();
-            player(msg.guild!, queue_constructor.songs[0]);
-          } catch (err) {
-            queue.delete(msg.guild?.id);
-            msg.channel.send(`Error al conectar con el reproductor x.x 🎵`);
-            console.log(err);
-          }
-        } else {
-          server_queue.songs.push(song);
-          await msg.channel.send(
-            `🎶 \`${song.title}\`, fue añadido a la cola de música 🎵`
-          );
+          return msg.channel.send({ embeds: [embed] });
         }
-      } else if (cmd === "skip" || cmd === "s") skipSong(msg, server_queue!);
-      else if (cmd === "stop") stopSong(msg, server_queue!);
-      else if (cmd === "pause" || cmd === "resume")
-        pauseSong(msg, server_queue!);
-      else if (cmd === "queue" || cmd === "q") viewQueue(msg, server_queue!);
-    } catch (error) {
-      msg.channel.send(`Error dispatcher`);
-      console.log(error);
-      voice_channel?.leave();
+        default:
+          return;
+      }
+    } catch (err) {
+      const errEmbed: MessageEmbedOptions = {
+        color: "RED",
+        description: `Alert: ${err}`,
+      };
+      return msg.reply({ embeds: [errEmbed] });
     }
   },
 };
-
-const videoFinder = async (query: string) => {
-  const result = await ytSearch(query);
-
-  return result.videos.length > 1 ? result.videos[0] : null;
-};
-const player = async (guild: Guild, song: Song) => {
-  const song_queue = queue.get(guild.id);
-
-  if (!song) {
-    setTimeout(() => {
-      song_queue?.text_channel.send(`No hay más canciones :( bye!`);
-      song_queue!.voice_channel.leave();
-    }, 5000);
-    queue.delete(guild.id);
-    return;
-  }
-
-  const stream = ytdl(song.url, { filter: "audioonly" });
-  song_queue?.connection?.play(stream, streamOptions).on("finish", () => {
-    song_queue.songs.shift();
-    player(guild, song_queue.songs[0]);
-  });
-
-  await song_queue?.text_channel.send(`🎶 Reproduciendo: \`${song.title}\` 🎵`);
-};
-
-const skipSong = (msg: Message, server_queue: SongQueue) => {
-  if (!msg.member?.voice.channel)
-    return msg.channel.send(`Debes estar en el canal de voz!`);
-  if (!server_queue) return msg.channel.send(`No hay música en la cola!`);
-
-  server_queue.connection?.dispatcher.end();
-};
-
-const stopSong = (msg: Message, server_queue: SongQueue) => {
-  if (!msg.member?.voice.channel)
-    return msg.channel.send(`Debes estar en el canal de voz!`);
-
-  server_queue.songs = [];
-  server_queue.connection?.dispatcher.end();
-};
-
-const pauseSong = (msg: Message, server_queue: SongQueue) => {
-  if (!msg.member?.voice.channel)
-    return msg.channel.send(`Debes estar en el canal de voz!`);
-
-  if (server_queue.connection?.dispatcher.paused) {
-    server_queue.connection?.dispatcher.resume();
-    msg.channel.send(`Play ▶`);
-    return;
-  }
-  server_queue.connection?.dispatcher.pause();
-  msg.channel.send(`Pause ⏸`);
-};
-
-const viewQueue = (msg: Message, server_queue: SongQueue) => {
-  let message: string = "";
-  if (!server_queue) msg.channel.send(`Cola vacía!`);
-  server_queue.songs.forEach((s, i) => {
-    message += `\n${i + 1}. ${s.title}`;
-  });
-  msg.channel.send(`Cola de música:${message}`);
-};
-
 export default pull;

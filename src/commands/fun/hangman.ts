@@ -18,6 +18,7 @@ const pull: ICommand = {
   **Modo de juego 2:** Te incluyes entre las menciones y Botito escoge una palabra al azar para que todos jueguen.`,
   usage: "<player>(+)",
   aliases: [],
+  ownerOnly: false,
   run: async (__: Client, message: Message, _: string[], ___: string) => {
     let author = [message.author.id];
     let turn = 0;
@@ -36,22 +37,24 @@ const pull: ICommand = {
       const json = require("../../multimedia/palabras.json");
       palabra = json[random(0, json.length - 1)].nombre;
     } else {
-      const canal = await message.author.createDM(); //Puedes definir un canal a donde se le preguntará la palabra al usuario
-      canal.send("Elige tu palabra");
+      const channel = await message.author.createDM(); //Puedes definir un canal a donde se le preguntará la palabra al usuario
+      channel.send("Elige tu palabra");
 
-      await canal
-        .awaitMessages(
-          (m) =>
-            m.author.id == message.author.id &&
-            m.content.replace(/[^A-Za-z0-9áéíóú\u00f1]/g, "").length,
-          { max: 1, time: 20000, errors: ["time"] }
-        )
+      await channel
+        .awaitMessages({
+          max: 1,
+          time: 20000,
+          errors: ["time"],
+          filter: (m: Message): boolean =>
+            m.author.id === message.author.id &&
+            m.content.replace(/[^A-Za-z0-9áéíóú\u00f1]/g, "").length !== null,
+        })
         .then((collected) => {
           palabra = collected
             .first()!
             .content.replace(/[^A-Za-z0-9áéíóú\u00f1 ]/g, "");
         })
-        .catch(() => canal.send("Tiempo agotado!"));
+        .catch(() => channel.send("Tiempo agotado!"));
       if (!palabra) return;
     }
 
@@ -99,7 +102,7 @@ const pull: ICommand = {
           url: `${img}/${vida}.png`,
         },
       };
-      message.channel.send({ embed: emb });
+      message.channel.send({ embeds: [emb] });
       return;
     });
 
@@ -114,14 +117,14 @@ const pull: ICommand = {
         "**",
     };
     turn = change(turn, players.length - 1, 1);
-    message.channel.send({ embed: e });
+    message.channel.send({ embeds: [e] });
 
-    const colector = message.channel.createMessageCollector(
-      (msg) =>
-        msg.author.id == ahorcado.game.turno &&
+    const colector = message.channel.createMessageCollector({
+      filter: (msg) =>
+        msg.author.id === ahorcado.game.turno &&
         /[A-Za-z0-9áéíóú\u00f1]/.test(msg.content) &&
-        msg.content.length == 1
-    );
+        msg.content.length === 1,
+    });
 
     colector.on("collect", (msg) => {
       let encontrado = ahorcado.find(msg.content);
@@ -167,7 +170,7 @@ const pull: ICommand = {
         },
       };
       turn = change(turn, players.length - 1, 1);
-      message.channel.send({ embed: myEmbed });
+      message.channel.send({ embeds: [myEmbed] });
     });
   },
 };

@@ -9,4 +9,5 @@ export default {
   photodb: process.env.photodb ?? "",
   api: process.env.api ?? "http://localhost:3000",
   apiytb: process.env.API_YTB ?? "",
+  ownerId: process.env.OWNERID ?? "",
 };
