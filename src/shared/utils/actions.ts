@@ -83,7 +83,7 @@ export const action = (comando: string, msg: Message): any => {
         timestamp: new Date(),
       };
 
-      msg.channel.send({ embed: exampleEmbed });
+      msg.channel.send({ embeds: [exampleEmbed] });
     },
     jueves: function () {
       const exampleEmbed = {
@@ -95,7 +95,7 @@ export const action = (comando: string, msg: Message): any => {
         timestamp: new Date(),
       };
 
-      msg.channel.send({ embed: exampleEmbed });
+      msg.channel.send({ embeds: [exampleEmbed] });
     },
     viernes: function () {
       const exampleEmbed = {
@@ -112,7 +112,7 @@ export const action = (comando: string, msg: Message): any => {
         timestamp: new Date(),
       };
 
-      msg.channel.send({ embed: exampleEmbed });
+      msg.channel.send({ embeds: [exampleEmbed] });
     },
     hola: function () {
       msg.channel.send(`Hola ${msg.member!.user} ^u^`);
@@ -192,7 +192,7 @@ export const action = (comando: string, msg: Message): any => {
         },
       };
 
-      msg.channel.send({ embed: exampleEmbed });
+      msg.channel.send({ embeds: [exampleEmbed] });
     },
     examplembed: function () {
       const embed = new MessageEmbed()
@@ -212,7 +212,7 @@ export const action = (comando: string, msg: Message): any => {
         )
         .setTimestamp();
 
-      msg.channel.send(embed);
+      msg.channel.send({ embeds: [embed] });
     },
     /*
       GUÍA COMANDOS

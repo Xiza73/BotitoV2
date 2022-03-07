@@ -1,62 +1,47 @@
-import { Message } from "discord.js";
-import { readdirSync } from 'fs'
+import { Intents, Message } from "discord.js";
+import { readdirSync } from "fs";
 import path from "path";
 import _config from "./config/config";
-import { goodMorning } from "./shared/utils/goodMorning";
 import ClientDiscord from "./shared/classes/ClientDiscord";
-import { action } from "./shared/utils/actions";
-import { reminder } from "./shared/utils/birthdayReminder";
-import ScheduleMessage from "./shared/classes/ScheculeMessage";
+import { DisTube } from "distube";
+import { SpotifyPlugin } from "@distube/spotify";
+import * as handler from "./handlers";
 
-const client: ClientDiscord = new ClientDiscord();
-client.categories = readdirSync(path.join(__dirname, "commands"));
-const prefix: string = _config.prefix;
-
-["command"].forEach((handler) => {
-  require(`./handlers/${handler}`)(client);
-});
-
-try {
-  client.on("ready", () => {
-    console.log(`${client.user!.username} is up!`);
-    const morning = new ScheduleMessage(goodMorning, client)
-    morning.action.start()
-    const birthday = new ScheduleMessage(reminder, client)
-    birthday.action.start()
-    client.user!.setPresence({
-      status: "online",
-      activity: {
-        name: `${_config.prefix}help`,
-        type: "PLAYING",
-      },
-    });
-  });
-} catch (error) {
-  console.error(error);
-}
-
-client.on("message", async (message: Message) => {
-  //Control de comandos
-  if (message.author.bot) return;
-  if (!message.content.startsWith(prefix)) return;
-  //Estructura del comando
-  const args: string[] = message.content
-    .slice(prefix.length)
-    .trim()
-    .split(/ +/g);
-  const cmd: string = args.shift()!.toLowerCase();
-
-  if (cmd.length === 0) return;
-
-  let command = client.commands.get(cmd);
-  if (!command) command = client.commands.get(client.aliases.get(cmd));
-
-  if (command) command.run(client, message, args, cmd);
-
-  if (cmd !== "") {
-    action(cmd, message); //135
+const client: ClientDiscord = new ClientDiscord(
+  {
+    partials: ["CHANNEL", "MESSAGE", "GUILD_MEMBER", "REACTION"],
+    intents: [
+      Intents.FLAGS.GUILDS,
+      Intents.FLAGS.GUILD_MEMBERS,
+      Intents.FLAGS.GUILD_VOICE_STATES,
+      Intents.FLAGS.GUILD_MESSAGES,
+      Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+    ],
+    allowedMentions: {
+      parse: ["users", "roles"],
+      repliedUser: false,
+    },
+  },
+  {
+    prefix: _config.prefix,
+    ownerId: _config.ownerId,
   }
+);
+client.categories = readdirSync(path.join(__dirname, "commands"));
+
+client.distube = new DisTube(client, {
+  emitNewSongOnly: true,
+  leaveOnFinish: true,
+  emitAddSongWhenCreatingQueue: false,
+  plugins: [new SpotifyPlugin()],
+  youtubeDL: false,
 });
+
+//events
+handler.antiCrash(client);
+handler.loadEvents(client);
+handler.loadCommands(client);
+handler.loadSlashCommands(client);
 
 client.login(_config.token);
 

@@ -1,5 +1,13 @@
-import { Client, DMChannel, Message, NewsChannel, TextChannel, VoiceChannel, VoiceConnection } from "discord.js";
-import ClientDiscord from "../classes/ClientDiscord";
+import {
+  Client,
+  DMChannel,
+  Message,
+  NewsChannel,
+  TextChannel,
+  VoiceChannel,
+} from "discord.js";
+import { VoiceConnection } from "@discordjs/voice";
+import ClientDiscord from '../classes/ClientDiscord';
 
 export type ICommand = {
   name: string;
@@ -7,12 +15,13 @@ export type ICommand = {
   description: string;
   usage: string | null;
   aliases: string[];
+  ownerOnly: boolean;
   run: (
-    client: Client,
+    client: ClientDiscord,
     msg: Message,
     args: string[],
     cmd: string
-  ) => Promise<Message | undefined | void>;
+  ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
 export type Param = {
@@ -35,8 +44,14 @@ export type Song = {
 };
 
 export type SongQueue = {
-  voice_channel: VoiceChannel,
-  text_channel: TextChannel | DMChannel | NewsChannel,
-  connection: VoiceConnection | null,
-  songs: Song[],
+  voice_channel: VoiceChannel;
+  text_channel: TextChannel | DMChannel | NewsChannel;
+  connection: VoiceConnection | null;
+  songs: Song[];
+};
+
+export type ClientConfig = {
+  botId?: string,
+  prefix: string,
+  ownerId: string
 }

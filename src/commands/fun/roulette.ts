@@ -1,4 +1,4 @@
-import { Client, Message } from "discord.js";
+import { Client, Message, MessageEmbedOptions } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import { random as getRandom } from "../../shared/utils/helpers";
 
@@ -8,6 +8,7 @@ const pull: ICommand = {
   description: "Juego de la Ruleta Rusa",
   usage: "<player>(+) (Excepto tú)",
   aliases: [],
+  ownerOnly: false,
   run: async (__: Client, message: Message, _: string[], ___: string) => {
     const Death = require("death-games");
 
@@ -39,11 +40,11 @@ const pull: ICommand = {
     );
 
     /*const colector = message.channel.createMessageCollector(msg => ruleta.game.turno == msg.author.id && !isNaN(msg.content)) */
-    const colector = message.channel.createMessageCollector(
-      (msg) =>
-        ruleta.game.turno == msg.author.id &&
-        msg.content.toLowerCase() === "roll"
-    );
+    const colector = message.channel.createMessageCollector({
+      filter: (msg) =>
+        ruleta.game.turno === msg.author.id &&
+        msg.content.toLowerCase() === "roll",
+    });
 
     colector.on("collect", (msg) => {
       /*if(!Number.isSafeInteger(+(msg.content))) return msg.reply("Necesitas introducir un número más pequeño!")*/ //Si el número es excesivamente grande
@@ -53,7 +54,7 @@ const pull: ICommand = {
       let muertoXD = ruleta.elegir(roll);
       //Elegimos el número de veces a girar el tambor del revólver
       if (muertoXD) {
-        const e = {
+        const e: MessageEmbedOptions = {
           color: /*0x0099ff*/ "RANDOM",
           title: `Los soplones, pum pum pum, al agua!`,
           description: msg.author.toString() + " ha muerto! Se acabó la ronda!",
@@ -64,7 +65,7 @@ const pull: ICommand = {
             )}.gif`,
           },
         };
-        message.channel.send({ embed: e });
+        message.channel.send({ embeds: [e] });
         colector.stop();
         return;
       } else {

@@ -8,50 +8,49 @@ const pull: ICommand = {
   description: `Tirar un(os) dado(s)\nLímite de tiros: 20\nLímite de caras: 100`,
   usage: "[<tiros>d<caras>]",
   aliases: [],
+  ownerOnly: false,
   run: async (__: Client, msg: Message, args: string[], _: string) => {
     const root =
       "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612837856";
-    if (args[0] === undefined) {
+    if (!args[0]) {
       const img = new MessageAttachment(
         `${root}/d6/d${random(1, 6).toString()}.png`
       );
-      msg.channel.send(img);
-      //msg.channel.send(`${random(1, 6)}`);
+      msg.channel.send({ files: [img] });
     } else {
       let imgs = [];
-      const dados = [4, 6, 12];
+      const pixelDices = [4, 6, 12];
       let text = args[0].split("d");
-      let myDado = parseInt(text[1]);
-      let tiros = parseInt(text[0]);
-      if (tiros > 20) tiros = 20;
-      if (tiros < 1) tiros = 1;
-      if (myDado > 100) myDado = 100;
-      if (myDado < 2) myDado = 2;
-      if (dados.includes(myDado) === true) {
-        let results = [];
-        for (let i = 0; i < tiros; i++) {
-          //console.log(i)
-          let r = random(1, myDado).toString();
+      let diceFaces = parseInt(text[1]);
+      let throws = parseInt(text[0]);
+      if (throws > 20) throws = 20;
+      if (throws < 1) throws = 1;
+      if (diceFaces > 100) diceFaces = 100;
+      if (diceFaces < 2) diceFaces = 2;
+      if (pixelDices.includes(diceFaces)) {
+        let results: string[] = []; //controlador de repetidos
+        for (let i = 0; i < throws; i++) {
+          let r = random(1, diceFaces).toString();
           let img = new MessageAttachment(
-            `./multimedia/d${myDado.toString()}/d${r}.png`
+            `${root}/d${diceFaces.toString()}/d${r}.png`
           );
           //msg.channel.send(img); //sol chicha
-          if (results.includes(r) === true) {
-            msg.channel.send(imgs);
+          //Evita que se repita los dados porque no manda repetidos
+          if (results.includes(r)) {
+            msg.channel.send({ files: imgs });
             imgs.length = 0;
             results.length = 0;
           }
           results.push(r);
           imgs.push(img);
         }
-        //console.log(imgs);
-        msg.channel.send(imgs);
+        msg.channel.send({ files: imgs });
       } else {
         let results = [];
-        for (let i = 0; i < tiros; i++) {
-          results.push(random(1, myDado));
+        for (let i = 0; i < throws; i++) {
+          results.push(random(1, diceFaces));
         }
-        msg.channel.send(results);
+        msg.channel.send({ content: results.join(', ')});
       }
     }
   },

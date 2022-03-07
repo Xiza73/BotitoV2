@@ -7,6 +7,7 @@ const pull: ICommand = {
   description: "Info facherita",
   usage: null,
   aliases: [],
+  ownerOnly: false,
   run: async (client: Client, msg: Message, __: string[], _: string) => {
     const exampleEmbed: MessageEmbed | MessageEmbedOptions | undefined = {
       color: 0xff2d00,
@@ -48,7 +49,7 @@ const pull: ICommand = {
     };
 
     msg.channel.send({
-      embed: exampleEmbed,
+      embeds: [exampleEmbed],
     });
   },
 };

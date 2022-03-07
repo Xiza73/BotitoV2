@@ -1,4 +1,4 @@
-import { Client, Message } from "discord.js";
+import { Client, Message, Util, MessageEmbedOptions } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import _config from "../../config/config";
 import fetch from "cross-fetch";
@@ -11,6 +11,7 @@ const pull: ICommand = {
   description: "Agrega un miembro a la base de datos de Gmi2",
   usage: "<name> <user> <dayBirthday> <monthBirthday>",
   aliases: ["add"],
+  ownerOnly: false,
   run: async (client: Client, msg: Message, args: string[], _: string) => {
     if (
       msg.member!.roles.highest.name !== "Staff" &&
@@ -50,17 +51,16 @@ const pull: ICommand = {
       });
       const data: any = await response.json();
 
-      const embed = {
+      const embed: MessageEmbedOptions = {
         color: "RANDOM",
         title: `Status: ${data.statusCode}`,
         description: data.message,
         timestamp: new Date(),
       };
 
-      msg.channel.send({ embed });
-      return;
+      return msg.channel.send({ embeds: [embed] });
     } catch (error) {
-      msg.channel.send(`Error al crear usuario: ${error}`);
+      return msg.channel.send(`Error al crear usuario: ${error}`);
     }
   },
 };

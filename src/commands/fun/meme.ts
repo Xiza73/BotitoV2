@@ -9,6 +9,7 @@ const pull: ICommand = {
   description: "Envía un momito",
   usage: "[category]",
   aliases: [],
+  ownerOnly: false,
   run: async (__: Client, message: Message, args: string[], _: string) => {
     const subReddits = ["meme", "me_irl", "memes", "wholesomememes"];
     const animeReddits = ["wholesomeanimemes"];
@@ -29,7 +30,7 @@ const pull: ICommand = {
       .setTitle(`From /r/${random}`)
       .setURL(`https://reddit.com/r/${random}`);
 
-    message.channel.send(embed);
+    message.channel.send({ embeds: [embed] });
   },
 };
 

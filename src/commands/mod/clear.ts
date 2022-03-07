@@ -3,23 +3,24 @@ import { ICommand } from "../../shared/types/types";
 
 const pull: ICommand = {
   name: "clear",
-  category: "moderation",
+  category: "mod",
   description: "Limpia el chat",
   usage: "[cantidad]",
   aliases: [],
+  ownerOnly: false,
   run: async (__: Client, message: Message, args: string[], _: string) => {
     /* if (message.deletable) {
       message.delete();
     } */
 
     // Member doesn't have permissions
-    if (!message.member!.hasPermission("MANAGE_MESSAGES")) {
+    if (!message.member!.permissions.has("MANAGE_MESSAGES")) {
       return message
         .reply("No tienes permisos para eliminar mensajes...")
         .then((m) =>
-          m.delete({
-            timeout: 5000,
-          })
+          setTimeout(() => {
+            m.delete();
+          }, 5000)
         );
     }
 
@@ -30,19 +31,19 @@ const pull: ICommand = {
           "Por favor selecciona una cantidad de mensajes a eliminar apropiada."
         )
         .then((m) =>
-          m.delete({
-            timeout: 5000,
+          setTimeout(() => {
+            m.delete();
           })
         );
     }
 
     // Maybe the bot can't delete messages
-    if (!message.guild!.me!.hasPermission("MANAGE_MESSAGES")) {
+    if (!message.guild!.me!.permissions.has("MANAGE_MESSAGES")) {
       return message
         .reply("No cuento con permisos para eliminar mensajes.")
         .then((m) =>
-          m.delete({
-            timeout: 5000,
+          setTimeout(() => {
+            m.delete();
           })
         );
     }
@@ -63,7 +64,9 @@ const pull: ICommand = {
         message.channel
           .send(`\`${deleted.size - 1}\` mensajes borrados.`)
           .then((msg) => {
-            msg.delete({ timeout: 5000 });
+            setTimeout(() => {
+              msg.delete();
+            });
           })
           .catch((err) => message.reply(`Error: ${err}`))
       )

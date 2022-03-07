@@ -7,6 +7,7 @@ const pull: ICommand = {
   usage: null,
   aliases: [],
   description: "Sintaxis de los comandos",
+  ownerOnly: false,
   run: async (__: Client, message: Message, _: string[], ___: string) => {
     let s = "";
     s += `\`<>\` : obligatorio
@@ -19,7 +20,7 @@ const pull: ICommand = {
       title: `Sintaxis`,
       description: s,
     };
-    message.channel.send({ embed: exampleEmbed });
+    message.channel.send({ embeds: [exampleEmbed] });
   },
 };
 
