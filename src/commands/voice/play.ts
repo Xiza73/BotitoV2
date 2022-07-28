@@ -1,4 +1,4 @@
-import { GuildTextBasedChannel, Message, EmbedBuilder } from "discord.js";
+import { GuildTextBasedChannel, Message, MessageEmbed } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 const pull: ICommand = {
@@ -57,8 +57,8 @@ const pull: ICommand = {
           client.distube.setVolume(voiceChannel, volume);
           return msg.channel.send({
             embeds: [
-              new EmbedBuilder()
-                .setColor("Blue")
+              new MessageEmbed()
+                .setColor("BLUE")
                 .setDescription(`📶 Volumen al \`${volume}%\``),
             ],
           });
@@ -80,21 +80,21 @@ const pull: ICommand = {
           return msg.channel.send({ content: "⏯️" });
         }
         case "queue": {
-          const embed = new EmbedBuilder({
+          const embed = new MessageEmbed({
             description: `${queue?.songs.map(
               (song, id) =>
                 `\n**${id + 1}**. ${song.name} - \`${song.formattedDuration}\``
             )}`,
-          }).setColor("Blue");
+          }).setColor("BLUE");
           return msg.channel.send({ embeds: [embed] });
         }
         default:
           return;
       }
     } catch (err) {
-      const errEmbed = new EmbedBuilder({
+      const errEmbed = new MessageEmbed({
         description: `Alert: ${err}`,
-      }).setColor("Red");
+      }).setColor("RED");
       return msg.reply({ embeds: [errEmbed] });
     }
   },

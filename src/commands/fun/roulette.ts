@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { Client, MessageEmbed, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import { random as getRandom } from "../../shared/utils/helpers";
 
@@ -54,8 +54,8 @@ const pull: ICommand = {
       const muertoXD = ruleta.elegir(roll);
       // Elegimos el número de veces a girar el tambor del revólver
       if (muertoXD) {
-        const e = new EmbedBuilder()
-          .setColor("Random")
+        const e = new MessageEmbed()
+          .setColor("RANDOM")
           .setTitle("Los soplones, pum pum pum, al agua!")
           .setDescription(
             msg.author.toString() + " ha muerto! Se acabó la ronda!\n"

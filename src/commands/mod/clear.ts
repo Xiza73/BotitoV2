@@ -14,7 +14,7 @@ const pull: ICommand = {
     } */
 
     // Member doesn't have permissions
-    if (!message.member!.permissions.has("ManageMessages")) {
+    if (!message.member!.permissions.has("MANAGE_MESSAGES")) {
       return message
         .reply("No tienes permisos para eliminar mensajes...")
         .then((m) =>
@@ -38,7 +38,7 @@ const pull: ICommand = {
     }
 
     // Maybe the bot can't delete messages
-    if (!message.member?.permissions.has("ManageMessages")) {
+    if (!message.member?.permissions.has("MANAGE_MESSAGES")) {
       return message
         .reply("No cuento con permisos para eliminar mensajes.")
         .then((m) =>

@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, CommandInteraction } from "discord.js";
+import { CommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
     const args = [];
 
     for (const option of interaction.options.data) {
-      if (option.type === ApplicationCommandOptionType.Subcommand) {
+      if (option.type === "SUB_COMMAND") {
         if (option.name) args.push(option.name);
         option.options?.forEach((x) => {
           if (x.value) args.push(x.value);

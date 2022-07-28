@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, Client } from "discord.js";
+import { Message, MessageEmbed, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ICommand } from "../../shared/types/types";
 
@@ -54,12 +54,12 @@ const pull: ICommand = {
           });
 
         // This is what it commands when using the command without arguments
-        const helpEmbed = new EmbedBuilder()
+        const helpEmbed = new MessageEmbed()
           .setTitle(`${client.user?.username} Help`)
           .setDescription(
             ` Hola **<@${message.author.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!\n**Cantidad de comandos:** ${client.commands.size}\n**Cantidad de /comandos:** ${client.slashCommands.size}`
           )
-          .setColor("Random")
+          .setColor("RANDOM")
           .addFields(info);
 
         message.reply({
@@ -93,7 +93,7 @@ const pull: ICommand = {
           const aliases = command?.aliases || "No aliases provided";
           const category = command?.category || "No category provided!";
 
-          const helpCmdEmbed = new EmbedBuilder()
+          const helpCmdEmbed = new MessageEmbed()
             .setTitle(
               `${
                 client.user?.username
@@ -105,7 +105,7 @@ const pull: ICommand = {
               { name: "Aliases", value: `${aliases}` },
               { name: "Category", value: `${category}` }
             )
-            .setColor("Random");
+            .setColor("RANDOM");
 
           message.reply({
             embeds: [helpCmdEmbed],

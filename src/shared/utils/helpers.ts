@@ -1,4 +1,6 @@
-import { IDate, Param } from "../types/types";
+import { AnyChannel, MessageOptions, MessagePayload } from 'discord.js';
+import ClientDiscord from '../classes/ClientDiscord';
+import { IDate, Param, Week, Month } from '../types/types';
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -38,27 +40,21 @@ export const dateToUTC5 = (date: Date) => {
 
   const utc5: IDate = {
     day,
-    month: date.getUTCMonth() + 1,
+    month: (date.getUTCMonth() + 1) as Month,
     year: date.getUTCFullYear(),
     hours,
     minutes: date.getUTCMinutes(),
-    week,
+    week: week as Week,
   };
 
   return utc5;
 };
 
-export const month: string[] = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Setiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
+export const channelSender = (client: ClientDiscord, idChannel: string, msg: string | MessagePayload | MessageOptions) => {
+  const channel: AnyChannel | undefined = client.channels.cache.find(
+    (channel) => channel.id === idChannel
+  );
+  if (!channel || !channel?.isText()) return;
+
+  channel.send(msg);
+}

@@ -29,13 +29,16 @@ export type Param = {
   value: string;
 };
 
+export type Week = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type Month = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+
 export type IDate = {
   day: number;
-  month: number;
+  month: Month;
   year: number;
   hours: number;
   minutes: number;
-  week: number;
+  week: Week;
 };
 
 export type Song = {

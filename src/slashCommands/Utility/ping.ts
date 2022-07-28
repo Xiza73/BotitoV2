@@ -9,7 +9,7 @@ module.exports = {
   run: async (client: ClientDiscord, interaction: CommandInteraction) => {
     const msg = await interaction.channel?.send(`🏓 Pinging...`);
 
-    const pingEmbed = new Discord.EmbedBuilder()
+    const pingEmbed = new Discord.MessageEmbed()
       .setTitle(":signal_strength: Bot Ping")
       .addFields([
         {
@@ -25,7 +25,7 @@ module.exports = {
           inline: true,
         },
       ])
-      .setColor("Random");
+      .setColor("RANDOM");
 
     await interaction.followUp({ embeds: [pingEmbed] });
 

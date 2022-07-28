@@ -1,116 +1,71 @@
-import { Message, EmbedBuilder } from "discord.js";
-import _config from "../../config";
+import { Message, MessageEmbed } from "discord.js";
 import { dateToUTC5, random } from "./helpers";
 import client from "../../discord";
 import { reminder } from "./birthdayReminder";
-
-const estrellitas = [
-  "0.png",
-  "1.gif",
-  "2.gif",
-  "3.gif",
-  "4.png",
-  "1.gif",
-  "3.gif",
-];
+import {
+  thursdayEmbedController,
+  goodMorning,
+  fridayEmbedController,
+} from "./goodMorning";
+import { IDate } from "../types/types";
+import calendar from "../constants/calendar";
 
 export const action = (comando: string, msg: Message): any => {
   // COMANDOS
   const comandos: any = {
     role: async function () {
-      const s = msg.toString();
-      const texto = s.split(" ");
-      if (!texto[1]) {
-        const role = msg.member!.roles.highest;
-        if (role.name === "Admin") {
-          console.log("admin");
-          return;
-        }
-        console.log("wtf");
+      const role = msg.member!.roles.highest;
+      if (role.name === "Staff" || role.name === "Admin") {
+        msg.channel.send(`Role: ${role.name} ⭐`);
         return;
       }
-      const mentions = msg.mentions.users.map((x) => x.id);
-      if (!mentions) msg.channel.send(`Mencione un usuario!`);
-      const user = await client.users.fetch(mentions[0]);
-      msg.channel.send(`Suma: ${user}`);
+      msg.channel.send(`Role: ${role.name}`);
     },
     suma: function () {
       let error = false;
       let suma = 0;
       const s = msg.toString();
       const texto = s.split(" ");
-      for (let i = 1; i < texto.length; i++) {
-        if (Number.isNaN(parseFloat(texto[i]))) {
-          error = true;
-          break;
-        } else {
-          console.log("wtf xd");
-          suma += parseFloat(texto[i]);
+      try {
+        for (let i = 1; i < texto.length; i++) {
+          if (Number.isNaN(parseFloat(texto[i]))) {
+            error = true;
+            break;
+          } else {
+            suma += parseFloat(texto[i]);
+          }
         }
-      }
-      if (error) {
+        if (error) {
+          msg.channel.send(`Error, parámetro no aceptado`);
+        } else {
+          msg.channel.send(`Suma: ${suma}`);
+        }
+      } catch (error) {
         msg.channel.send(`Error, parámetro no aceptado`);
-      } else {
-        msg.channel.send(`Suma: ${suma}`);
       }
     },
     time: function () {
-      const hoy = dateToUTC5(new Date());
-      const format = `${hoy.day}/${hoy.month}/${hoy.year} - ${hoy.hours}:${hoy.minutes} - ${hoy.week}`;
+      const today = dateToUTC5(new Date());
+      const format = `${calendar.weekdays[today.week]} - ${
+        today.day < 10 ? "0" + today.day : today.day
+      }/${today.month < 10 ? "0" + today.month : today.month}/${today.year} - ${
+        today.hours
+      }:${today.minutes}`;
       msg.channel.send(format);
-    },
-    attack: function () {
-      const s = msg.toString();
-      const texto = s.split(" ");
-      msg.channel.send(`${texto[1]} muere rechuchatumare >:v`);
     },
     cum: function () {
       reminder(client);
     },
     morning: function () {
-      const exampleEmbed = new EmbedBuilder({
-        color: 0xecff07,
-        title: "Buenos días estrellitas!",
-        description: `La tierra les dice holaaaaa`,
-        thumbnail: {
-          url: `${_config.photodb}/willy.jpg`,
-        },
-        image: {
-          url: `${_config.photodb}/estrellitas/${estrellitas[random(0, 4)]}`,
-        },
-        timestamp: new Date(),
-      });
-
-      msg.channel.send({ embeds: [exampleEmbed] });
+      goodMorning(client);
     },
     jueves: function () {
-      const exampleEmbed = new EmbedBuilder({
-        color: 0xf14d00,
-        title: "Feliz Jueves!",
-        image: {
-          url: `${_config.photodb}/asuka.gif`,
-        },
-        timestamp: new Date(),
-      });
-
-      msg.channel.send({ embeds: [exampleEmbed] });
+      const { week }: IDate = dateToUTC5(new Date());
+      msg.channel.send({ embeds: [thursdayEmbedController(week)!] });
     },
     viernes: function () {
-      const exampleEmbed = new EmbedBuilder({
-        color: 0x0099ff,
-        title: "PREPARATE LA PUTA QUE TE RE PARIÓ",
-        description: `**Porque Los viernes de la jungla serán a todo ojete**
-            todo ojete todo ojete; ojete, ojete, ojete
-            **Para vivir una noche con las mejores putas de la zona**
-            No te la podes perder hijo de re mil, porque si no estás allí; andate a la concha de la lora
-            **Te esperamos para que vivas una noche de la puta madre**`,
-        image: {
-          url: `${_config.photodb}/viernes.gif`,
-        },
-        timestamp: new Date(),
-      });
-
-      msg.channel.send({ embeds: [exampleEmbed] });
+      const { week }: IDate = dateToUTC5(new Date());
+      msg.channel.send({ embeds: [fridayEmbedController(week)!] });
     },
     hola: function () {
       msg.channel.send(`Hola ${msg.member!.user} ^u^`);
@@ -137,11 +92,15 @@ export const action = (comando: string, msg: Message): any => {
       );
     },
     mention: function () {
-      console.log(msg.mentions.users);
+      let res = "";
+      msg.mentions.users.forEach((x) => {
+        res += `${x.username} `;
+      });
+      msg.channel.send(res);
     },
     // EMBEDS
     embed1: function () {
-      const exampleEmbed = new EmbedBuilder({
+      const exampleEmbed = new MessageEmbed({
         color: 0x0099ff,
         title: "Some title",
         url: "https://discord.js.org",
@@ -193,7 +152,7 @@ export const action = (comando: string, msg: Message): any => {
       msg.channel.send({ embeds: [exampleEmbed] });
     },
     examplembed: function () {
-      const embed = new EmbedBuilder()
+      const embed = new MessageEmbed()
         .setTitle("Título")
         .setColor(0x5e9de4) // color barra izquierda
         .setDescription("descipción")

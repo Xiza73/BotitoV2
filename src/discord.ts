@@ -1,4 +1,4 @@
-import { Partials } from "discord.js";
+import { Intents } from "discord.js";
 import { readdirSync } from "fs";
 import path from "path";
 import _config from "./config";
@@ -9,18 +9,13 @@ import * as handler from "./handlers";
 
 const client: ClientDiscord = new ClientDiscord(
   {
-    partials: [
-      Partials.Channel,
-      Partials.Message,
-      Partials.GuildMember,
-      Partials.Reaction,
-    ],
+    partials: ["CHANNEL", "MESSAGE", "REACTION", "GUILD_MEMBER"],
     intents: [
-      "Guilds",
-      "GuildMembers",
-      "GuildVoiceStates",
-      "GuildMessages",
-      "GuildMessageReactions",
+      Intents.FLAGS.GUILDS,
+      Intents.FLAGS.GUILD_MEMBERS,
+      Intents.FLAGS.GUILD_VOICE_STATES,
+      Intents.FLAGS.GUILD_MESSAGES,
+      Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     ],
     allowedMentions: {
       parse: ["users", "roles"],
@@ -39,6 +34,7 @@ client.distube = new DisTube(client, {
   leaveOnFinish: true,
   emitAddSongWhenCreatingQueue: false,
   plugins: [new SpotifyPlugin()],
+  youtubeDL: false, 
 });
 
 (async () => {

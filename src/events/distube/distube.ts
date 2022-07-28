@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import { Queue } from "distube";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
@@ -8,7 +8,7 @@ module.exports = {
   execute(client: ClientDiscord) {
     const status = (queue: Queue) =>
       `Volumen: \`${queue.volume}%\` | Filtro: \`${
-        queue.filters.add(", ") || "❌"
+        queue.filters.join(", ") || "❌"
       }\` | Loop: \`${
         queue.repeatMode
           ? queue.repeatMode === 2
@@ -20,8 +20,8 @@ module.exports = {
       .on("playSong", (queue, song) => {
         return queue.textChannel?.send({
           embeds: [
-            new EmbedBuilder()
-              .setColor("Aqua")
+            new MessageEmbed()
+              .setColor("AQUA")
               .setDescription(
                 `🎵 | Sonando \`${song.name}\` - \`${
                   song.formattedDuration
@@ -33,8 +33,8 @@ module.exports = {
       .on("addSong", (queue, song) =>
         queue.textChannel?.send({
           embeds: [
-            new EmbedBuilder()
-              .setColor("Random")
+            new MessageEmbed()
+              .setColor("RANDOM")
               .setDescription(
                 `👌| Agregada ${song.name} - \`${song.formattedDuration}\` to the queue by ${song.user}`
               ),
@@ -44,8 +44,8 @@ module.exports = {
       .on("addList", (queue, playlist) =>
         queue.textChannel?.send({
           embeds: [
-            new EmbedBuilder()
-              .setColor("Random")
+            new MessageEmbed()
+              .setColor("RANDOM")
               .setDescription(
                 `👌 | Agregada \`${playlist.name}\` playlist (${
                   playlist.songs.length

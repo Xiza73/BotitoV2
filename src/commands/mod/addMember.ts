@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { Client, MessageEmbed, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import _config from "../../config";
 import fetch from "cross-fetch";
@@ -51,11 +51,11 @@ const pull: ICommand = {
       });
       const data: any = await response.json();
 
-      const embed = new EmbedBuilder({
+      const embed = new MessageEmbed({
         title: `Status: ${data.statusCode}`,
         description: data.message,
         timestamp: new Date(),
-      }).setColor("Random");
+      }).setColor("RANDOM");
 
       return msg.channel.send({ embeds: [embed] });
     } catch (error) {
