@@ -1,6 +1,6 @@
-import { Client, Message, MessageEmbedOptions, User } from "discord.js";
+import { Client, EmbedBuilder, Message, User } from "discord.js";
 import { ICommand, Param } from "../../shared/types/types";
-import _config from "../../config/config";
+import _config from "../../config";
 import fetch from "cross-fetch";
 import { month, setParams } from "../../shared/utils/helpers";
 
@@ -21,7 +21,7 @@ const pull: ICommand = {
     let res;
     let user: User;
     try {
-      let mentions = msg.mentions.users.map((x) => x.id);
+      const mentions = msg.mentions.users.map((x) => x.id);
       if (!mentions || mentions.length === 0) {
         const params: Param[] = [
           {
@@ -61,8 +61,7 @@ const pull: ICommand = {
       }
       if (res.statusCode !== 200) return msg.channel.send(`${res.message}`);
 
-      const embed: MessageEmbedOptions = {
-        color: "RANDOM",
+      const embed = new EmbedBuilder({
         title: "Información de usuario",
         author: {
           name: user.username,
@@ -79,7 +78,7 @@ const pull: ICommand = {
             }`,
           },
         ],
-      };
+      }).setColor("Random");
 
       msg.channel.send({ embeds: [embed] });
       return;

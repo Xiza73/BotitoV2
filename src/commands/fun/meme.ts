@@ -1,6 +1,6 @@
 import { ICommand } from "../../shared/types/types";
 
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, EmbedBuilder } from "discord.js";
 import randomPuppy from "random-puppy";
 
 const pull: ICommand = {
@@ -24,8 +24,8 @@ const pull: ICommand = {
       random = subReddits[Math.floor(Math.random() * subReddits.length)];
     }
     const img = await randomPuppy(random);
-    const embed = new MessageEmbed()
-      .setColor("RANDOM")
+    const embed = new EmbedBuilder()
+      .setColor("Random")
       .setImage(img)
       .setTitle(`From /r/${random}`)
       .setURL(`https://reddit.com/r/${random}`);

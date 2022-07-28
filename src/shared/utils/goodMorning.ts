@@ -1,7 +1,8 @@
-import _config from "../../config/config";
-import ClientDiscord from '../classes/ClientDiscord';
+import { Channel, EmbedBuilder } from "discord.js";
+import _config from "../../config";
+import ClientDiscord from "../classes/ClientDiscord";
 import { IDate } from "../types/types";
-import { dateToUTC_5 } from "./helpers";
+import { dateToUTC5 } from "./helpers";
 
 const root = _config.photodb;
 const estrellitas = [
@@ -15,56 +16,51 @@ const estrellitas = [
 ];
 
 export const goodMorning = (client: ClientDiscord) => {
-  const hoy: IDate = dateToUTC_5(new Date());
-  const gmi2Gaming: any = client.channels.cache.find(
+  const hoy: IDate = dateToUTC5(new Date());
+  const gmi2Gaming: Channel | undefined = client.channels.cache.find(
     (channel) => channel.id === "752251099355938856"
   );
-  // 8 0 4
-  if (hoy.hours === 8) {
-    let img = `${root}/estrellitas/${estrellitas[hoy.week]}`;
-    const embed = {
-      color: 0xecff07,
-      title: "Buenos días estrellitas!",
-      description: `La tierra les dice holaaaaa`,
-      thumbnail: {
-        url: `${root}/willy.jpg`,
-      },
-      image: {
-        url: img,
-      },
-      timestamp: hoy,
-    };
-    if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed });
-    //Jueves
-    if (hoy.week == 4) {
-      const jEmbed = {
-        color: 0xf14d00,
-        title: "Feliz Jueves!",
-        image: {
-          url: `${root}/asuka.gif`,
-        },
-        timestamp: new Date(),
-      };
+  const img = `${root}/estrellitas/${estrellitas[hoy.week]}`;
 
-      if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed: jEmbed });
-    }
-    //Viernes
-    if (hoy.week == 5) {
-      const exampleEmbed = {
-        color: 0x0099ff,
-        title: "PREPARATE LA PUTA QUE TE RE PARIÓ",
-        description: `**Porque Los viernes de la jungla serán a todo ojete**
+  const embed = new EmbedBuilder()
+    .setColor(0xecff07)
+    .setTitle("Buenos días estrellitas!")
+    .setDescription("La tierra les dice holaaaaa")
+    .setThumbnail(`${root}/willy.jpg`)
+    .setImage(img);
+
+  if (gmi2Gaming?.isTextBased()) {
+    gmi2Gaming.send({ embeds: [embed] });
+  }
+  // Jueves
+  if (hoy.week === 3) {
+    const jEmbed = new EmbedBuilder({
+      color: 0xf14d00,
+      title: "Feliz Jueves!",
+      image: {
+        url: `${root}/asuka.gif`,
+      },
+      timestamp: new Date(),
+    });
+
+    if (gmi2Gaming?.isTextBased()) gmi2Gaming.send({ embeds: [jEmbed] });
+  }
+  // Viernes
+  if (hoy.week === 5) {
+    const vEmbed = new EmbedBuilder({
+      color: 0x0099ff,
+      title: "PREPARATE LA PUTA QUE TE RE PARIÓ",
+      description: `**Porque Los viernes de la jungla serán a todo ojete**
           todo ojete todo ojete; ojete, ojete, ojete
           **Para vivir una noche con las mejores putas de la zona**
           No te la podes perder hijo de re mil, porque si no estás allí; andate a la concha de la lora
           **Te esperamos para que vivas una noche de la puta madre**`,
-        image: {
-          url: `${root}/viernes.gif`,
-        },
-        timestamp: new Date(),
-      };
+      image: {
+        url: `${root}/viernes.gif`,
+      },
+      timestamp: new Date(),
+    });
 
-      if (gmi2Gaming?.isText()) gmi2Gaming.send({ embed: exampleEmbed });
-    }
+    if (gmi2Gaming?.isTextBased()) gmi2Gaming.send({ embeds: [vEmbed] });
   }
 };

@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { Queue } from "distube";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
@@ -8,7 +8,7 @@ module.exports = {
   execute(client: ClientDiscord) {
     const status = (queue: Queue) =>
       `Volumen: \`${queue.volume}%\` | Filtro: \`${
-        queue.filters.join(", ") || "❌"
+        queue.filters.add(", ") || "❌"
       }\` | Loop: \`${
         queue.repeatMode
           ? queue.repeatMode === 2
@@ -20,8 +20,8 @@ module.exports = {
       .on("playSong", (queue, song) => {
         return queue.textChannel?.send({
           embeds: [
-            new MessageEmbed()
-              .setColor("AQUA")
+            new EmbedBuilder()
+              .setColor("Aqua")
               .setDescription(
                 `🎵 | Sonando \`${song.name}\` - \`${
                   song.formattedDuration
@@ -33,8 +33,8 @@ module.exports = {
       .on("addSong", (queue, song) =>
         queue.textChannel?.send({
           embeds: [
-            new MessageEmbed()
-              .setColor("RANDOM")
+            new EmbedBuilder()
+              .setColor("Random")
               .setDescription(
                 `👌| Agregada ${song.name} - \`${song.formattedDuration}\` to the queue by ${song.user}`
               ),
@@ -44,8 +44,8 @@ module.exports = {
       .on("addList", (queue, playlist) =>
         queue.textChannel?.send({
           embeds: [
-            new MessageEmbed()
-              .setColor("RANDOM")
+            new EmbedBuilder()
+              .setColor("Random")
               .setDescription(
                 `👌 | Agregada \`${playlist.name}\` playlist (${
                   playlist.songs.length
@@ -55,7 +55,7 @@ module.exports = {
         })
       )
       .on("error", (channel, e) => {
-        channel.send(`📛 | Error encontrado: ${e.toString().slice(0, 1974)}`);
+        channel?.send(`📛 | Error encontrado: ${e.toString().slice(0, 1974)}`);
         console.error(e);
       })
       .on("empty", (queue) => {
@@ -69,9 +69,9 @@ module.exports = {
         message.channel.send(`❌ | No hay resultados para \`${query}\`!`)
       )
       .on("finish", (queue) => {
-          setTimeout(() => {
-            return queue.textChannel?.send("Cola vacía, adiós!");              
-          }, 5000);
+        setTimeout(() => {
+          return queue.textChannel?.send("Cola vacía, adiós!");
+        }, 5000);
       });
   },
 };

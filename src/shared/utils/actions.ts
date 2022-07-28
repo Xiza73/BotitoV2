@@ -1,6 +1,6 @@
-import { Message, MessageEmbed } from "discord.js";
-import _config from "../../config/config";
-import { dateToUTC_5, random } from "./helpers";
+import { Message, EmbedBuilder } from "discord.js";
+import _config from "../../config";
+import { dateToUTC5, random } from "./helpers";
 import client from "../../discord";
 import { reminder } from "./birthdayReminder";
 
@@ -15,14 +15,12 @@ const estrellitas = [
 ];
 
 export const action = (comando: string, msg: Message): any => {
-  //COMANDOS
+  // COMANDOS
   const comandos: any = {
     role: async function () {
-      let s = msg.toString();
-      let texto = s.split(" ");
+      const s = msg.toString();
+      const texto = s.split(" ");
       if (!texto[1]) {
-        const userId = msg.member?.id;
-
         const role = msg.member!.roles.highest;
         if (role.name === "Admin") {
           console.log("admin");
@@ -31,7 +29,7 @@ export const action = (comando: string, msg: Message): any => {
         console.log("wtf");
         return;
       }
-      let mentions = msg.mentions.users.map((x) => x.id);
+      const mentions = msg.mentions.users.map((x) => x.id);
       if (!mentions) msg.channel.send(`Mencione un usuario!`);
       const user = await client.users.fetch(mentions[0]);
       msg.channel.send(`Suma: ${user}`);
@@ -39,8 +37,8 @@ export const action = (comando: string, msg: Message): any => {
     suma: function () {
       let error = false;
       let suma = 0;
-      let s = msg.toString();
-      let texto = s.split(" ");
+      const s = msg.toString();
+      const texto = s.split(" ");
       for (let i = 1; i < texto.length; i++) {
         if (Number.isNaN(parseFloat(texto[i]))) {
           error = true;
@@ -57,20 +55,20 @@ export const action = (comando: string, msg: Message): any => {
       }
     },
     time: function () {
-      const hoy = dateToUTC_5(new Date());
+      const hoy = dateToUTC5(new Date());
       const format = `${hoy.day}/${hoy.month}/${hoy.year} - ${hoy.hours}:${hoy.minutes} - ${hoy.week}`;
       msg.channel.send(format);
     },
     attack: function () {
-      let s = msg.toString();
-      let texto = s.split(" ");
+      const s = msg.toString();
+      const texto = s.split(" ");
       msg.channel.send(`${texto[1]} muere rechuchatumare >:v`);
     },
     cum: function () {
       reminder(client);
     },
     morning: function () {
-      const exampleEmbed = {
+      const exampleEmbed = new EmbedBuilder({
         color: 0xecff07,
         title: "Buenos días estrellitas!",
         description: `La tierra les dice holaaaaa`,
@@ -81,24 +79,24 @@ export const action = (comando: string, msg: Message): any => {
           url: `${_config.photodb}/estrellitas/${estrellitas[random(0, 4)]}`,
         },
         timestamp: new Date(),
-      };
+      });
 
       msg.channel.send({ embeds: [exampleEmbed] });
     },
     jueves: function () {
-      const exampleEmbed = {
+      const exampleEmbed = new EmbedBuilder({
         color: 0xf14d00,
         title: "Feliz Jueves!",
         image: {
           url: `${_config.photodb}/asuka.gif`,
         },
         timestamp: new Date(),
-      };
+      });
 
       msg.channel.send({ embeds: [exampleEmbed] });
     },
     viernes: function () {
-      const exampleEmbed = {
+      const exampleEmbed = new EmbedBuilder({
         color: 0x0099ff,
         title: "PREPARATE LA PUTA QUE TE RE PARIÓ",
         description: `**Porque Los viernes de la jungla serán a todo ojete**
@@ -110,7 +108,7 @@ export const action = (comando: string, msg: Message): any => {
           url: `${_config.photodb}/viernes.gif`,
         },
         timestamp: new Date(),
-      };
+      });
 
       msg.channel.send({ embeds: [exampleEmbed] });
     },
@@ -118,8 +116,8 @@ export const action = (comando: string, msg: Message): any => {
       msg.channel.send(`Hola ${msg.member!.user} ^u^`);
     },
     id: function () {
-      let userId = msg.mentions.users.map((x) => x.id);
-      let username = msg.mentions.users.map((x) => x.username);
+      const userId = msg.mentions.users.map((x) => x.id);
+      const username = msg.mentions.users.map((x) => x.username);
       if (username[0]) {
         msg.channel.send(
           `${username[0]} tu id es: ${userId} y tu dirección ip: ${random(
@@ -141,9 +139,9 @@ export const action = (comando: string, msg: Message): any => {
     mention: function () {
       console.log(msg.mentions.users);
     },
-    //EMBEDS
+    // EMBEDS
     embed1: function () {
-      const exampleEmbed = {
+      const exampleEmbed = new EmbedBuilder({
         color: 0x0099ff,
         title: "Some title",
         url: "https://discord.js.org",
@@ -190,26 +188,42 @@ export const action = (comando: string, msg: Message): any => {
           text: "Some footer text here",
           icon_url: "https://i.imgur.com/wSTFkRM.png",
         },
-      };
+      });
 
       msg.channel.send({ embeds: [exampleEmbed] });
     },
     examplembed: function () {
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle("Título")
-        .setColor(0x5e9de4) //color barra izquierda
+        .setColor(0x5e9de4) // color barra izquierda
         .setDescription("descipción")
-        .addField("Field en una línea", "Contenido del field")
-        .addField("Field en media línea", "content1", true)
-        .addField("Field en media línea", "content2", true)
-        .setAuthor(msg.member!.displayName, msg.author.avatarURL()!) //apodo
-        //.setAuthor(client.user.username, client.user.avatarURL()) //bot
+        .addFields([
+          {
+            name: "Field en una línea",
+            value: "Contenido del field",
+          },
+          {
+            name: "Field en media línea",
+            value: "content1",
+            inline: false,
+          },
+          {
+            name: "Field en media línea",
+            value: "content2",
+            inline: false,
+          },
+        ])
+        .setAuthor({
+          name: msg.member!.displayName,
+          iconURL: msg.author.avatarURL()!,
+        })
+        // .setAuthor(client.user.username, client.user.avatarURL()) //bot
         .setThumbnail("https://media.giphy.com/media/euMGM3uD3NHva/giphy.gif")
         .setImage("https://media.giphy.com/media/euMGM3uD3NHva/giphy.gif")
-        .setFooter(
-          `Solicitado por: ${msg.member!.displayName}`,
-          msg.author.avatarURL()!
-        )
+        .setFooter({
+          text: `Solicitado por: ${msg.member!.displayName}`,
+          iconURL: msg.author.avatarURL()!,
+        })
         .setTimestamp();
 
       msg.channel.send({ embeds: [embed] });

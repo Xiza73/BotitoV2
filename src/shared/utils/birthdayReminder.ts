@@ -1,12 +1,12 @@
-import _config from "../../config/config";
+import _config from "../../config";
 import ClientDiscord from "../classes/ClientDiscord";
 import fetch from "cross-fetch";
-import { dateToUTC_5 } from "./helpers";
+import { dateToUTC5 } from "./helpers";
 
 const apiUrl = _config.api;
 
 export const reminder = async (client: ClientDiscord) => {
-  const hoy = dateToUTC_5(new Date());
+  const hoy = dateToUTC5(new Date());
   const gmi2Gaming: any = client.channels.cache.find(
     (channel) => channel.id === "752251099355938856"
   );
@@ -26,10 +26,7 @@ export const reminder = async (client: ClientDiscord) => {
   // 0 0 4
   if (hoy.hours === 0) {
     users.forEach(async (e: any) => {
-      if (
-        hoy.day === e.birthdayDay &&
-        hoy.month === e.birthdayMonth
-      ) {
+      if (hoy.day === e.birthdayDay && hoy.month === e.birthdayMonth) {
         try {
           const user = await client.users.fetch(e.discordId);
           const embed = {
@@ -48,8 +45,8 @@ export const reminder = async (client: ClientDiscord) => {
                   },
                 ], */
             image: {
-              //url: "https://frasesabias.com/wp-content/uploads/2019/10/gif-feliz-cumplea%C3%B1os-amiga-gatito.gif",
-              url: "https://i.pinimg.com/736x/f8/28/57/f82857d4da012fba311ea8040e163d5e.jpg"
+              // url: "https://frasesabias.com/wp-content/uploads/2019/10/gif-feliz-cumplea%C3%B1os-amiga-gatito.gif",
+              url: "https://i.pinimg.com/736x/f8/28/57/f82857d4da012fba311ea8040e163d5e.jpg",
             },
             timestamp: new Date(),
           };

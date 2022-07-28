@@ -1,7 +1,7 @@
-import { Client, Message, MessageEmbed, MessageEmbedOptions } from "discord.js";
+import fetch from "cross-fetch";
+import { Client, Message, EmbedBuilder } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import { random as getRandom } from "../../shared/utils/helpers";
-import fetch from "cross-fetch";
 
 const pull: ICommand = {
   name: "poke",
@@ -46,9 +46,7 @@ const pull: ICommand = {
       } else if (args[0] === "shiny") {
         message.channel.send(`No seas marik ${message.member!.user} >:v`);
       } else if (args[0] === "battle") {
-        if (args[1]) {
-        } else {
-        }
+        // TODO: Implementar batalla
       } else if (types.includes(args[0])) {
         fetchType(args[0], message, client);
       } else {
@@ -97,14 +95,14 @@ function pintarCard(poke: any, message: Message) {
     type = `\`${poke.type[0]}\` \`${poke.type[1]}\``;
   }
 
-  const exampleEmbed: MessageEmbed | MessageEmbedOptions | undefined = {
+  const exampleEmbed = new EmbedBuilder({
     color: 0x0099ff,
     title: `${poke.name}${poke.shiny} #${poke.order}`,
     description: type,
-    /*author: {
+    /* author: {
           name: message.member.displayName, 
           icon_url: message.author.avatarURL(),
-        },*/
+        }, */
     fields: [
       {
         name: "HP",
@@ -121,11 +119,11 @@ function pintarCard(poke: any, message: Message) {
         value: `\`${poke.stats.defense}\``,
         inline: true,
       },
-      /*{
+      /* {
             name: '\u200b',
             value: '\u200b',
             inline: false,
-          },*/
+          }, */
       {
         name: "Speed",
         value: `\`${poke.stats.speed}\``,
@@ -149,9 +147,8 @@ function pintarCard(poke: any, message: Message) {
       text: `Pokémon para ${message.member!.displayName}`,
       icon_url: message.author.avatarURL()!,
     },
-  };
-  if (message.channel?.isText())
-    message.channel.send({ embeds: [exampleEmbed] });
+  });
+  message.channel.send({ embeds: [exampleEmbed] });
 }
 
 function modelData(data: any, id: number) {
@@ -162,7 +159,7 @@ function modelData(data: any, id: number) {
     data.sprites.front_shiny_female,
   ];
   let img;
-  let name = capitalizeFirstLetter(data.name);
+  const name = capitalizeFirstLetter(data.name);
   let order = "";
   const type = [];
   let shiny = "";
@@ -175,7 +172,7 @@ function modelData(data: any, id: number) {
     spdef: data.stats[4].base_stat,
   };
 
-  //IMG
+  // IMG
   if (getRandom(0, 49) === 1) {
     img = sprites[getRandom(0, sprites.length - 1)];
   } else {
@@ -186,12 +183,12 @@ function modelData(data: any, id: number) {
     shiny = " ⭐️";
   }
 
-  //TYPE
+  // TYPE
   for (let i = 0; i <= data.types.length - 1; i++) {
     type[i] = capitalizeFirstLetter(data.types[i].type.name);
   }
 
-  //ORDER
+  // ORDER
   if (data.order === null || data.order === -1 || data.order === 0) {
     order = id.toString();
   } else {

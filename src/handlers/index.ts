@@ -1,9 +1,10 @@
-import fs from "fs";
-import chalk from "chalk";
+import { readdirSync } from "fs";
+
 import ClientDiscord from "../shared/classes/ClientDiscord";
 import { ICommand } from "../shared/types/types";
 import { ApplicationCommandDataResolvable } from "discord.js";
 import path from "path";
+import chalk from "chalk";
 
 const checkHandler = (
   type: "Event" | "Command" | "SlashCommand",
@@ -11,25 +12,22 @@ const checkHandler = (
   status: 0 | 1
 ) => {
   if (status === 1)
-    return ` ✔️  => ${type} \'${file.substring(
-      0,
-      file.length - 3
-    )}\' is ready `;
-  return ` ❌  => ${type} \'${file.substring(
+    return ` ✔️  => ${type} '${file.substring(0, file.length - 3)}' is ready `;
+  return ` ❌  => ${type} '${file.substring(
     0,
     file.length - 3
-  )}\' missing a help.name or help.name is not in string `;
+  )}' missing a help.name or help.name is not in string `;
 };
 
 export const loadEvents = async (client: ClientDiscord) => {
-  const eventFolders = fs.readdirSync(path.resolve(__dirname, "./../events"));
+  const eventFolders = readdirSync(path.resolve(__dirname, "./../events"));
   for (const folder of eventFolders) {
-    const eventFiles = fs
-      .readdirSync(path.resolve(__dirname, `./../events/${folder}`))
-      .filter((file) => file.endsWith(".js"));
+    const eventFiles = readdirSync(
+      path.resolve(__dirname, `./../events/${folder}`)
+    ).filter((file) => file.endsWith(".js"));
 
     for (const file of eventFiles) {
-      const event = require(`../events/${folder}/${file}`);
+      const event = await import(`../events/${folder}/${file}`);
 
       if (event.name) {
         console.log(chalk.bgYellowBright.black(checkHandler("Event", file, 1)));
@@ -58,19 +56,16 @@ type IPull = {
   default: ICommand;
 };
 export const loadCommands = async (client: ClientDiscord) => {
-  const commandFolders = fs.readdirSync(
-    path.resolve(__dirname, "./../commands")
-  );
+  const commandFolders = readdirSync(path.resolve(__dirname, "./../commands"));
   for (const folder of commandFolders) {
-    const commandFiles = fs
-      .readdirSync(path.resolve(__dirname, `./../commands/${folder}`))
-      .filter((file) => file.endsWith(".js"));
+    const commandFiles = readdirSync(
+      path.resolve(__dirname, `./../commands/${folder}`)
+    ).filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      const pull: IPull = require(path.resolve(
-        __dirname,
-        `./../commands/${folder}/${file}`
-      ));
+      const pull: IPull = await import(
+        path.resolve(__dirname, `./../commands/${folder}/${file}`)
+      );
 
       if (pull.default?.name) {
         client.commands.set(pull.default.name, pull.default);
@@ -82,10 +77,11 @@ export const loadCommands = async (client: ClientDiscord) => {
         continue;
       }
 
-      if (pull.default.aliases && Array.isArray(pull.default))
+      if (pull.default.aliases && Array.isArray(pull.default.aliases))
         pull.default.aliases.forEach((alias) =>
           client.aliases.set(alias, pull.default.name)
         );
+
     }
   }
 };
@@ -94,21 +90,20 @@ export const loadCommands = async (client: ClientDiscord) => {
  * Load SlashCommands
  */
 export const loadSlashCommands = async (client: ClientDiscord) => {
-  let slash: ApplicationCommandDataResolvable[] = [];
+  const slash: ApplicationCommandDataResolvable[] = [];
 
-  const commandFolders = fs.readdirSync(
+  const commandFolders = readdirSync(
     path.resolve(__dirname, "./../slashCommands")
   );
   for (const folder of commandFolders) {
-    const commandFiles = fs
-      .readdirSync(path.resolve(__dirname, `./../slashCommands/${folder}`))
-      .filter((file) => file.endsWith(".js"));
+    const commandFiles = readdirSync(
+      path.resolve(__dirname, `./../slashCommands/${folder}`)
+    ).filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      const command = require(path.resolve(
-        __dirname,
-        `../slashCommands/${folder}/${file}`
-      ));
+      const command = await import(
+        path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
+      );
 
       if (command.name) {
         client.slashCommands.set(command.name, command);
@@ -136,7 +131,7 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
   });
 };
 
-export const antiCrash = (_: ClientDiscord) => {
+export const antiCrash = async (_: ClientDiscord) => {
   process.on("unhandledRejection", (reason, p) => {
     console.log(" [antiCrash] :: Unhandled Rejection/Catch");
     console.log(reason, p);

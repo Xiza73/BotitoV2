@@ -6,6 +6,12 @@ module.exports = {
   name: "messageCreate",
   type: "client",
   async execute(message: Message, client: ClientDiscord) {
+    console.log(client.config.prefix);
+    console.log(message.author.bot);
+    console.log(message.content.toLowerCase());
+    console.log(message.cleanContent);
+    console.log(message);
+
     if (
       message.author.bot ||
       !message.guild ||
@@ -32,10 +38,14 @@ module.exports = {
           });
         }
       }
+      console.log("xd");
 
       await command.run(client, message, args, cmd);
     }
 
-    if (cmd !== "") action(cmd, message);
+    if (cmd !== "") {
+      console.log("v:");
+      action(cmd, message);
+    }
   },
 };

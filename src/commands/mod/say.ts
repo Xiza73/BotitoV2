@@ -1,5 +1,5 @@
 import { ICommand } from "../../shared/types/types";
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, EmbedBuilder } from "discord.js";
 
 const pull: ICommand = {
   name: "say",
@@ -8,10 +8,10 @@ const pull: ICommand = {
   usage: "<input>",
   aliases: [],
   ownerOnly: false,
-  run: (__: Client, message: Message, args: string[], _: string) => {
+  run: async (__: Client, message: Message, args: string[], _: string) => {
     message.delete();
 
-    if (!message.member!.permissions.has("MANAGE_MESSAGES"))
+    if (!message.member!.permissions.has("ManageMessages"))
       return message
         .reply("You don't have the required permissions to use this command.")
         .then((m) =>
@@ -28,9 +28,9 @@ const pull: ICommand = {
       );
 
     if (args[0].toLowerCase() === "embed") {
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setDescription(args.slice(1).join(" "))
-        .setColor("WHITE");
+        .setColor("White");
 
       return message.channel.send({ embeds: [embed] });
     } else {

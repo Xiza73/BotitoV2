@@ -1,5 +1,4 @@
 import { CronJob } from "cron";
-import cron from "cron";
 import ClientDiscord from "./ClientDiscord";
 
 export default class ScheduleMessage {
@@ -27,20 +26,37 @@ export default class ScheduleMessage {
         end: 5 0-4 * * * *
         again: 10 4-8 * * * *
     */
-    this._action = new cron.CronJob("0 0-4 * * * *", () => {
-      //console.log("message");
-      message(client)
-      this.done = true;
-    });
-    this._stopController = new cron.CronJob("5 0-4 * * * *", () => {
-      if (this.done) this.action.stop();
-    });
-    this._startController = new cron.CronJob("10 4-8  * * * *", () => {
-      if (this.done) {
-        this.action.start();
-        this.done = false;
-      }
-    });
+    this._action = new CronJob(
+      `0 0-4 0 * * *`,
+      () => {
+        message(client);
+        this.done = true;
+      },
+      null,
+      true,
+      "America/Lima"
+    );
+    this._stopController = new CronJob(
+      `0 5-9  * * *`,
+      () => {
+        if (this.done) this.action.stop();
+      },
+      null,
+      true,
+      "America/Lima"
+    );
+    this._startController = new CronJob(
+      `10 4-8  * * * *`,
+      () => {
+        if (this.done) {
+          this.action.start();
+          this.done = false;
+        }
+      },
+      null,
+      true,
+      "America/Lima"
+    );
     this._stopController.start();
     this._startController.start();
     this._done = false;

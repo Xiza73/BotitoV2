@@ -1,2 +1,4 @@
-import './app'
-import './discord'
+import "./app";
+(async () => {
+  await import("./discord");
+})();

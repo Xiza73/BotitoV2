@@ -1,8 +1,15 @@
-import ResponseBase from './ResponseBase';
+import { ResponseBase } from "./ResponseBase";
 
-export default class ResponseData extends ResponseBase {
-    constructor(public statusCode: number, public message: string, public data: any) {
-        super(statusCode, message);
-    }
-  }
-  
+export interface ResponseData extends ResponseBase {
+  data: any;
+}
+
+export default (
+  statusCode: number,
+  message: string,
+  data: any
+): ResponseData => ({
+  statusCode,
+  message,
+  data,
+});

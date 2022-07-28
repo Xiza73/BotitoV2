@@ -1,1 +1,1 @@
-declare module 'death-games';
+declare module "death-games";

@@ -1,4 +1,4 @@
-import { Client, Message, MessageAttachment } from "discord.js";
+import { Client, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import { random } from "../../shared/utils/helpers";
 
@@ -13,14 +13,12 @@ const pull: ICommand = {
     const root =
       "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612837856";
     if (!args[0]) {
-      const img = new MessageAttachment(
-        `${root}/d6/d${random(1, 6).toString()}.png`
-      );
+      const img = `${root}/d6/d${random(1, 6).toString()}.png`;
       msg.channel.send({ files: [img] });
     } else {
-      let imgs = [];
+      const imgs = [];
       const pixelDices = [4, 6, 12];
-      let text = args[0].split("d");
+      const text = args[0].split("d");
       let diceFaces = parseInt(text[1]);
       let throws = parseInt(text[0]);
       if (throws > 20) throws = 20;
@@ -28,14 +26,12 @@ const pull: ICommand = {
       if (diceFaces > 100) diceFaces = 100;
       if (diceFaces < 2) diceFaces = 2;
       if (pixelDices.includes(diceFaces)) {
-        let results: string[] = []; //controlador de repetidos
+        const results: string[] = []; // controlador de repetidos
         for (let i = 0; i < throws; i++) {
-          let r = random(1, diceFaces).toString();
-          let img = new MessageAttachment(
-            `${root}/d${diceFaces.toString()}/d${r}.png`
-          );
-          //msg.channel.send(img); //sol chicha
-          //Evita que se repita los dados porque no manda repetidos
+          const r = random(1, diceFaces).toString();
+          const img = `${root}/d${diceFaces.toString()}/d${r}.png`;
+          // msg.channel.send(img); //sol chicha
+          // Evita que se repita los dados porque no manda repetidos
           if (results.includes(r)) {
             msg.channel.send({ files: imgs });
             imgs.length = 0;
@@ -46,11 +42,11 @@ const pull: ICommand = {
         }
         msg.channel.send({ files: imgs });
       } else {
-        let results = [];
+        const results = [];
         for (let i = 0; i < throws; i++) {
           results.push(random(1, diceFaces));
         }
-        msg.channel.send({ content: results.join(', ')});
+        msg.channel.send({ content: results.join(", ") });
       }
     }
   },

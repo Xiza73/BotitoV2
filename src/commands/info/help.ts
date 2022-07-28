@@ -1,9 +1,6 @@
-import { Message, MessageEmbed, Client } from "discord.js";
+import { Message, EmbedBuilder, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ICommand } from "../../shared/types/types";
-import Discord from "discord.js";
-import { readdirSync } from "fs";
-import { stripIndents } from "common-tags";
 
 const pull: ICommand = {
   name: "help",
@@ -19,27 +16,26 @@ const pull: ICommand = {
     _: string
   ) => {
     // Buttons that take you to a link
-    const row = new Discord.MessageActionRow().addComponents(
-      new Discord.MessageButton()
-        .setLabel("GitHub")
-        .setStyle("LINK")
-        .setURL("https://github.com/Xiza73/BotitoV2"),
-      new Discord.MessageButton()
-        .setLabel("Support")
-        .setStyle("LINK")
-        .setURL("https://discord.gg/4GgvywcG")
-    );
+    /* const row: ActionRowData<
+      MessageActionRowComponentBuilder | MessageActionRowComponentData | AnyComponentBuilder
+    > = {
+      ...new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("GitHub")
+          .setStyle(ButtonStyle.Link)
+          .setURL("https://github.com/Xiza73/BotitoV2"),
+        new ButtonBuilder()
+          .setLabel("Support")
+          .setStyle(ButtonStyle.Link)
+          .setURL("https://discord.gg/4GgvywcG")
+      ),
+      type: ComponentType.ActionRow,
+    }  */
+
+    // Buttons that take you to a link for v14 discordjs
 
     if (client instanceof ClientDiscord) {
       if (!args[0]) {
-        // This is what it commands when using the command without arguments
-        const helpEmbed = new MessageEmbed()
-          .setTitle(`${client.user?.username} Help`)
-          .setDescription(
-            ` Hola **<@${message.author.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!\n**Cantidad de comandos:** ${client.commands.size}\n**Cantidad de /comandos:** ${client.slashCommands.size}`
-          )
-          .setColor("RANDOM");
-
         // Get all commands
         const commands = (category: string) => {
           return client.commands
@@ -48,23 +44,28 @@ const pull: ICommand = {
             .join(", ");
         };
 
-        const info: { category: string; commands: string }[] =
+        const info: { name: string; value: string; inline: boolean }[] =
           client.categories.map((cat: string) => {
             return {
-              category: `▫ ${cat[0].toUpperCase() + cat.slice(1)} Commands`,
-              commands: `${commands(cat)}`,
+              name: `▫ ${cat[0].toUpperCase() + cat.slice(1)} Commands`,
+              value: `${commands(cat)}`,
+              inline: true,
             };
           });
-        //.reduce((string: string, category: string) => string + "\n\n" + category);
 
-        info.forEach((i) => {
-          helpEmbed.addField(i.category, i.commands, true);
-        });
+        // This is what it commands when using the command without arguments
+        const helpEmbed = new EmbedBuilder()
+          .setTitle(`${client.user?.username} Help`)
+          .setDescription(
+            ` Hola **<@${message.author.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!\n**Cantidad de comandos:** ${client.commands.size}\n**Cantidad de /comandos:** ${client.slashCommands.size}`
+          )
+          .setColor("Random")
+          .addFields(info);
 
         message.reply({
           embeds: [helpEmbed],
           allowedMentions: { repliedUser: false },
-          components: [row],
+          // components: [row],
         });
       } else {
         const command =
@@ -81,18 +82,18 @@ const pull: ICommand = {
           });
         } else {
           // This is what it sends when using the command with argument and if it finds the command
-          let command =
+          const command =
             client.commands.get(args[0].toLowerCase()) ||
             client.commands.find(
               (c) => c.aliases && c.aliases.includes(args[0].toLowerCase())
             );
-          let name = command?.name;
-          let description = command?.description || "No descrpition provided";
-          let usage = command?.usage || "No usage provided";
-          let aliases = command?.aliases || "No aliases provided";
-          let category = command?.category || "No category provided!";
+          const name = command?.name;
+          const description = command?.description || "No descrpition provided";
+          const usage = command?.usage || "No usage provided";
+          const aliases = command?.aliases || "No aliases provided";
+          const category = command?.category || "No category provided!";
 
-          let helpCmdEmbed = new MessageEmbed()
+          const helpCmdEmbed = new EmbedBuilder()
             .setTitle(
               `${
                 client.user?.username
@@ -104,7 +105,7 @@ const pull: ICommand = {
               { name: "Aliases", value: `${aliases}` },
               { name: "Category", value: `${category}` }
             )
-            .setColor("RANDOM");
+            .setColor("Random");
 
           message.reply({
             embeds: [helpCmdEmbed],

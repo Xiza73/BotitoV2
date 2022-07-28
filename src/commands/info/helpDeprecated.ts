@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Client } from "discord.js";
+import { Message, EmbedBuilder, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ICommand } from "../../shared/types/types";
 import { stripIndents } from "common-tags";
@@ -37,8 +37,8 @@ function getAll(client: ClientDiscord, message: Message) {
     )
     .reduce((string: string, category: string) => string + "\n\n" + category);
 
-  const embed = new MessageEmbed()
-    .setColor("RANDOM")
+  const embed = new EmbedBuilder()
+    .setColor("Random")
     .setTitle("Comandos")
     .setDescription(info);
 
@@ -52,10 +52,10 @@ function getCMD(client: ClientDiscord, message: Message, input: string) {
 
   let info = `No hay información del comando **${input.toLowerCase()}**`;
 
-  const embed = new MessageEmbed();
+  const embed = new EmbedBuilder();
   if (!cmd) {
     return message.channel.send({
-      embeds: [embed.setColor("RED").setDescription(info)],
+      embeds: [embed.setColor("Red").setDescription(info)],
     });
   }
 
@@ -69,7 +69,7 @@ function getCMD(client: ClientDiscord, message: Message, input: string) {
   }
 
   return message.channel.send({
-    embeds: [embed.setColor("GREEN").setDescription(info)],
+    embeds: [embed.setColor("Green").setDescription(info)],
   });
 }
 

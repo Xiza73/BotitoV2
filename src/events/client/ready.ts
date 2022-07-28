@@ -1,24 +1,23 @@
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import ScheduleMessage from "../../shared/classes/ScheculeMessage";
+import ScheduleMessage from "../../shared/classes/ScheduleMessage";
 import { goodMorning } from "../../shared/utils/goodMorning";
 import { reminder } from "../../shared/utils/birthdayReminder";
+import { ActivityType } from "discord.js";
 
 module.exports = {
   name: "ready",
   once: true,
   type: "client",
   execute(client: ClientDiscord) {
-    const morning = new ScheduleMessage(goodMorning, client);
-    morning.action.start();
-    const birthday = new ScheduleMessage(reminder, client);
-    birthday.action.start();
+    ScheduleMessage(goodMorning, client, 19);
+    ScheduleMessage(reminder, client, 19);
     // Puts an activity
     client.user!.setPresence({
       status: "online",
       activities: [
         {
           name: `${client.config.prefix}help`,
-          type: "PLAYING",
+          type: ActivityType.Playing,
         },
       ],
     });
