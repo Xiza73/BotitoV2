@@ -1,10 +1,10 @@
-import { joinVoiceChannel } from "@discordjs/voice";
+import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Client, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 
 const pull: ICommand = {
   name: "connect",
-  category: "voice",
+  category: null, // arreglar voice adapter
   description: "Conectarse al canal de voz",
   usage: "<>",
   aliases: ["conn"],
@@ -24,9 +24,9 @@ const pull: ICommand = {
 
     joinVoiceChannel({
       channelId: voice.channelId,
-      guildId: guildId,
-      adapterCreator: guild?.voiceAdapterCreator,
-    }); //voice.channel?.join()
+      guildId,
+      adapterCreator: guild?.voiceAdapterCreator as DiscordGatewayAdapterCreator
+    }); // voice.channel?.join()
   },
 };
 

@@ -1,13 +1,6 @@
-import {
-  GuildTextBasedChannel,
-  Message,
-  MessageEmbed,
-  MessageEmbedOptions,
-} from "discord.js";
+import { GuildTextBasedChannel, Message, MessageEmbed } from "discord.js";
 import { ICommand } from "../../shared/types/types";
-import _config from "../../config/config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import ytdl from "ytdl-core";
 const pull: ICommand = {
   name: "play",
   category: "voice",
@@ -31,18 +24,15 @@ const pull: ICommand = {
     args: string[],
     cmd: string
   ) => {
-    const { member, guild, channel } = msg;
+    const { member, channel } = msg;
     const voiceChannel = member?.voice.channel;
 
     if (!voiceChannel)
       return msg.reply({ content: "Debes estar en un canal de voz!" });
 
-    if (
-      guild?.me?.voice.channelId &&
-      voiceChannel.id !== guild.me.voice.channelId
-    )
+    if (member?.voice?.channelId && voiceChannel.id !== member.voice.channelId)
       return msg.reply({
-        content: `Ya estoy reproduciendo música en <#${guild.me.voice.channelId}>`,
+        content: `Ya estoy reproduciendo música en <#${member.voice.channelId}>`,
       });
 
     try {
@@ -90,23 +80,21 @@ const pull: ICommand = {
           return msg.channel.send({ content: "⏯️" });
         }
         case "queue": {
-          const embed: MessageEmbedOptions = {
-            color: "BLUE",
+          const embed = new MessageEmbed({
             description: `${queue?.songs.map(
               (song, id) =>
                 `\n**${id + 1}**. ${song.name} - \`${song.formattedDuration}\``
             )}`,
-          };
+          }).setColor("BLUE");
           return msg.channel.send({ embeds: [embed] });
         }
         default:
           return;
       }
     } catch (err) {
-      const errEmbed: MessageEmbedOptions = {
-        color: "RED",
+      const errEmbed = new MessageEmbed({
         description: `Alert: ${err}`,
-      };
+      }).setColor("RED");
       return msg.reply({ embeds: [errEmbed] });
     }
   },

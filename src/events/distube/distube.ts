@@ -55,7 +55,7 @@ module.exports = {
         })
       )
       .on("error", (channel, e) => {
-        channel.send(`📛 | Error encontrado: ${e.toString().slice(0, 1974)}`);
+        channel?.send(`📛 | Error encontrado: ${e.toString().slice(0, 1974)}`);
         console.error(e);
       })
       .on("empty", (queue) => {
@@ -69,9 +69,9 @@ module.exports = {
         message.channel.send(`❌ | No hay resultados para \`${query}\`!`)
       )
       .on("finish", (queue) => {
-          setTimeout(() => {
-            return queue.textChannel?.send("Cola vacía, adiós!");              
-          }, 5000);
+        setTimeout(() => {
+          return queue.textChannel?.send("Cola vacía, adiós!");
+        }, 5000);
       });
   },
 };

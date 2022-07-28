@@ -1,1 +1,1 @@
-declare module 'discordjs-ytdl';
+declare module "discordjs-ytdl";

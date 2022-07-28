@@ -38,7 +38,7 @@ const pull: ICommand = {
     }
 
     // Maybe the bot can't delete messages
-    if (!message.guild!.me!.permissions.has("MANAGE_MESSAGES")) {
+    if (!message.member?.permissions.has("MANAGE_MESSAGES")) {
       return message
         .reply("No cuento con permisos para eliminar mensajes.")
         .then((m) =>

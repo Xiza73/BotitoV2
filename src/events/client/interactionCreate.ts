@@ -5,7 +5,7 @@ module.exports = {
   name: "interactionCreate",
   type: "client",
   execute(interaction: CommandInteraction, client: ClientDiscord) {
-    if (!interaction.isCommand()) return;
+    if (!interaction.command) return;
 
     const command = client.slashCommands.get(interaction.commandName);
     if (!command) return interaction.reply({ content: "an Error" });
@@ -21,7 +21,7 @@ module.exports = {
 
     const args = [];
 
-    for (let option of interaction.options.data) {
+    for (const option of interaction.options.data) {
       if (option.type === "SUB_COMMAND") {
         if (option.name) args.push(option.name);
         option.options?.forEach((x) => {

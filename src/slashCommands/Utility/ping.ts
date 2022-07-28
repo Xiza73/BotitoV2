@@ -1,5 +1,5 @@
-import Discord, { CommandInteraction } from 'discord.js';
-import ClientDiscord from '../../shared/classes/ClientDiscord';
+import Discord, { CommandInteraction } from "discord.js";
+import ClientDiscord from "../../shared/classes/ClientDiscord";
 // Example of how to make a SlashCommand
 
 module.exports = {
@@ -10,12 +10,24 @@ module.exports = {
     const msg = await interaction.channel?.send(`🏓 Pinging...`);
 
     const pingEmbed = new Discord.MessageEmbed()
-      .setTitle(':signal_strength: Bot Ping')
-      .addField("Time", `${Math.floor(msg!.createdAt.getTime() - interaction.createdAt.getTime())}ms`, true)
-      .addField("API Ping", `${client.ws.ping}ms`, true)
-      .setColor("RANDOM")
+      .setTitle(":signal_strength: Bot Ping")
+      .addFields([
+        {
+          name: "Time",
+          value: `${Math.floor(
+            msg!.createdAt.getTime() - interaction.createdAt.getTime()
+          )}ms`,
+          inline: true,
+        },
+        {
+          name: "API Ping",
+          value: `${client.ws.ping}ms`,
+          inline: true,
+        },
+      ])
+      .setColor("RANDOM");
 
-    await interaction.followUp({embeds: [pingEmbed]});
+    await interaction.followUp({ embeds: [pingEmbed] });
 
     msg?.delete();
   },

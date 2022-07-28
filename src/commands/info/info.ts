@@ -1,4 +1,4 @@
-import { Client, Message, MessageEmbed, MessageEmbedOptions } from "discord.js";
+import { Client, Message, MessageEmbed } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 
 const pull: ICommand = {
@@ -9,7 +9,7 @@ const pull: ICommand = {
   aliases: [],
   ownerOnly: false,
   run: async (client: Client, msg: Message, __: string[], _: string) => {
-    const exampleEmbed: MessageEmbed | MessageEmbedOptions | undefined = {
+    const exampleEmbed = new MessageEmbed({
       color: 0xff2d00,
       title: "Información del Servidor",
       author: {
@@ -46,7 +46,7 @@ const pull: ICommand = {
       image: {
         url: "https://i.kym-cdn.com/photos/images/facebook/001/456/420/c1b.png",
       },
-    };
+    });
 
     msg.channel.send({
       embeds: [exampleEmbed],

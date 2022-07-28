@@ -11,7 +11,7 @@ const pull: ICommand = {
   run: async (___: Client, message: Message, _: string[], __: string) => {
     const msg = await message.channel.send(`🏓 Pinging....`);
 
-    msg.edit(`🏓 Pong!
+    await msg.edit(`🏓 Pong!
         Latency is ${Math.floor(
           msg.createdTimestamp - message.createdTimestamp
         )}ms`);

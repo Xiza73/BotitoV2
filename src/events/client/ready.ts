@@ -1,5 +1,5 @@
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import ScheduleMessage from "../../shared/classes/ScheculeMessage";
+import ScheduleMessage from "../../shared/classes/ScheduleMessage";
 import { goodMorning } from "../../shared/utils/goodMorning";
 import { reminder } from "../../shared/utils/birthdayReminder";
 
@@ -8,10 +8,8 @@ module.exports = {
   once: true,
   type: "client",
   execute(client: ClientDiscord) {
-    const morning = new ScheduleMessage(goodMorning, client);
-    morning.action.start();
-    const birthday = new ScheduleMessage(reminder, client);
-    birthday.action.start();
+    ScheduleMessage(goodMorning, client, '8');
+    ScheduleMessage(reminder, client, '7');
     // Puts an activity
     client.user!.setPresence({
       status: "online",

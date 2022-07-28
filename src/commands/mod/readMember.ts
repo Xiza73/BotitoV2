@@ -1,8 +1,9 @@
-import { Client, Message, MessageEmbedOptions, User } from "discord.js";
-import { ICommand, Param } from "../../shared/types/types";
-import _config from "../../config/config";
+import { Client, MessageEmbed, Message, User } from "discord.js";
+import { ICommand, Month, Param } from "../../shared/types/types";
+import _config from "../../config";
 import fetch from "cross-fetch";
-import { month, setParams } from "../../shared/utils/helpers";
+import { setParams } from "../../shared/utils/helpers";
+import calendar from "../../shared/constants/calendar";
 
 const apiUrl = _config.api;
 
@@ -21,7 +22,7 @@ const pull: ICommand = {
     let res;
     let user: User;
     try {
-      let mentions = msg.mentions.users.map((x) => x.id);
+      const mentions = msg.mentions.users.map((x) => x.id);
       if (!mentions || mentions.length === 0) {
         const params: Param[] = [
           {
@@ -61,8 +62,7 @@ const pull: ICommand = {
       }
       if (res.statusCode !== 200) return msg.channel.send(`${res.message}`);
 
-      const embed: MessageEmbedOptions = {
-        color: "RANDOM",
+      const embed = new MessageEmbed({
         title: "Información de usuario",
         author: {
           name: user.username,
@@ -75,11 +75,11 @@ const pull: ICommand = {
           {
             name: "CUMpleaños",
             value: `${res.data.birthdayDay} de ${
-              month[parseInt(res.data.birthdayMonth) - 1]
+              calendar.months[(parseInt(res.data.birthdayMonth) - 1) as Month]
             }`,
           },
         ],
-      };
+      }).setColor("RANDOM");
 
       msg.channel.send({ embeds: [embed] });
       return;

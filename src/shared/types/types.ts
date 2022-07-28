@@ -1,13 +1,12 @@
+import { VoiceConnection } from "@discordjs/voice";
 import {
-  Client,
   DMChannel,
   Message,
   NewsChannel,
   TextChannel,
   VoiceChannel,
 } from "discord.js";
-import { VoiceConnection } from "@discordjs/voice";
-import ClientDiscord from '../classes/ClientDiscord';
+import ClientDiscord from "../classes/ClientDiscord";
 
 export type ICommand = {
   name: string;
@@ -21,6 +20,7 @@ export type ICommand = {
     msg: Message,
     args: string[],
     cmd: string
+  // eslint-disable-next-line no-undef
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
@@ -29,13 +29,16 @@ export type Param = {
   value: string;
 };
 
+export type Week = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type Month = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+
 export type IDate = {
   day: number;
-  month: number;
+  month: Month;
   year: number;
   hours: number;
   minutes: number;
-  week: number;
+  week: Week;
 };
 
 export type Song = {
@@ -51,7 +54,7 @@ export type SongQueue = {
 };
 
 export type ClientConfig = {
-  botId?: string,
-  prefix: string,
-  ownerId: string
-}
+  botId?: string;
+  prefix: string;
+  ownerId: string;
+};

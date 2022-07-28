@@ -1,6 +1,6 @@
-import { Client, Message, Util, MessageEmbedOptions } from "discord.js";
+import { Client, MessageEmbed, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
-import _config from "../../config/config";
+import _config from "../../config";
 import fetch from "cross-fetch";
 
 const apiUrl = _config.api;
@@ -29,7 +29,7 @@ const pull: ICommand = {
       return;
     }
     try {
-      let mentions = msg.mentions.users.map((x) => x.id);
+      const mentions = msg.mentions.users.map((x) => x.id);
       if (!mentions)
         return msg.channel.send(
           `Falta segundo argumento\nSintaxis: <name> <user> <dayBirthday> <monthBirthday>`
@@ -51,12 +51,11 @@ const pull: ICommand = {
       });
       const data: any = await response.json();
 
-      const embed: MessageEmbedOptions = {
-        color: "RANDOM",
+      const embed = new MessageEmbed({
         title: `Status: ${data.statusCode}`,
         description: data.message,
         timestamp: new Date(),
-      };
+      }).setColor("RANDOM");
 
       return msg.channel.send({ embeds: [embed] });
     } catch (error) {

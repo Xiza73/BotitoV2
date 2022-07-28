@@ -20,11 +20,11 @@ const pull: ICommand = {
   aliases: [],
   ownerOnly: false,
   run: async (__: Client, message: Message, _: string[], ___: string) => {
-    let author = [message.author.id];
+    const author = [message.author.id];
     let turn = 0;
-    let mencion = message.mentions.users.map((x) => x.id);
-    let players = message.mentions.users.map((x) => x.username);
-    let jugadores = author.concat(mencion); //Un array donde el primer elemento es el autor del mensaje, los demás los usuarios mencionados
+    const mencion = message.mentions.users.map((x) => x.id);
+    const players = message.mentions.users.map((x) => x.username);
+    const jugadores = author.concat(mencion); // Un array donde el primer elemento es el autor del mensaje, los demás los usuarios mencionados
     const img =
       "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612912935/ahorcado";
 
@@ -37,7 +37,7 @@ const pull: ICommand = {
       const json = require("../../multimedia/palabras.json");
       palabra = json[random(0, json.length - 1)].nombre;
     } else {
-      const channel = await message.author.createDM(); //Puedes definir un canal a donde se le preguntará la palabra al usuario
+      const channel = await message.author.createDM(); // Puedes definir un canal a donde se le preguntará la palabra al usuario
       channel.send("Elige tu palabra");
 
       await channel
@@ -59,7 +59,7 @@ const pull: ICommand = {
     }
 
     const ahorcado = new Death.Hangman(palabra, {
-      jugadores: jugadores,
+      jugadores,
       lowerCase: true,
       vidas: 7,
     });
@@ -69,7 +69,7 @@ const pull: ICommand = {
       let s = "";
       let vida = 0;
       if (game.winned) {
-        //Si el juego ha terminado y se ha descubierto toda la frase
+        // Si el juego ha terminado y se ha descubierto toda la frase
         s +=
           "El juego ha finalizado! La palabra era: **" +
           game.palabra +
@@ -82,7 +82,7 @@ const pull: ICommand = {
           "```";
         vida = 7;
       } else {
-        //Si ha terminado pero no han descubierto la frase
+        // Si ha terminado pero no han descubierto la frase
         s +=
           "Han perdido! La palabra era: **" +
           game.palabra +
@@ -103,7 +103,6 @@ const pull: ICommand = {
         },
       };
       message.channel.send({ embeds: [emb] });
-      return;
     });
 
     const e = {
@@ -127,7 +126,7 @@ const pull: ICommand = {
     });
 
     colector.on("collect", (msg) => {
-      let encontrado = ahorcado.find(msg.content);
+      const encontrado = ahorcado.find(msg.content);
       let s = "";
 
       if (ahorcado.game.ended) {

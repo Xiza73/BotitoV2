@@ -10,4 +10,6 @@ export default {
   api: process.env.api ?? "http://localhost:3000",
   apiytb: process.env.API_YTB ?? "",
   ownerId: process.env.OWNERID ?? "",
+  gmi2Channel: process.env.GMI2_CHANNEL ?? "",
+  photoRoot: process.env.PHOTO_ROOT ?? "",
 };

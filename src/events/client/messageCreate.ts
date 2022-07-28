@@ -36,6 +36,8 @@ module.exports = {
       await command.run(client, message, args, cmd);
     }
 
-    if (cmd !== "") action(cmd, message);
+    if (cmd !== "") {
+      action(cmd, message);
+    }
   },
 };

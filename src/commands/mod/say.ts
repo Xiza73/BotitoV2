@@ -8,7 +8,7 @@ const pull: ICommand = {
   usage: "<input>",
   aliases: [],
   ownerOnly: false,
-  run: (__: Client, message: Message, args: string[], _: string) => {
+  run: async (__: Client, message: Message, args: string[], _: string) => {
     message.delete();
 
     if (!message.member!.permissions.has("MANAGE_MESSAGES"))
