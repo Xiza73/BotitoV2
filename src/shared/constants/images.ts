@@ -5,7 +5,7 @@ const photoRoot = _config.photoRoot;
 
 export default {
   stars: {
-    0: `${root}/estrellitas/0.png`,
+    0: `${root}/estrellitas/4.png`,
     1: `${root}/estrellitas/1.gif`,
     2: `${root}/estrellitas/2.gif`,
     3: `${root}/estrellitas/3.gif`,
