@@ -2,6 +2,10 @@ import { Client, Message } from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import Death from "death-games";
 import { random } from "../../shared/utils/helpers";
+import words from "../../shared/data/words";
+import _config from "../../config";
+
+const { photoRoot } = _config;
 
 const change = (turno: number, ultimo: number, i: number) => {
   turno += i;
@@ -17,25 +21,27 @@ const pull: ICommand = {
   **Modo de juego 1:** Mencionas a los demás jugadores y tú escoges la palabra mediante un dm a Botito.
   **Modo de juego 2:** Te incluyes entre las menciones y Botito escoge una palabra al azar para que todos jueguen.`,
   usage: "<player>(+)",
-  aliases: [],
+  aliases: ["ahorcado"],
   ownerOnly: false,
   run: async (__: Client, message: Message, _: string[], ___: string) => {
     const author = [message.author.id];
     let turn = 0;
-    const mencion = message.mentions.users.map((x) => x.id);
-    const players = message.mentions.users.map((x) => x.username);
-    const jugadores = author.concat(mencion); // Un array donde el primer elemento es el autor del mensaje, los demás los usuarios mencionados
+    const lifes = 7;
+    const mentions = message.mentions.users.map((x) => x.id);
+    const users = message.mentions.users.map((x) => x.username);
+    const players = author.concat(mentions); // Un array donde el primer elemento es el autor del mensaje, los demás los usuarios mencionados
     const img =
       "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612912935/ahorcado";
 
-    if (!mencion.length)
+    if (!mentions.length)
       return message.channel.send("Tienes que mencionar mínimo a una persona!");
     if (message.mentions.users.map((x) => x.bot).some((x) => x))
       return message.channel.send("No puedes mencionar a un bot!");
-    let palabra = "a";
-    if (mencion.includes(message.author.id)) {
-      const json = require("../../multimedia/palabras.json");
-      palabra = json[random(0, json.length - 1)].nombre;
+    let word = "a";
+    if (mentions.includes(message.author.id)) {
+      // Si el autor del mensaje está entre los mencionados, Botito escoge una palabra al azar
+      word = words[random(0, words.length - 1)].nombre;
+      // word = "centímetro"; // Para pruebas
     } else {
       const channel = await message.author.createDM(); // Puedes definir un canal a donde se le preguntará la palabra al usuario
       channel.send("Elige tu palabra");
@@ -47,25 +53,25 @@ const pull: ICommand = {
           errors: ["time"],
           filter: (m: Message): boolean =>
             m.author.id === message.author.id &&
-            m.content.replace(/[^A-Za-z0-9áéíóú\u00f1]/g, "").length !== null,
+            m.content.replace(/[^A-Za-záéíóú\u00f1]/g, "").length !== null,
         })
         .then((collected) => {
-          palabra = collected
+          word = collected
             .first()!
-            .content.replace(/[^A-Za-z0-9áéíóú\u00f1 ]/g, "");
+            .content.replace(/[^A-Za-záéíóú\u00f1]/g, "");
         })
         .catch(() => channel.send("Tiempo agotado!"));
-      if (!palabra) return;
+      if (!word) return;
     }
 
-    const ahorcado = new Death.Hangman(palabra, {
-      jugadores,
+    const hangman = new Death.Hangman(word, {
+      jugadores: players,
       lowerCase: true,
-      vidas: 7,
+      vidas: lifes,
     });
 
-    ahorcado.on("end", (game: any) => {
-      turn = change(turn, players.length - 1, -1);
+    hangman.on("end", (game: any) => {
+      turn = change(turn, users.length - 1, -1);
       let s = "";
       let vida = 0;
       if (game.winned) {
@@ -75,12 +81,12 @@ const pull: ICommand = {
           game.palabra +
           "**\n" +
           "Descubierto por: **" +
-          players[turn] +
+          users[turn] +
           "**" +
           "```" +
           game.ascii.join(" ") +
           "```";
-        vida = 7;
+        vida = lifes;
       } else {
         // Si ha terminado pero no han descubierto la frase
         s +=
@@ -88,7 +94,7 @@ const pull: ICommand = {
           game.palabra +
           "**\n" +
           "Último error: **" +
-          players[turn] +
+          users[turn] +
           "**" +
           "```\n" +
           game.ascii.join(" ") +
@@ -99,76 +105,85 @@ const pull: ICommand = {
         title: `Ahorcado`,
         description: s,
         image: {
-          url: `${img}/${vida}.png`,
+          url: vida
+            ? `${img}/${vida}.png`
+            : `${photoRoot}/hangman/${random(0, 2)}.gif`,
         },
       };
       message.channel.send({ embeds: [emb] });
     });
 
-    const e = {
+    const firstMessage = {
       color: 0x0099ff,
       title: `Ahorcado`,
       description:
         "```\n" +
-        ahorcado.game.ascii.join(" ") +
+        hangman.game.ascii.join(" ") +
         "```**Empieza " +
-        players[turn] +
+        users[turn] +
         "**",
     };
-    turn = change(turn, players.length - 1, 1);
-    message.channel.send({ embeds: [e] });
+    turn = change(turn, users.length - 1, 1);
+    message.channel.send({ embeds: [firstMessage] });
 
     const colector = message.channel.createMessageCollector({
       filter: (msg) =>
-        msg.author.id === ahorcado.game.turno &&
-        /[A-Za-z0-9áéíóú\u00f1]/.test(msg.content) &&
-        msg.content.length === 1,
+        msg.author.id === hangman.game.turno &&
+        /[A-Za-záéíóú\u00f1]/.test(msg.content),
+      // && msg.content.length === 1,
     });
 
     colector.on("collect", (msg) => {
-      const encontrado = ahorcado.find(msg.content);
-      let s = "";
+      let encontrado: any = false;
+      if (msg.content.length > 1) {
+        if (word === msg.content)
+          for (let i = 0; i < word.length; i++)
+            if (!hangman.game.ascii.includes(word[i])) hangman.find(word[i]);
+      } else encontrado = hangman.find(msg.content);
 
-      if (ahorcado.game.ended) {
-        colector.stop();
-        return;
-      }
+      let details = "";
+
+      if (hangman.game.ended) return colector.stop();
 
       if (!encontrado) {
-        if (ahorcado.game.ascii.includes(msg.content)) {
-          s +=
+        if (hangman.game.ascii.includes(msg.content)) {
+          details +=
             '- La letra "' + msg.content + '" ya se encuentra en la palabra!';
         } else {
-          s +=
-            "- Vaya! Parece que la letra " +
-            msg.content +
-            " no se encontraba en la palabra!";
+          details += "- Vaya! Parece que la ";
+          details +=
+            msg.content.length > 1
+              ? "palabra " + "**" + msg.content + "**" + " no es correcta!"
+              : "letra " +
+                "**" +
+                msg.content +
+                "**" +
+                " no se encontraba en la palabra!";
         }
-        s +=
-          "\nLetras incorrectas: **[" +
-          ahorcado.game.letrasIncorrectas.join(", ") +
-          "]**";
       }
 
-      s +=
+      details +=
         "```\n" +
-        ahorcado.game.ascii.join(" ") +
+        hangman.game.ascii.join(" ") +
         "\n```" +
         "**Turno de " +
-        players[turn] +
+        users[turn] +
         "**\nIntentos restantes: **" +
-        ahorcado.game.vidas +
-        "**";
+        hangman.game.vidas +
+        "**" +
+        "\nLetras incorrectas: **[" +
+        hangman.game.letrasIncorrectas.join(", ") +
+        "]**";
 
       const myEmbed = {
         color: 0x0099ff,
         title: `Ahorcado`,
-        description: s,
+        description: details,
         image: {
-          url: `${img}/${ahorcado.game.vidas}.png`,
+          url: `${img}/${hangman.game.vidas}.png`,
         },
       };
-      turn = change(turn, players.length - 1, 1);
+      turn = change(turn, users.length - 1, 1);
       message.channel.send({ embeds: [myEmbed] });
     });
   },

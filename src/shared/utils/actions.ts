@@ -91,6 +91,27 @@ export const action = (comando: string, msg: Message): any => {
         )}.${random(82, 199)} 🕵`
       );
     },
+    ip: function () {
+      const userId = msg.mentions.users.map((x) => x.id);
+      const username = msg.mentions.users.map((x) => x.username);
+      if (username[0]) {
+        msg.channel.send(
+          `${username[0]} tu id es: ${userId} y tu dirección ip: ${random(
+            172,
+            199
+          )}.${random(210, 255)}.${random(51, 192)}.${random(82, 199)} 🕵`
+        );
+        return;
+      }
+      msg.channel.send(
+        `${msg.member!.user} tu id es: ${
+          msg.member!.id
+        } y tu dirección ip: ${random(172, 199)}.${random(210, 255)}.${random(
+          51,
+          192
+        )}.${random(82, 199)} 🕵`
+      );
+    },
     mention: function () {
       let res = "";
       msg.mentions.users.forEach((x) => {
