@@ -7,7 +7,7 @@ const pull: ICommand = {
   category: "fun",
   description: "Juego de la Ruleta Rusa",
   usage: "<player>(+) (Excepto tú)",
-  aliases: [],
+  aliases: ["ruleta"],
   ownerOnly: false,
   run: async (__: Client, message: Message, _: string[], ___: string) => {
     const Death = require("death-games");

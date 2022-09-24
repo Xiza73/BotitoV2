@@ -1,20 +1,19 @@
 import _config from "../../config";
 
-const root = _config.photodb;
-const photoRoot = _config.photoRoot;
+const { photoRoot } = _config;
 
 export default {
   stars: {
-    0: `${root}/estrellitas/4.png`,
-    1: `${root}/estrellitas/1.gif`,
-    2: `${root}/estrellitas/2.gif`,
-    3: `${root}/estrellitas/3.gif`,
-    4: `${root}/estrellitas/4.png`,
-    5: `${root}/estrellitas/1.gif`,
-    6: `${root}/estrellitas/3.gif`,
+    0: `${photoRoot}/good_morning/0.gif`,
+    1: `${photoRoot}/good_morning/1.png`,
+    2: `${photoRoot}/good_morning/2.gif`,
+    3: `${photoRoot}/good_morning/3.gif`,
+    4: `${photoRoot}/good_morning/4.gif`,
+    5: `${photoRoot}/good_morning/5.gif`,
+    6: `${photoRoot}/good_morning/6.gif`,
   },
-  willy: `${root}/willy.jpg`,
+  willy: `${photoRoot}/willy.jpg`,
   asukaGif: `${photoRoot}/asuka.gif`,
   asukaThumbnail: `${photoRoot}/asuka_thumb.gif`,
-  fridayGif: `${root}/viernes.gif`,
+  fridayGif: `${photoRoot}/viernes.gif`,
 };

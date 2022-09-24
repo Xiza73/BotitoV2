@@ -1,5 +1,6 @@
 import fetch from "cross-fetch";
 import { Client, Message, MessageEmbed } from "discord.js";
+import config from "../../config";
 import { ICommand } from "../../shared/types/types";
 import { random as getRandom } from "../../shared/utils/helpers";
 
@@ -51,7 +52,7 @@ const pull: ICommand = {
         fetchType(args[0], message, client);
       } else {
         message.channel.send(
-          "Tipo no encontrado\nUsa el comando `b!poke types` para ver la lista de tipos"
+          `Tipo no encontrado\nUsa el comando \`${config.prefix}poke types\` para ver la lista de tipos`
         );
       }
     } else {
