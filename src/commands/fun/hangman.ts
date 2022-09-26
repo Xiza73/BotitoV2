@@ -1,7 +1,12 @@
-import { Client, Message } from "discord.js";
+import {
+  Client,
+  Message,
+  MessageActionRow,
+  MessageSelectMenu,
+} from "discord.js";
 import { ICommand } from "../../shared/types/types";
 import Death from "death-games";
-import { random } from "../../shared/utils/helpers";
+import { random, shuffle } from "../../shared/utils/helpers";
 import words from "../../shared/data/words";
 import _config from "../../config";
 
@@ -37,31 +42,41 @@ const pull: ICommand = {
       return message.channel.send("Tienes que mencionar mínimo a una persona!");
     if (message.mentions.users.map((x) => x.bot).some((x) => x))
       return message.channel.send("No puedes mencionar a un bot!");
-    let word = "a";
+    let word = "hola";
     if (mentions.includes(message.author.id)) {
       // Si el autor del mensaje está entre los mencionados, Botito escoge una palabra al azar
       word = words[random(0, words.length - 1)].nombre;
-      // word = "centímetro"; // Para pruebas
+      // word = "hola"; // Para pruebas
+      word = word.toLowerCase();
     } else {
-      const channel = await message.author.createDM(); // Puedes definir un canal a donde se le preguntará la palabra al usuario
-      channel.send("Elige tu palabra");
+      const actionRowComponent = new MessageActionRow().setComponents(
+        new MessageSelectMenu()
+          .setCustomId("hangman")
+          .setPlaceholder("Selecciona una palabra")
+          .addOptions(
+            shuffle(
+              words.map((x) => ({
+                label: x.nombre,
+                value: x.nombre,
+              }))
+            ).slice(0, 25)
+          )
+      );
 
-      await channel
-        .awaitMessages({
-          max: 1,
-          time: 20000,
-          errors: ["time"],
-          filter: (m: Message): boolean =>
-            m.author.id === message.author.id &&
-            m.content.replace(/[^A-Za-záéíóú\u00f1]/g, "").length !== null,
-        })
-        .then((collected) => {
-          word = collected
-            .first()!
-            .content.replace(/[^A-Za-záéíóú\u00f1]/g, "");
-        })
-        .catch(() => channel.send("Tiempo agotado!"));
-      if (!word) return;
+      const channel = await message.author.createDM(); // Puedes definir un canal a donde se le preguntará la palabra al usuario
+
+      await channel.send({ components: [actionRowComponent] });
+
+      const interaction = await channel.awaitMessageComponent({
+        componentType: "SELECT_MENU",
+        time: 20000,
+        idle: 20000,
+        dispose: true,
+        filter: (interaction) => interaction.user.id === message.author.id,
+      });
+
+      word = interaction.values[0].toLowerCase();
+      channel.send(`Escogiste la palabra: \`${word}\``);
     }
 
     const hangman = new Death.Hangman(word, {
@@ -134,12 +149,11 @@ const pull: ICommand = {
     });
 
     colector.on("collect", (msg) => {
-      let encontrado: any = false;
-      if (msg.content.length > 1) {
-        if (word === msg.content)
-          for (let i = 0; i < word.length; i++)
-            if (!hangman.game.ascii.includes(word[i])) hangman.find(word[i]);
-      } else encontrado = hangman.find(msg.content);
+      let encontrado: boolean = false;
+      if (msg.content.length > 1 && word === msg.content.toLowerCase()) {
+        for (let i = 0; i < word.length; i++)
+          if (!hangman.game.ascii.includes(word[i])) hangman.find(word[i]);
+      } else encontrado = !!hangman.find(msg.content);
 
       let details = "";
 
