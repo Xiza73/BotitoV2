@@ -1,6 +1,6 @@
-import { AnyChannel, MessageOptions, MessagePayload } from 'discord.js';
-import ClientDiscord from '../classes/ClientDiscord';
-import { IDate, Param, Week, Month } from '../types/types';
+import { AnyChannel, MessageOptions, MessagePayload } from "discord.js";
+import ClientDiscord from "../classes/ClientDiscord";
+import { IDate, Param, Week, Month } from "../types/types";
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -50,11 +50,35 @@ export const dateToUTC5 = (date: Date) => {
   return utc5;
 };
 
-export const channelSender = (client: ClientDiscord, idChannel: string, msg: string | MessagePayload | MessageOptions) => {
+export const channelSender = (
+  client: ClientDiscord,
+  idChannel: string,
+  msg: string | MessagePayload | MessageOptions
+) => {
   const channel: AnyChannel | undefined = client.channels.cache.find(
     (channel) => channel.id === idChannel
   );
   if (!channel || !channel?.isText()) return;
 
   channel.send(msg);
-}
+};
+
+export const shuffle = <T>(array: T[]): T[] => {
+  let currentIndex = array.length;
+  let randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex !== 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+};

@@ -77,7 +77,7 @@ const pull: ICommand = {
         // This is what it sends when using the command with argument and it does not find the command
         if (!command) {
           message.reply({
-            content: `There isn't any command named "${args[0]}"`,
+            content: `No existe un comando llamado "${args[0]}"!`,
             allowedMentions: { repliedUser: false },
           });
         } else {
@@ -90,7 +90,7 @@ const pull: ICommand = {
           const name = command?.name;
           const description = command?.description || "No descrpition provided";
           const usage = command?.usage || "No usage provided";
-          const aliases = command?.aliases || "No aliases provided";
+          const aliases = command?.aliases.toString() || "[]";
           const category = command?.category || "No category provided!";
 
           const helpCmdEmbed = new MessageEmbed()
@@ -100,10 +100,10 @@ const pull: ICommand = {
               } Help | \`${name?.toLocaleString()}\` Command`
             )
             .addFields(
-              { name: "Description", value: `${description}` },
-              { name: "Usage", value: `${usage}` },
-              { name: "Aliases", value: `${aliases}` },
-              { name: "Category", value: `${category}` }
+              { name: "Description", value: description },
+              { name: "Usage", value: usage },
+              { name: "Aliases", value: aliases.toString() },
+              { name: "Category", value: category }
             )
             .setColor("RANDOM");
 
