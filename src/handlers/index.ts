@@ -36,14 +36,20 @@ export const loadEvents = async (client: ClientDiscord) => {
         continue;
       }
 
-      if (event.type === "client") {
-        if (event.once) {
-          client.once(event.name, (...args) => event.execute(...args, client));
-        } else {
-          client.on(event.name, (...args) => event.execute(...args, client));
-        }
-      } else {
+      if (event.type === "distube") {
         event.execute(client);
+      } else if (event.type) {
+        if (event.once) {
+          client.once(
+            event.name,
+            async (...args) => await event.execute(...args, client)
+          );
+        } else {
+          client.on(
+            event.name,
+            async (...args) => await event.execute(...args, client)
+          );
+        }
       }
     }
   }
@@ -81,7 +87,6 @@ export const loadCommands = async (client: ClientDiscord) => {
         pull.default.aliases.forEach((alias) =>
           client.aliases.set(alias, pull.default.name)
         );
-
     }
   }
 };

@@ -1,0 +1,40 @@
+import { MessageEmbed, Message } from "discord.js";
+import config from "../../config";
+import ClientDiscord from "../../shared/classes/ClientDiscord";
+
+module.exports = {
+  name: "messageDelete",
+  type: "message",
+  // just work on the first message update, and just in gmi2 channel
+  async execute(message: Message, client: ClientDiscord) {
+    if (message?.author?.bot) return;
+
+    if (!message?.content) return;
+
+    if (message?.channel?.id !== config.gmi2Channel) return;
+
+    const count = 4096;
+
+    const deletedMesaage =
+      message.content.slice(0, count) +
+      (message.content.length > count ? "..." : "");
+
+    const log = new MessageEmbed()
+      .setAuthor({
+        name: message.author.tag,
+        iconURL: message.author.displayAvatarURL(),
+      })
+      .setDescription(
+        `Message sent by ${message.author} **deleted** in ${message.channel}`
+      )
+      .addFields({ name: "Deleted", value: deletedMesaage })
+      .setTimestamp()
+      .setColor("RED");
+
+    const user = await client.users.fetch(config.ownerId, {
+      cache: false,
+    });
+
+    await user.send({ embeds: [log] });
+  },
+};
