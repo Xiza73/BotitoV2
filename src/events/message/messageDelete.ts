@@ -9,15 +9,18 @@ module.exports = {
   async execute(message: Message, client: ClientDiscord) {
     if (message?.author?.bot) return;
 
-    if (!message?.content) return;
+    if (!message?.content && !message?.attachments?.at(0)?.url) return;
 
     if (message?.channel?.id !== config.gmi2Channel) return;
 
     const count = 4096;
 
     const deletedMesaage =
-      message.content.slice(0, count) +
-      (message.content.length > count ? "..." : "");
+      message.content?.slice(0, count) +
+      (message.content?.length > count ? "..." : "") +
+      (message.attachments?.at(0)?.url
+        ? `\n${message.attachments?.at(0)?.url}`
+        : "");
 
     const log = new MessageEmbed()
       .setAuthor({
