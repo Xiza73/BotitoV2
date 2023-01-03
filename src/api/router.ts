@@ -11,7 +11,6 @@ const _router: Router = Router();
   for (const route of routes) {
     const routeFile = await import(`./routes/${route}`);
     const routePath = `/${route.split(".")[0]}`;
-    console.log(routePath);
     _router.use(routePath, routeFile.default);
   }
 })();

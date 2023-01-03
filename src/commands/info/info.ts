@@ -43,7 +43,8 @@ const pull: ICommand = {
         {
           name: "Esclavo:",
           value: `**<@${
-            msg.guild!.members.cache.get("305545446892371969")!.user.id
+            (await client.users.fetch("305545446892371969", { cache: false }))
+              .id
           }>**`,
           inline: true,
         },
