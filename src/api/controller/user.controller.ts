@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import * as _dao from "./../dao/user.dao";
+import * as _dao from "../dao/user.dao";
 
 export const addUser = async (
   req: Request,
@@ -57,6 +57,31 @@ export const setBirthday = async (
   next: NextFunction
 ) => {
   const response = await _dao.setBirthday(req.body);
+  if (response.statusCode === 200) return res.status(200).json(response);
+  next(response);
+};
+
+export const getCurrentMessary = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { discordId } = req.query;
+  const response = await _dao.getCurrentMessary(discordId?.toString()!);
+  if (response.statusCode === 200) return res.status(200).json(response);
+  next(response);
+};
+
+export const updateMonth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { discordId, month } = req.query;
+  const response = await _dao.updateMonth(
+    discordId?.toString()!,
+    parseInt(month?.toString()!)
+  );
   if (response.statusCode === 200) return res.status(200).json(response);
   next(response);
 };

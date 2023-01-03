@@ -1,8 +1,8 @@
-import ErrorHandler from "../helpers/ErrorHandler";
-import ResponseBase from "../helpers/ResponseBase";
-import ResponseData from "../helpers/ResponseData";
+import ErrorHandler from "../../helpers/ErrorHandler";
+import ResponseBase from "../../helpers/ResponseBase";
+import ResponseData from "../../helpers/ResponseData";
 import User, { IUser } from "../models/User";
-import { capitalize } from "../shared/utils/helpers";
+import { capitalize } from "../../shared/utils/helpers";
 
 export const addUser = async (body: any) => {
   try {
@@ -93,5 +93,32 @@ export const deleteUser = async (body: any) => {
     return ResponseBase(200, "Usuario eliminado correctamente");
   } catch (error) {
     return new ErrorHandler(400, "Error al eliminar usuario");
+  }
+};
+
+export const getCurrentMessary = async (discordId: string) => {
+  try {
+    if (!discordId) return new ErrorHandler(422, "Datos insuficientes");
+
+    const data = await User.findOne({ discordId });
+
+    if (!data) return new ErrorHandler(400, "Usuario no encontrado");
+
+    return ResponseData(200, "Mes actual obtenido correctamente", data.month);
+  } catch (error) {
+    return new ErrorHandler(400, "Error al obtener mes actual");
+  }
+};
+
+export const updateMonth = async (discordId: string, month: number) => {
+  try {
+    if (!discordId || !month)
+      return new ErrorHandler(422, "Datos insuficientes");
+
+    await User.findOneAndUpdate({ discordId }, { month });
+
+    return ResponseBase(200, "Mes actualizado correctamente");
+  } catch (error) {
+    return new ErrorHandler(400, "Error al actualizar mes");
   }
 };

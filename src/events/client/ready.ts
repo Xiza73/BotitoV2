@@ -2,14 +2,16 @@ import ClientDiscord from "../../shared/classes/ClientDiscord";
 import ScheduleMessage from "../../shared/classes/ScheduleMessage";
 import { goodMorning } from "../../shared/utils/goodMorning";
 import { reminder } from "../../shared/utils/birthdayReminder";
+import { messaryController } from "../../shared/utils/cronJobs";
 
 module.exports = {
   name: "ready",
   once: true,
   type: "client",
   execute(client: ClientDiscord) {
-    ScheduleMessage(goodMorning, client, '8');
-    ScheduleMessage(reminder, client, '7');
+    ScheduleMessage(goodMorning, client, { hour: 8 });
+    ScheduleMessage(reminder, client, { hour: 7 });
+    ScheduleMessage(messaryController, client, { day: 7, hour: 22 });
     // Puts an activity
     client.user!.setPresence({
       status: "online",

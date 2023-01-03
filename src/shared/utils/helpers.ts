@@ -1,6 +1,12 @@
-import { AnyChannel, MessageOptions, MessagePayload } from "discord.js";
+import {
+  AnyChannel,
+  MessageEmbed,
+  MessageOptions,
+  MessagePayload,
+} from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { IDate, Param, Week, Month } from "../types/types";
+import _config from "./../../config";
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -81,4 +87,26 @@ export const shuffle = <T>(array: T[]): T[] => {
   }
 
   return array;
+};
+
+export const ownerSender = async (
+  client: ClientDiscord,
+  msg: string | MessageEmbed | MessagePayload | MessageOptions,
+  isEmbed?: boolean
+) => {
+  const user = await client.users.fetch(_config.ownerId, {
+    cache: false,
+  });
+
+  if (!user) return;
+
+  if (isEmbed) {
+    return await user.send({ embeds: [msg as MessageEmbed] });
+  }
+
+  return await user.send(msg as string);
+};
+
+export const mentionUser = (id: string) => {
+  return `**<@${id}>**`;
 };
