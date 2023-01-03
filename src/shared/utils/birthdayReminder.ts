@@ -28,7 +28,7 @@ export const reminder = async (client: ClientDiscord) => {
         const embed = new MessageEmbed()
           .setColor("RANDOM")
           .setTitle("GangBang al CUMpleañero! 🥳🎂🎉")
-          .setDescription(`👑 Felicitaciones ${user.username}`)
+          .setDescription(`👑 Felicitaciones **<@${user.id}>**`)
           .setThumbnail(
             user.avatarURL({
               size: 64,
@@ -39,7 +39,10 @@ export const reminder = async (client: ClientDiscord) => {
           )
           .setTimestamp(new Date());
 
-        channelSender(client, _config.gmi2Channel, { embeds: [embed] });
+        channelSender(client, _config.gmi2Channel, {
+          embeds: [embed],
+          allowedMentions: { repliedUser: true },
+        });
       }
     });
   } catch (error) {
