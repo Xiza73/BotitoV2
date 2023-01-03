@@ -8,7 +8,7 @@
     "dev": "tsc-watch --onSuccess \"nodemon dist/index.js\"",
     "ts": "nodemon src/index.ts",
     "build": "tsc -p .",
-    "replit": "npm i --save-dev node@16.14.2 && npm config set prefix=$(pwd)/node_modules/node && export PATH=$(pwd)/node_modules/node/bin:$PATH && npm run build"
+    "replit": "npm i --save-dev node@16.14.2 && npm config set prefix=$(pwd)/node_modules/node && export PATH=$(pwd)/node_modules/node/bin:$PATH && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
