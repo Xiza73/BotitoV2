@@ -7,6 +7,7 @@ export interface IUser extends Document {
   telegramId: string;
   birthdayDay: number | null;
   birthdayMonth: number | null;
+  month: number | null;
 }
 
 const User = new Schema(
@@ -37,6 +38,11 @@ const User = new Schema(
       default: false,
     },
     birthdayMonth: {
+      type: Number,
+      required: false,
+      default: false,
+    },
+    month: {
       type: Number,
       required: false,
       default: false,

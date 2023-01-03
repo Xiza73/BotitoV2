@@ -6,7 +6,7 @@ const pull: ICommand = {
   category: "mod",
   description: "Limpia el chat",
   usage: "[cantidad]",
-  aliases: [],
+  aliases: ["clean", "purge"],
   ownerOnly: false,
   run: async (__: Client, message: Message, args: string[], _: string) => {
     /* if (message.deletable) {

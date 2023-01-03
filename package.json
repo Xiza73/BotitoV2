@@ -7,13 +7,15 @@
     "start": "node dist/index.js",
     "dev": "tsc-watch --onSuccess \"nodemon dist/index.js\"",
     "ts": "nodemon src/index.ts",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "replit": "npm i --save-dev node@16.14.2 && npm config set prefix=$(pwd)/node_modules/node && export PATH=$(pwd)/node_modules/node/bin:$PATH && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "ascii-table": "0.0.9",
+    "axios": "^1.2.2",
     "chalk": "^4.1.0",
     "common-tags": "^1.8.2",
     "cors": "^2.8.5",
@@ -28,8 +30,10 @@
     "ffmpeg-static": "^4.4.1",
     "fs": "0.0.1-security",
     "libsodium-wrappers": "^0.7.9",
+    "moment": "^2.29.4",
     "mongoose": "^6.0.12",
     "morgan": "^1.10.0",
+    "puppeteer": "^19.4.1",
     "random-puppy": "^1.1.0"
   },
   "devDependencies": {

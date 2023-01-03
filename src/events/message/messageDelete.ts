@@ -18,21 +18,23 @@ module.exports = {
     const deletedMesaage =
       message.content?.slice(0, count) +
       (message.content?.length > count ? "..." : "") +
-      (message.attachments?.at(0)?.url
-        ? `\n${message.attachments?.at(0)?.url}`
-        : "");
+      (message.attachments?.at(0)?.url &&
+        `\n${message.attachments?.at(0)?.url}`);
 
-    const log = new MessageEmbed()
-      .setAuthor({
-        name: message.author.tag,
+    const log = new MessageEmbed({
+      author: {
+        name: message.author.username || message.author.tag,
         iconURL: message.author.displayAvatarURL(),
-      })
-      .setDescription(
-        `Message sent by ${message.author} **deleted** in ${message.channel}`
-      )
-      .addFields({ name: "Deleted", value: deletedMesaage })
-      .setTimestamp()
-      .setColor("RED");
+      },
+      description: deletedMesaage,
+      timestamp: new Date(),
+      ...(message.attachments?.at(0)?.url && {
+        image: {
+          url: message.attachments?.at(0)?.url,
+        },
+      }),
+      color: "RED",
+    });
 
     const user = await client.users.fetch(config.ownerId, {
       cache: false,

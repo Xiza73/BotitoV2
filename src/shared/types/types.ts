@@ -20,7 +20,7 @@ export type ICommand = {
     msg: Message,
     args: string[],
     cmd: string
-  // eslint-disable-next-line no-undef
+    // eslint-disable-next-line no-undef
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
@@ -57,4 +57,15 @@ export type ClientConfig = {
   botId?: string;
   prefix: string;
   ownerId: string;
+};
+
+export type CumUser = {
+  name: string;
+  birthdayDay?: number | null;
+  discordId: string;
+  birthdayMonth?: Month;
+};
+
+export type CumData = {
+  [key: string]: CumUser[];
 };

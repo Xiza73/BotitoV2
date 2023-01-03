@@ -34,12 +34,18 @@ const pull: ICommand = {
         },
         {
           name: "Admin:",
-          value: "Mágic0",
+          value: `**<@${
+            (await client.users.fetch("214867785380003860", { cache: false }))
+              .id
+          }>**`,
           inline: true,
         },
         {
           name: "Esclavo:",
-          value: "Ludwig",
+          value: `**<@${
+            (await client.users.fetch("305545446892371969", { cache: false }))
+              .id
+          }>**`,
           inline: true,
         },
       ],
@@ -50,6 +56,7 @@ const pull: ICommand = {
 
     msg.channel.send({
       embeds: [exampleEmbed],
+      allowedMentions: { repliedUser: false },
     });
   },
 };
