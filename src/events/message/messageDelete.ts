@@ -18,8 +18,9 @@ module.exports = {
     const deletedMesaage =
       message.content?.slice(0, count) +
       (message.content?.length > count ? "..." : "") +
-      (message.attachments?.at(0)?.url &&
-        `\n${message.attachments?.at(0)?.url}`);
+      (message.attachments?.at(0)?.url
+        ? `\n${message.attachments?.at(0)?.url}`
+        : "");
 
     const log = new MessageEmbed({
       author: {
