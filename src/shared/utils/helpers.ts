@@ -1,12 +1,15 @@
 import {
   AnyChannel,
+  Message,
   MessageEmbed,
   MessageOptions,
   MessagePayload,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
-import { IDate, Param, Week, Month } from "../types/types";
+import { IDate, Week, Month } from "../types";
 import _config from "./../../config";
+
+export const logger = (msg: string) => console.log(msg);
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -22,10 +25,12 @@ export const capitalize = (str: String) => {
   return arr.join(" ");
 };
 
-export const setParams = (params: Param[]) => {
+export const setParams = (params: {
+  [key: string]: string | number | boolean;
+}) => {
   let param = "?";
-  params.forEach((p) => {
-    param += p.name + "=" + p.value + "&";
+  Object.keys(params).forEach((p) => {
+    param += p + "=" + params[p] + "&";
   });
   param = param.substring(0, param.length - 1);
   return param;
@@ -109,4 +114,25 @@ export const ownerSender = async (
 
 export const mentionUser = (id: string) => {
   return `**<@${id}>**`;
+};
+
+export const errorHandler = (
+  sender: Message,
+  error: any,
+  msg: string = "Error con el comando"
+) => {
+  const embed = new MessageEmbed()
+    .setColor("RED")
+    .setTitle("Error " + error?.response?.data?.statusCode || "☠️")
+    .setFields([
+      {
+        name: msg,
+        value:
+          "El servidor dice: " + error?.response?.data?.message ||
+          error?.message ||
+          error ||
+          "`No hay mensaje de error.`",
+      },
+    ]);
+  return sender.channel.send({ embeds: [embed] });
 };

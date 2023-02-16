@@ -1,9 +1,9 @@
 import { Client, MessageEmbed, Message, User } from "discord.js";
-import { ICommand, Month, Param } from "../../shared/types/types";
+import { ICommand, Month } from "../../shared/types";
 import _config from "../../config";
-import fetch from "cross-fetch";
-import { setParams } from "../../shared/utils/helpers";
 import calendar from "../../shared/constants/calendar";
+import { getUserById, getUserByName } from "../../shared/services/user.service";
+import { errorHandler, mentionUser } from "../../shared/utils/helpers";
 
 const apiUrl = _config.api;
 
@@ -15,76 +15,41 @@ const pull: ICommand = {
   aliases: ["whois", "wi", "read"],
   ownerOnly: false,
   run: async (client: Client, msg: Message, args: string[], _: string) => {
-    if (!args[0]) {
-      msg.channel.send("Falta agregar un nombre");
-      return;
-    }
     let res;
     let user: User;
     try {
       const mentions = msg.mentions.users.map((x) => x.id);
       if (!mentions || mentions.length === 0) {
-        const params: Param[] = [
-          {
-            name: "name",
-            value: args[0],
-          },
-        ];
-        const url = `${apiUrl}/api/user/name/${setParams(params)}`;
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        });
-        res = await response.json();
-        user = await client.users.fetch(res.data.discordId);
+        res = args[0]
+          ? await getUserByName(args[0])
+          : await getUserById(msg.author.id);
+        user = await client.users.fetch(res.discordId);
       } else {
         user = await client.users.fetch(mentions[0]);
-        const params: Param[] = [
-          {
-            name: "discordId",
-            value: user.id,
-          },
-        ];
-        const response = await fetch(
-          `${apiUrl}/api/user/discordId/${setParams(params)}`,
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        res = await response.json();
+        res = await getUserById(user.id);
       }
-      if (res.statusCode !== 200) return msg.channel.send(`${res.message}`);
+      if (!user || !res) throw new Error("No se encontró usuario");
 
       const embed = new MessageEmbed({
-        title: "Información de usuario",
-        author: {
-          name: user.username,
-          icon_url: user.avatarURL()!,
-        },
+        title: "CUMpleaños 🎂",
         thumbnail: {
           url: user.avatarURL()!,
         },
+        description: mentionUser(res.discordId),
         fields: [
           {
-            name: "CUMpleaños",
-            value: `${res.data.birthdayDay} de ${
-              calendar.months[(parseInt(res.data.birthdayMonth) - 1) as Month]
-            }`,
+            name: " ",
+            value: `\`${res.birthdayDay} de ${
+              calendar.months[(parseInt(res.birthdayMonth) - 1) as Month]
+            }\``,
           },
         ],
       }).setColor("RANDOM");
 
       msg.channel.send({ embeds: [embed] });
       return;
-    } catch (error) {
-      msg.channel.send(`Error al obtener usuario: ${error}`);
+    } catch (error: any) {
+      errorHandler(msg, error);
     }
   },
 };

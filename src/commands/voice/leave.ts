@@ -1,6 +1,6 @@
 import { getVoiceConnection } from "@discordjs/voice";
 import { Client, Message } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 
 const pull: ICommand = {
   name: "leave",

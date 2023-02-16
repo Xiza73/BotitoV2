@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 import { random } from "../../shared/utils/helpers";
 
 const pull: ICommand = {

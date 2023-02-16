@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Month } from "../../shared/types/types";
+import { Month } from "../../shared/types";
 import * as _dao from "../dao/birthday.dao";
 
 export const getBirthdays = async (

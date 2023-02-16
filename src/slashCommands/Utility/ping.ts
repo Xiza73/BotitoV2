@@ -1,13 +1,34 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, {
+  ApplicationCommandData,
+  CommandInteraction,
+  UserApplicationCommandData,
+} from "discord.js";
+import { ApplicationCommandTypes } from "discord.js/typings/enums";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-// Example of how to make a SlashCommand
+import { ISlashCommand } from "../../shared/types";
+import { ApplicationCommandDataResolvable } from "discord.js";
 
-module.exports = {
+const pull: ISlashCommand = {
   name: "ping",
-  category: "Utility",
+  category: "utility",
   description: "Check the bot's ping!",
-  run: async (client: ClientDiscord, interaction: CommandInteraction) => {
+  ownerOnly: false,
+  options: [
+    {
+      name: "user",
+      description: "The user to ping",
+      type: ApplicationCommandTypes.USER,
+      required: false,
+    } as UserApplicationCommandData,
+  ],
+  run: async (
+    client: ClientDiscord,
+    interaction: CommandInteraction,
+    args: (string | number | boolean)[]
+  ) => {
     try {
+      /* const sub = interaction.options.getSubcommand();
+      console.log(sub); */
       const msg = await interaction.channel?.send(`🏓 Pinging...`);
 
       const pingEmbed = new Discord.MessageEmbed()
@@ -21,7 +42,7 @@ module.exports = {
             inline: true,
           },
           {
-            name: "API Ping",
+            name: "API2 Ping",
             value: `${client.ws.ping}ms`,
             inline: true,
           },
@@ -35,3 +56,5 @@ module.exports = {
     }
   },
 };
+
+export default pull;

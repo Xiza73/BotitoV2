@@ -1,7 +1,7 @@
 import fetch from "cross-fetch";
 import { Client, Message, MessageEmbed } from "discord.js";
 import config from "../../config";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 import { random as getRandom } from "../../shared/utils/helpers";
 
 const pull: ICommand = {

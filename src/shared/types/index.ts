@@ -1,5 +1,7 @@
 import { VoiceConnection } from "@discordjs/voice";
 import {
+  ApplicationCommandDataResolvable,
+  CommandInteraction,
   DMChannel,
   Message,
   NewsChannel,
@@ -7,6 +9,7 @@ import {
   VoiceChannel,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
+import { ApplicationCommandTypes } from "discord.js/typings/enums";
 
 export type ICommand = {
   name: string;
@@ -24,9 +27,26 @@ export type ICommand = {
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
-export type Param = {
+export type SlashCommandOptions = {
   name: string;
-  value: string;
+  description: string;
+  type: ApplicationCommandTypes;
+  options?: SlashCommandOptions[];
+  required: boolean;
+} & ApplicationCommandDataResolvable;
+
+export type ISlashCommand = {
+  name: string;
+  category: string | null;
+  description: string;
+  options?: ApplicationCommandDataResolvable[];
+  ownerOnly: boolean;
+  run: (
+    client: ClientDiscord,
+    interaction: CommandInteraction,
+    args: (string | number | boolean)[]
+    // eslint-disable-next-line no-undef
+  ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
 export type Week = 0 | 1 | 2 | 3 | 4 | 5 | 6;

@@ -4,7 +4,7 @@ import {
   MessageActionRow,
   MessageSelectMenu,
 } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 import Death from "death-games";
 import { random, shuffle } from "../../shared/utils/helpers";
 import words from "../../shared/data/words";

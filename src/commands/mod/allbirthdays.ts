@@ -1,5 +1,5 @@
 import { Client, MessageEmbed, Message, EmbedFieldData } from "discord.js";
-import { CumData, ICommand, Month } from "../../shared/types/types";
+import { CumData, ICommand, Month } from "../../shared/types";
 import _config from "../../config";
 import {
   getBirthdays,

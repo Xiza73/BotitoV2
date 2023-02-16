@@ -1,5 +1,5 @@
 import { Client, MessageEmbed, Message } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 import _config from "../../config";
 import fetch from "cross-fetch";
 

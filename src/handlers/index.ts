@@ -1,7 +1,7 @@
 import { readdirSync } from "fs";
 
 import ClientDiscord from "../shared/classes/ClientDiscord";
-import { ICommand } from "../shared/types/types";
+import { ICommand, ISlashCommand } from "../shared/types";
 import { ApplicationCommandDataResolvable } from "discord.js";
 import path from "path";
 import chalk from "chalk";
@@ -30,7 +30,7 @@ export const loadEvents = async (client: ClientDiscord) => {
       const event = await import(`../events/${folder}/${file}`);
 
       if (event.name) {
-        console.log(chalk.bgYellowBright.black(checkHandler("Event", file, 1)));
+        console.log(chalk.bgGreen.black(checkHandler("Event", file, 1)));
       } else {
         console.log(chalk.bgRedBright.black(checkHandler("Event", file, 0)));
         continue;
@@ -95,7 +95,7 @@ export const loadCommands = async (client: ClientDiscord) => {
  * Load SlashCommands
  */
 export const loadSlashCommands = async (client: ClientDiscord) => {
-  const slash: ApplicationCommandDataResolvable[] = [];
+  const slash: ISlashCommand[] = [];
 
   const commandFolders = readdirSync(
     path.resolve(__dirname, "./../slashCommands")
@@ -106,15 +106,18 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
     ).filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      const command = await import(
+      const pull: {
+        default: ISlashCommand;
+      } = await import(
         path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
       );
+      const command = pull?.default;
 
-      if (command.name) {
+      if (command?.name) {
         client.slashCommands.set(command.name, command);
         slash.push(command);
         console.log(
-          chalk.bgYellowBright.black(checkHandler("SlashCommand", file, 1))
+          chalk.bgGreenBright.black(checkHandler("SlashCommand", file, 1))
         );
       } else {
         console.log(
@@ -126,13 +129,29 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
   }
 
   client.on("ready", async () => {
-    // Register Slash Commands for a single guild
-    // await client.guilds.cache
-    //    .get("YOUR_GUILD_ID")
-    //    .commands.set(slash);
+    try {
+      // Register Slash Commands for a single guild
+      // await client.guilds.cache
+      //    .get("YOUR_GUILD_ID")
+      //    .commands.set(slash);
 
-    // Register Slash Commands for all the guilds
-    await client.application?.commands.set(slash);
+      // Register Slash Commands for all the guilds
+      const commands: ApplicationCommandDataResolvable[] = slash.map(
+        (command) => {
+          return {
+            name: command.name,
+            description: command.description,
+            options: command.options as any,
+          };
+        }
+      );
+      console.log({
+        commands,
+      });
+      await client.application?.commands.set(commands);
+    } catch (error) {
+      console.error(error);
+    }
   });
 };
 
