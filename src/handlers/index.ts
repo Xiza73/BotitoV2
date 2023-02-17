@@ -1,10 +1,11 @@
 import { readdirSync } from "fs";
 
 import ClientDiscord from "../shared/classes/ClientDiscord";
-import { ICommand, ISlashCommand } from "../shared/types";
+import { ICommand } from "../shared/types";
 import { ApplicationCommandDataResolvable } from "discord.js";
 import path from "path";
 import chalk from "chalk";
+import { logger } from "../shared/utils/helpers";
 
 const checkHandler = (
   type: "Event" | "Command" | "SlashCommand",
@@ -30,9 +31,9 @@ export const loadEvents = async (client: ClientDiscord) => {
       const event = await import(`../events/${folder}/${file}`);
 
       if (event.name) {
-        console.log(chalk.bgGreen.black(checkHandler("Event", file, 1)));
+        logger(chalk.bgGreen.black(checkHandler("Event", file, 1)));
       } else {
-        console.log(chalk.bgRedBright.black(checkHandler("Event", file, 0)));
+        logger(chalk.bgRedBright.black(checkHandler("Event", file, 0)));
         continue;
       }
 
@@ -75,11 +76,9 @@ export const loadCommands = async (client: ClientDiscord) => {
 
       if (pull.default?.name) {
         client.commands.set(pull.default.name, pull.default);
-        console.log(
-          chalk.bgYellowBright.black(checkHandler("Command", file, 1))
-        );
+        logger(chalk.bgYellowBright.black(checkHandler("Command", file, 1)));
       } else {
-        console.log(chalk.bgRedBright.black(checkHandler("Command", file, 0)));
+        logger(chalk.bgRedBright.black(checkHandler("Command", file, 0)));
         continue;
       }
 
@@ -95,7 +94,7 @@ export const loadCommands = async (client: ClientDiscord) => {
  * Load SlashCommands
  */
 export const loadSlashCommands = async (client: ClientDiscord) => {
-  const slash: ISlashCommand[] = [];
+  const slash: ApplicationCommandDataResolvable[] = [];
 
   const commandFolders = readdirSync(
     path.resolve(__dirname, "./../slashCommands")
@@ -106,70 +105,51 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
     ).filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      const pull: {
-        default: ISlashCommand;
-      } = await import(
-        path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
-      );
-      const command = pull?.default;
+      const command = (
+        await import(
+          path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
+        )
+      ).default;
 
-      if (command?.name) {
+      if (command.name) {
         client.slashCommands.set(command.name, command);
         slash.push(command);
-        console.log(
+        logger(
           chalk.bgGreenBright.black(checkHandler("SlashCommand", file, 1))
         );
       } else {
-        console.log(
-          chalk.bgRedBright.black(checkHandler("SlashCommand", file, 0))
-        );
+        logger(chalk.bgRedBright.black(checkHandler("SlashCommand", file, 0)));
         continue;
       }
     }
   }
 
   client.on("ready", async () => {
-    try {
-      // Register Slash Commands for a single guild
-      // await client.guilds.cache
-      //    .get("YOUR_GUILD_ID")
-      //    .commands.set(slash);
+    // Register Slash Commands for a single guild
+    // await client.guilds.cache
+    //    .get("YOUR_GUILD_ID")
+    //    .commands.set(slash);
 
-      // Register Slash Commands for all the guilds
-      const commands: ApplicationCommandDataResolvable[] = slash.map(
-        (command) => {
-          return {
-            name: command.name,
-            description: command.description,
-            options: command.options as any,
-          };
-        }
-      );
-      console.log({
-        commands,
-      });
-      await client.application?.commands.set(commands);
-    } catch (error) {
-      console.error(error);
-    }
+    // Register Slash Commands for all the guilds
+    await client.application?.commands.set(slash);
   });
 };
 
 export const antiCrash = async (_: ClientDiscord) => {
   process.on("unhandledRejection", (reason, p) => {
-    console.log(" [antiCrash] :: Unhandled Rejection/Catch");
-    console.log(reason, p);
+    logger(" [antiCrash] :: Unhandled Rejection/Catch");
+    logger({ reason, p });
   });
   process.on("uncaughtException", (err, origin) => {
-    console.log(" [antiCrash] :: Uncaught Exception/Catch");
-    console.log(err, origin);
+    logger(" [antiCrash] :: Uncaught Exception/Catch");
+    logger({ err, origin });
   });
   process.on("uncaughtExceptionMonitor", (err, origin) => {
-    console.log(" [antiCrash] :: Uncaught Exception/Catch (MONITOR)");
-    console.log(err, origin);
+    logger(" [antiCrash] :: Uncaught Exception/Catch (MONITOR)");
+    logger({ err, origin });
   });
   process.on("multipleResolves", (type, promise, reason) => {
-    console.log(" [antiCrash] :: Multiple Resolves");
-    console.log(type, promise, reason);
+    logger(" [antiCrash] :: Multiple Resolves");
+    logger({ type, promise, reason });
   });
 };

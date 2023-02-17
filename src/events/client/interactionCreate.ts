@@ -1,14 +1,12 @@
 import { CommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { ISlashCommand } from "../../shared/types";
+import { Argument, ISlashCommand } from "../../shared/types";
 
 module.exports = {
   name: "interactionCreate",
   type: "client",
   execute(interaction: CommandInteraction, client: ClientDiscord) {
-    console.log("interactionCreate");
     if (!interaction.command) return;
-    console.log("interactionCreate2");
 
     const command: ISlashCommand | undefined = client.slashCommands.get(
       interaction.commandName
@@ -24,24 +22,23 @@ module.exports = {
       }
     }
 
-    const args: (string | number | true)[] = [];
+    const args: Argument[] = [];
 
-    // for (const option of interaction.options.data) {
-    /* for (const option of command?.commandOptions) {
-      if (option.type === "SUB_COMMAND") {
-        if (option.name) args.push(option.name);
-        option.commandOptions?.forEach((x) => {
-          if (x.value) args.push(x.value);
-        });
-      } else if (option.value) args.push(option.value);
-    } */
     interaction.options.data.forEach((option) => {
-      if (option.type === "SUB_COMMAND") {
-        if (option.name) args.push(option.name);
-        option.options?.forEach((x) => {
-          if (x.value) args.push(x.value);
+      if (option.name) {
+        args.push({
+          name: option.name,
+          type: option.type as any,
+          ...(option.value && { value: option.value }),
+          ...(option.type === "SUB_COMMAND" && {
+            args: option.options?.map((x) => ({
+              name: x.name,
+              type: x.type as any,
+              value: x.value,
+            })),
+          }),
         });
-      } else if (option.value) args.push(option.value);
+      }
     });
 
     try {

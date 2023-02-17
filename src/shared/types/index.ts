@@ -1,15 +1,19 @@
 import { VoiceConnection } from "@discordjs/voice";
 import {
   ApplicationCommandDataResolvable,
+  ChatInputApplicationCommandData,
   CommandInteraction,
   DMChannel,
   Message,
+  MessageApplicationCommandData,
   NewsChannel,
   TextChannel,
+  UserApplicationCommandData,
   VoiceChannel,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { ApplicationCommandTypes } from "discord.js/typings/enums";
+import { MoreCommandTypes } from "../constants/commands";
 
 export type ICommand = {
   name: string;
@@ -27,24 +31,46 @@ export type ICommand = {
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
-export type SlashCommandOptions = {
+export type TypeCommandOption = ApplicationCommandTypes | MoreCommandTypes;
+
+export type Argument = {
+  name: string;
+  type: TypeCommandOption;
+  value?: string | number | boolean;
+  args?: {
+    name: string;
+    type:
+      | UserApplicationCommandData
+      | MessageApplicationCommandData
+      | ChatInputApplicationCommandData;
+    value?: string | number | boolean;
+  }[];
+};
+
+export type SlashCommandsOptions = {
   name: string;
   description: string;
-  type: ApplicationCommandTypes;
-  options?: SlashCommandOptions[];
-  required: boolean;
-} & ApplicationCommandDataResolvable;
+  options?: SlashCommandsOptions[];
+  type?: TypeCommandOption;
+  required?: boolean;
+};
 
+/* UserApplicationCommandData
+MessageApplicationCommandData
+ChatInputApplicationCommandData */
+/* RULES */
+// SUB_COMMANDS can only coexist with other SUB_COMMANDS at the same level
+// SUB_COMMANDS can only exist at the top level of a command
 export type ISlashCommand = {
   name: string;
   category: string | null;
   description: string;
-  options?: ApplicationCommandDataResolvable[];
+  options?: SlashCommandsOptions[];
   ownerOnly: boolean;
   run: (
     client: ClientDiscord,
     interaction: CommandInteraction,
-    args: (string | number | boolean)[]
+    args: Argument[]
     // eslint-disable-next-line no-undef
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };

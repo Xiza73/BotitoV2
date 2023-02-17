@@ -1,4 +1,5 @@
 import { Client, Message } from "discord.js";
+import config from "../../config";
 import { ICommand } from "../../shared/types";
 import { random } from "../../shared/utils/helpers";
 
@@ -10,8 +11,7 @@ const pull: ICommand = {
   aliases: [],
   ownerOnly: false,
   run: async (__: Client, msg: Message, args: string[], _: string) => {
-    const root =
-      "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612837856";
+    const root = config.oldRoot;
     if (!args[0]) {
       const img = `${root}/d6/d${random(1, 6).toString()}.png`;
       msg.reply({ files: [img] });

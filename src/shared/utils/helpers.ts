@@ -8,8 +8,9 @@ import {
 import ClientDiscord from "../classes/ClientDiscord";
 import { IDate, Week, Month } from "../types";
 import _config from "./../../config";
+import { CommandInteraction } from "discord.js";
 
-export const logger = (msg: string) => console.log(msg);
+export const logger = (...msgs: any[]) => console.log(...msgs);
 
 export const random = (min: number, max: number) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -117,22 +118,23 @@ export const mentionUser = (id: string) => {
 };
 
 export const errorHandler = (
-  sender: Message,
+  sender: Message | CommandInteraction,
   error: any,
   msg: string = "Error con el comando"
 ) => {
   const embed = new MessageEmbed()
     .setColor("RED")
-    .setTitle("Error " + error?.response?.data?.statusCode || "☠️")
+    .setTitle(`Error ${error?.response?.data?.statusCode || "☠️"}`)
     .setFields([
       {
         name: msg,
-        value:
-          "El servidor dice: " + error?.response?.data?.message ||
+        value: `El servidor dice: ${
+          error?.response?.data?.message ||
           error?.message ||
           error ||
-          "`No hay mensaje de error.`",
+          "No hay mensaje de error."
+        }`,
       },
     ]);
-  return sender.channel.send({ embeds: [embed] });
+  return sender.channel?.send({ embeds: [embed] });
 };
