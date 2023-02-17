@@ -3,7 +3,7 @@ import ResponseData from "../../helpers/ResponseData";
 import User, { IUser } from "../models/User";
 import { capitalize } from "../../shared/utils/helpers";
 import calendar from "../../shared/constants/calendar";
-import { CumData, CumUser, Month } from "../../shared/types/types";
+import { CumData, CumUser, Month } from "../../shared/types";
 import moment from "moment";
 
 export const getBirthdays = async () => {

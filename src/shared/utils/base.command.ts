@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../types";
 
 const pull: ICommand = {
   name: "",

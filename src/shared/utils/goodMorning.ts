@@ -2,7 +2,7 @@ import { MessageEmbed } from "discord.js";
 import _config from "../../config";
 import ClientDiscord from "../classes/ClientDiscord";
 import images from "../constants/images";
-import { IDate, Week } from "../types/types";
+import { IDate, Week } from "../types";
 import { channelSender, dateToUTC5 } from "./helpers";
 
 export const goodMorning = (client: ClientDiscord) => {

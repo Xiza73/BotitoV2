@@ -11,4 +11,5 @@ export default {
   ownerId: process.env.OWNERID ?? "",
   gmi2Channel: process.env.GMI2_CHANNEL ?? "",
   photoRoot: process.env.PHOTO_ROOT ?? "",
+  oldRoot: "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612837856",
 };

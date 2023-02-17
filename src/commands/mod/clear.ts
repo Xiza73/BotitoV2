@@ -1,5 +1,5 @@
 import { Client, Message, TextChannel } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 
 const pull: ICommand = {
   name: "clear",

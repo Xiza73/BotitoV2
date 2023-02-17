@@ -1,5 +1,5 @@
 import { Client, ClientOptions, Collection } from "discord.js";
-import { ClientConfig, ICommand } from "../types/types";
+import { ClientConfig, ICommand, ISlashCommand } from "../types";
 import { DisTube } from "distube";
 
 export default class ClientDiscord extends Client {
@@ -40,7 +40,7 @@ export default class ClientDiscord extends Client {
   }
 
   private readonly _commands: Collection<string, ICommand>;
-  private readonly _slashCommands: Collection<string, any>;
+  private readonly _slashCommands: Collection<string, ISlashCommand>;
   private readonly _aliases: Collection<string, any>;
   private _config: ClientConfig;
   private _categories: string[] = [];
