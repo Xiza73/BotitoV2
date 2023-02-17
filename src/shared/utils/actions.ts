@@ -7,7 +7,7 @@ import {
   goodMorning,
   fridayEmbedController,
 } from "./goodMorning";
-import { IDate } from "../types/types";
+import { IDate } from "../types";
 import calendar from "../constants/calendar";
 
 export const action = (comando: string, msg: Message): any => {

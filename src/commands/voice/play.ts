@@ -1,5 +1,5 @@
 import { GuildTextBasedChannel, Message, MessageEmbed } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 const pull: ICommand = {
   name: "play",

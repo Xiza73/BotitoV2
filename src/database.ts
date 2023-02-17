@@ -7,6 +7,7 @@ const dbOptions: ConnectOptions = {
   autoCreate: true,
 };
 
+mongoose.set("strictQuery", false);
 mongoose.connect(config.mongodb, dbOptions).then(
   () => {
     console.log("Conectado a la base de datos");

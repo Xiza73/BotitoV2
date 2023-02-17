@@ -1,6 +1,6 @@
 import { Message, MessageEmbed, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 
 const pull: ICommand = {
   name: "help",

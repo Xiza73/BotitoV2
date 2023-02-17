@@ -1,4 +1,4 @@
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 
 import { Client, Message, MessageEmbed } from "discord.js";
 import randomPuppy from "random-puppy";

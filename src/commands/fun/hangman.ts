@@ -1,14 +1,15 @@
 import {
+  MessageActionRow,
   Client,
   Message,
-  MessageActionRow,
   MessageSelectMenu,
 } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 import Death from "death-games";
 import { random, shuffle } from "../../shared/utils/helpers";
 import words from "../../shared/data/words";
 import _config from "../../config";
+import { SelectMenuBuilder } from "@discordjs/builders";
 
 const { photoRoot } = _config;
 

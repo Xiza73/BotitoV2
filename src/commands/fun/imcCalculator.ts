@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, Message, MessageEmbed } from "discord.js";
-import { ICommand } from "../../shared/types/types";
+import { ICommand } from "../../shared/types";
 
 type imcMessage = {
   message: string;
@@ -42,7 +42,9 @@ const imcData: {
   },
 };
 
-const keys = Object.keys(imcData).sort((a, b) => parseFloat(a) - parseFloat(b));
+const keys = Object.keys(imcData)
+  .sort((a, b) => parseFloat(a) - parseFloat(b))
+  .map((key) => parseFloat(key));
 
 const pull: ICommand = {
   name: "imccalculator",
@@ -57,17 +59,19 @@ const pull: ICommand = {
       if (!args[1]) return msg.channel.send("Falta agregar altura");
       if (args[0] === "0" || args[1] === "0")
         return msg.channel.send("No seas pendejo");
-      const peso = parseFloat(args[0]);
-      const altura = parseFloat(args[1]);
-      const imcNumber = peso / (altura * altura);
+      const weight = parseFloat(args[0]);
+      const preHeight = parseFloat(args[1]);
+      const height = preHeight > 3 ? preHeight / 100 : preHeight;
+      const imcNumber = weight / (height * height);
       let imc: imcMessage = {
         message: "No se pudo calcular",
         icon: "🤔",
         color: "#000000",
       };
+      console.log({ weight, height, imcNumber });
 
       for (const key of keys) {
-        if (imcNumber < parseFloat(key)) {
+        if (imcNumber < key) {
           imc = imcData[key]!;
           break;
         }
