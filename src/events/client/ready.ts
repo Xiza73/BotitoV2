@@ -3,6 +3,7 @@ import ScheduleMessage from "../../shared/classes/ScheduleMessage";
 import { goodMorning } from "../../shared/utils/goodMorning";
 import { reminder } from "../../shared/utils/birthdayReminder";
 import { messaryController } from "../../shared/utils/cronJobs";
+import { logger } from "../../shared/utils/helpers";
 
 module.exports = {
   name: "ready",
@@ -24,7 +25,7 @@ module.exports = {
     });
 
     // Send a message on the console
-    console.log(
+    logger(
       `[LOG] ${
         client.user!.username
       } is up!\n[LOG] Bot serving on Ready to serve in ${

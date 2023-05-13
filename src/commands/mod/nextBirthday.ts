@@ -46,7 +46,6 @@ const pull: ICommand = {
         allowedMentions: { repliedUser: false },
       });
     } catch (error) {
-      console.log(error);
       msg.channel.send({
         content: "Ha ocurrido un error",
       });

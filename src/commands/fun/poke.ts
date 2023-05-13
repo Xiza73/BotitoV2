@@ -68,9 +68,7 @@ const fetchData = async (id: number, message: Message, client: Client) => {
     const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
     const data = await res.json();
     pintarCard(modelData(data, id), message);
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };
 
 const fetchType = async (id: string, message: Message, client: Client) => {
@@ -83,9 +81,7 @@ const fetchType = async (id: string, message: Message, client: Client) => {
       message,
       client
     );
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };
 
 function pintarCard(poke: any, message: Message) {
@@ -162,7 +158,7 @@ function modelData(data: any, id: number) {
   let img;
   const name = capitalizeFirstLetter(data.name);
   let order = "";
-  const type = [];
+  const type: string[] = [];
   let shiny = "";
   const stats = {
     hp: data.stats[0].base_stat,

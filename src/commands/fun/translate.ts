@@ -58,7 +58,6 @@ const pull: ICommand = {
       });
       await msg.channel.send({ embeds: [embed] });
     } catch (error) {
-      console.log(error);
       msg.channel.send("Error al traducir");
     }
   },

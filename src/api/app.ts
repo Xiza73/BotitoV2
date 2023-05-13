@@ -4,7 +4,8 @@ import _config from "../config";
 import cors from "cors";
 import morgan from "morgan";
 import _router from "./router";
-import ErrorHandler from "../helpers/ErrorHandler";
+import ErrorHandler from "../handlers/ErrorHandler";
+import { logger } from "../shared/utils/helpers";
 
 const _app: Application = express();
 
@@ -34,4 +35,4 @@ _app.get("*", (_: Request, res: Response) => {
 });
 
 _app.listen(_app.get("port"));
-console.log(`Server ready: http://localhost:${_app.get("port")}`);
+logger(`Server ready: http://localhost:${_app.get("port")}`);

@@ -1,5 +1,5 @@
-import ErrorHandler from "../../helpers/ErrorHandler";
-import ResponseBase from "../../helpers/ResponseBase";
+import ErrorHandler from "../../handlers/ErrorHandler";
+import ResponseBase from "../../handlers/ResponseBase";
 import Sample, { ISample } from "../models/Sample";
 
 export const postSample = async (body: any) => {
@@ -13,7 +13,6 @@ export const postSample = async (body: any) => {
     await sample.save();
     return ResponseBase(200, "Muestra agregada correctamente");
   } catch (err) {
-    console.log(err);
     return new ErrorHandler(500, "Error al agregar muestra");
   }
 };

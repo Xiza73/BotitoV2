@@ -1,5 +1,6 @@
 import mongoose, { ConnectOptions } from "mongoose";
 import config from "./config";
+import { logger } from "./shared/utils/helpers";
 
 const dbOptions: ConnectOptions = {
   bufferCommands: true,
@@ -10,10 +11,10 @@ const dbOptions: ConnectOptions = {
 mongoose.set("strictQuery", false);
 mongoose.connect(config.mongodb, dbOptions).then(
   () => {
-    console.log("Conectado a la base de datos");
+    logger("Conectado a la base de datos");
   },
   (_) => {
-    console.log("Error al conectar con la base de datos");
+    logger("Error al conectar con la base de datos");
   }
 );
 

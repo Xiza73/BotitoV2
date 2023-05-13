@@ -1,11 +1,14 @@
 import { Message } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { action } from "../../shared/utils/actions";
+import * as gptmi2 from "../../shared/utils/gptmi2";
 
 module.exports = {
   name: "messageCreate",
   type: "client",
   async execute(message: Message, client: ClientDiscord) {
+    gptmi2.handler(message, client);
+
     if (
       message.author.bot ||
       !message.guild ||
