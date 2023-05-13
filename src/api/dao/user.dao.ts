@@ -1,6 +1,6 @@
-import ErrorHandler from "../../helpers/ErrorHandler";
-import ResponseBase from "../../helpers/ResponseBase";
-import ResponseData from "../../helpers/ResponseData";
+import ErrorHandler from "../../handlers/ErrorHandler";
+import ResponseBase from "../../handlers/ResponseBase";
+import ResponseData from "../../handlers/ResponseData";
 import User, { IUser } from "../models/User";
 import { capitalize } from "../../shared/utils/helpers";
 

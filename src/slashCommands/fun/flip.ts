@@ -23,10 +23,9 @@ const pull: ISlashCommand = {
     args: Argument[]
   ) => {
     try {
+      const value: number = parseInt(args[0]?.value?.toString() || "1");
       const number =
-        (args[0]?.value &&
-          (args[0].value > 10 ? 10 : args[0].value < 1 ? 1 : args[0].value)) ||
-        1;
+        (args[0]?.value && (value > 10 ? 10 : value < 1 ? 1 : value)) || 1;
       const result = [];
       for (let i = 0; i < number; i++) {
         result.push(Math.random() < 0.5 ? "🧑 Heads" : "🛡️ Tails");

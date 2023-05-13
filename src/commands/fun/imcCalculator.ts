@@ -68,7 +68,6 @@ const pull: ICommand = {
         icon: "🤔",
         color: "#000000",
       };
-      console.log({ weight, height, imcNumber });
 
       for (const key of keys) {
         if (imcNumber < key) {
@@ -98,7 +97,6 @@ const pull: ICommand = {
 
       await msg.channel.send({ embeds: [embed] });
     } catch (error) {
-      console.log(error);
       msg.channel.send("Algo salio mal :( o te crees pendejo");
     }
   },

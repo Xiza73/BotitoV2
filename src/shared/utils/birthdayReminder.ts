@@ -45,7 +45,5 @@ export const reminder = async (client: ClientDiscord) => {
         });
       }
     });
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };
