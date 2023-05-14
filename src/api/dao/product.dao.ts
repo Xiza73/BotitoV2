@@ -1,6 +1,6 @@
-import ErrorHandler from "../../helpers/ErrorHandler";
-import ResponseBase from "../../helpers/ResponseBase";
-import ResponseData from "../../helpers/ResponseData";
+import ErrorHandler from "../../handlers/ErrorHandler";
+import ResponseBase from "../../handlers/ResponseBase";
+import ResponseData from "../../handlers/ResponseData";
 import Product, { IProduct } from "../models/Product";
 
 type ProductData = {
@@ -25,7 +25,6 @@ export const postProduct = async (body: ProductData) => {
     await product.save();
     return ResponseBase(200, "Producto agregado correctamente");
   } catch (err) {
-    console.log(err);
     return new ErrorHandler(500, "Error al agregar producto");
   }
 };

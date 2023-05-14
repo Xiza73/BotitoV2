@@ -65,10 +65,9 @@ const pull: ISlashCommand = {
   run: async (
     client: ClientDiscord,
     interaction: CommandInteraction,
-    args: Argument[]
+    _: Argument[]
   ) => {
     try {
-      console.log({ args });
       const msg = await interaction.channel?.send(`🏓 Pinging...`);
 
       const pingEmbed = new Discord.MessageEmbed()

@@ -1,5 +1,5 @@
-import ErrorHandler from "../../helpers/ErrorHandler";
-import ResponseData from "../../helpers/ResponseData";
+import ErrorHandler from "../../handlers/ErrorHandler";
+import ResponseData from "../../handlers/ResponseData";
 import User, { IUser } from "../models/User";
 import { capitalize } from "../../shared/utils/helpers";
 import calendar from "../../shared/constants/calendar";
