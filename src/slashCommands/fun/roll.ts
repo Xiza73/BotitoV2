@@ -33,7 +33,7 @@ const pull: ISlashCommand = {
     },
   ],
   run: async (
-    client: ClientDiscord,
+    _: ClientDiscord,
     interaction: CommandInteraction,
     args: Argument[]
   ) => {

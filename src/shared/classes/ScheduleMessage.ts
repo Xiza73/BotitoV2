@@ -28,3 +28,19 @@ export default (
 
   action.start();
 };
+
+export const onceCron = (message: Function, date: Date) => {
+  const action = new CronJob(
+    date,
+    () => {
+      message();
+    },
+    () => {
+      action.stop();
+    },
+    true,
+    "America/Lima"
+  );
+
+  action.start();
+};
