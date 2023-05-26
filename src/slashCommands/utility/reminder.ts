@@ -1,9 +1,10 @@
 import { CommandInteraction, TextChannel } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
-import { Argument, ISlashCommand } from "../../shared/types/index";
+import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, rangeHandler } from "../../shared/utils/helpers";
 import { onceCron } from "../../shared/classes/ScheduleMessage";
+import { getDate } from "../../shared/utils";
 
 const OPTIONS = {
   date: "date",
@@ -84,11 +85,13 @@ const pull: ISlashCommand = {
 
       const { month, date, hour, minute, message, spam } = getArgs(args);
 
-      const dateObj = new Date();
-      dateObj.setHours(hour as number);
-      dateObj.setMinutes(minute as number);
-      month && dateObj.setMonth(month as number);
-      date && dateObj.setDate(date as number);
+      const dateObj = getDate({
+        city: "lima",
+        hours: hour,
+        minutes: minute,
+        ...(date && { date }),
+        ...(month && { month }),
+      });
 
       const messages: string[] = [];
       for (let i = 0; i < parseInt((spam || 1)?.toString()); i++) {
@@ -98,7 +101,6 @@ const pull: ISlashCommand = {
       const sendMessage = async () => {
         if (isDM) {
           const userId = interaction.user.id;
-          // await client.users.cache.get(userId)?.send(message as string);
           await Promise.all(
             messages.map(async (msg) => {
               await client.users.cache.get(userId)?.send(msg);
@@ -106,9 +108,6 @@ const pull: ISlashCommand = {
           );
         } else {
           const channelId = interaction.channelId;
-          /* await (client.channels.cache.get(channelId) as TextChannel)?.send(
-            message as string
-          ); */
           await Promise.all(
             messages.map(async (msg) => {
               await (client.channels.cache.get(channelId) as TextChannel)?.send(
@@ -119,7 +118,7 @@ const pull: ISlashCommand = {
         }
       };
 
-      onceCron(sendMessage, dateObj);
+      onceCron(sendMessage, dateObj.toDate());
 
       interaction.reply({
         content: "Reminder set",

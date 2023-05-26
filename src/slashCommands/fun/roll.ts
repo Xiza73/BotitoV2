@@ -2,7 +2,7 @@ import Discord, { CommandInteraction } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
-import { Argument, ISlashCommand } from "../../shared/types/index";
+import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random } from "../../shared/utils/helpers";
 import Jimp from "jimp";
 

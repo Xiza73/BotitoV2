@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "cron": "^1.8.2",
     "cross-fetch": "^3.1.4",
+    "dayjs": "^1.11.7",
     "death-games": "^1.2.2",
     "discord.js": "13.11.0",
     "discordjs-ytdl": "2.2.0",
