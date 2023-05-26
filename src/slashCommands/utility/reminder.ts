@@ -4,7 +4,7 @@ import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, rangeHandler } from "../../shared/utils/helpers";
 import { onceCron } from "../../shared/classes/ScheduleMessage";
-import { getDate } from "../../shared/utils";
+import { getDate, logger } from "../../shared/utils";
 
 const OPTIONS = {
   date: "date",
@@ -97,6 +97,7 @@ const pull: ISlashCommand = {
       for (let i = 0; i < parseInt((spam || 1)?.toString()); i++) {
         messages.push(message);
       }
+      logger({ dateObj, date: dateObj.toDate() });
 
       const sendMessage = async () => {
         if (isDM) {
