@@ -10,6 +10,12 @@ import {
 import { IDate } from "../types";
 import calendar from "../constants/calendar";
 
+const getArgs = (msg: Message): string[] => {
+  const s = msg.toString();
+  const args = s.split(" ");
+  return args;
+};
+
 export const action = (comando: string, msg: Message): any => {
   // COMANDOS
   const comandos: any = {
@@ -24,15 +30,14 @@ export const action = (comando: string, msg: Message): any => {
     suma: function () {
       let error = false;
       let suma = 0;
-      const s = msg.toString();
-      const texto = s.split(" ");
+      const args = getArgs(msg);
       try {
-        for (let i = 1; i < texto.length; i++) {
-          if (Number.isNaN(parseFloat(texto[i]))) {
+        for (let i = 1; i < args.length; i++) {
+          if (Number.isNaN(parseFloat(args[i]))) {
             error = true;
             break;
           } else {
-            suma += parseFloat(texto[i]);
+            suma += parseFloat(args[i]);
           }
         }
         if (error) {

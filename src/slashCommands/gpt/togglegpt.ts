@@ -1,6 +1,6 @@
 import Discord, { CommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { Argument, ISlashCommand } from "../../shared/types/index";
+import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 import { toggleGPTAllowedChannel } from "../../shared/utils/gptChannelsHandler";
 
