@@ -31,10 +31,7 @@ const getTimezone = (city: TimezonePlaces) => Timezone[city];
 /* EXPORTS */
 
 export const getNewDate = (city: TimezonePlaces) =>
-  dayjs(dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ")).tz(
-    getTimezone(city),
-    true
-  );
+  dayjs(dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ")).tz(getTimezone(city));
 
 export const getDate = ({
   city,
