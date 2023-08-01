@@ -1,12 +1,12 @@
 import { MessageEmbed } from "discord.js";
-import { Queue } from "distube";
+// import { Queue } from "distube";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
 module.exports = {
   name: "distube",
   type: "distube",
   execute(client: ClientDiscord) {
-    const status = (queue: Queue) =>
+    /* const status = (queue: Queue) =>
       `Volumen: \`${queue.volume}%\` | Filtro: \`${
         queue.filters.join(", ") || "❌"
       }\` | Loop: \`${
@@ -72,6 +72,6 @@ module.exports = {
         setTimeout(() => {
           return queue.textChannel?.send("Cola vacía, adiós!");
         }, 5000);
-      });
+      }); */
   },
 };

@@ -24,7 +24,7 @@ const pull: ICommand = {
     args: string[],
     cmd: string
   ) => {
-    const { member, channel } = msg;
+    /* const { member, channel } = msg;
     const voiceChannel = member?.voice.channel;
 
     if (!voiceChannel)
@@ -96,7 +96,7 @@ const pull: ICommand = {
         description: `Alert: ${err}`,
       }).setColor("RED");
       return msg.reply({ embeds: [errEmbed] });
-    }
+    } */
   },
 };
 export default pull;

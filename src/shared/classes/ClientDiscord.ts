@@ -1,6 +1,6 @@
 import { Client, ClientOptions, Collection } from "discord.js";
 import { ClientConfig, ICommand, ISlashCommand } from "../types";
-import { DisTube } from "distube";
+// import { DisTube } from "distube";
 
 export default class ClientDiscord extends Client {
   public get commands() {
@@ -27,7 +27,7 @@ export default class ClientDiscord extends Client {
     return this._distube;
   }
 
-  public set distube(dtube: DisTube) {
+  public set distube(dtube: any) {
     this._distube = dtube;
   }
 
