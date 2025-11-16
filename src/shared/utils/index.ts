@@ -8,4 +8,3 @@ export * from './goodMorning';
 export * from './gptChannelsHandler';
 export * from './gptmi2';
 export * from './helpers';
-export * from './translator';
