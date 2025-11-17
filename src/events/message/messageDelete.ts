@@ -7,11 +7,23 @@ module.exports = {
   type: "message",
   // just work on the first message update, and just in gmi2 channel
   async execute(message: Message, client: ClientDiscord) {
-    if (message?.author?.bot) return;
+    if (message?.author?.bot) {
+      console.log("is bot");
 
-    if (!message?.content && !message?.attachments?.at(0)?.url) return;
+      return;
+    }
 
-    if (message?.channel?.id !== config.gmi2Channel) return;
+    if (!message?.content && !message?.attachments?.at(0)?.url) {
+      console.log("no content");
+
+      return;
+    }
+
+    if (message?.channel?.id !== config.gmi2Channel) {
+      console.log("not gmi2 channel");
+
+      return;
+    }
 
     const count = 4096;
 
@@ -21,6 +33,21 @@ module.exports = {
       (message.attachments?.at(0)?.url
         ? `\n${message.attachments?.at(0)?.url}`
         : "");
+
+    const image = message.attachments?.at(0)?.url;
+
+    const user = await client.users.fetch(config.ownerId, {
+      cache: false,
+    });
+
+    if (image) {
+      await user.send({
+        content: `**${message.author.username}** ha borrado un mensaje con un imagen.`,
+        files: [image],
+      });
+
+      return;
+    }
 
     const log = new MessageEmbed({
       author: {
@@ -35,10 +62,6 @@ module.exports = {
         },
       }),
       color: "RED",
-    });
-
-    const user = await client.users.fetch(config.ownerId, {
-      cache: false,
     });
 
     await user.send({ embeds: [log] });

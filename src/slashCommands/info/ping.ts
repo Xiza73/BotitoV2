@@ -7,7 +7,7 @@ import { errorHandler } from "../../shared/utils/helpers";
 
 const pull: ISlashCommand = {
   name: "ping",
-  category: "Utility",
+  category: "info",
   description: "Check the bot's ping!",
   ownerOnly: false,
   options: [

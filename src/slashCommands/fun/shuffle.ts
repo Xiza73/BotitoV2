@@ -73,13 +73,26 @@ const pull: ISlashCommand = {
         );
 
         const list = (value as string)?.split(" ").map((item) => item.trim());
+        const withWinners = Boolean(winners);
         winners = parseInt(winners?.toString() || list.length.toString());
-        const shuffledList = complexShuffle(list);
+        const title = withWinners
+          ? winners === 1
+            ? "Ganador"
+            : "Ganadores"
+          : "Lista aleatoria";
+        const shuffledList = shuffle(list);
 
         const embed = new Discord.MessageEmbed()
           .setColor("RANDOM")
-          .setTitle("Shuffled List")
+          .setTitle(title)
           .setDescription(enumerateArray(shuffledList, winners))
+          .setFields([
+            {
+              name: "Lista original",
+              value: list.join(", "),
+              inline: true,
+            },
+          ])
           .setFooter({
             text: `Requested by ${interaction.user.tag}`,
             iconURL: interaction.user.displayAvatarURL(),
@@ -95,7 +108,7 @@ const pull: ISlashCommand = {
           list.push(i);
         }
         // const shuffledList = list.sort(() => Math.random() - 0.5);
-        const shuffledList = complexShuffle(list);
+        const shuffledList = shuffle(list);
 
         const embed = new Discord.MessageEmbed()
           .setColor("RANDOM")
@@ -124,16 +137,13 @@ const enumerateArray = (array: (string | number)[], winners: number) => {
   return list;
 };
 
-const complexShuffle = (array: (string | number)[]) => {
-  // const shuffledArray = array.sort(() => Math.random() - 0.5); // This is the simple way to shuffle an array, but it's not complex enough
-  // a more complex way to shuffle an array is to use the Fisher-Yates algorithm
-  const shuffledArray = [...array];
-  for (let i = shuffledArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+function shuffle<T>(array: T[]): T[] {
+  const result = [...array]; // copiar para no mutar el original
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // índice aleatorio 0..i
+    [result[i], result[j]] = [result[j], result[i]]; // swap
   }
-
-  return shuffledArray;
-};
+  return result;
+}
 
 export default pull;
