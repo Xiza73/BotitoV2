@@ -4,11 +4,11 @@ import {
   MessageEmbed,
   MessageOptions,
   MessagePayload,
+  CommandInteraction,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { IDate, Week, Month } from "../types";
 import _config from "./../../config";
-import { CommandInteraction } from "discord.js";
 
 export const logger = (...msgs: any[]) => console.log(...msgs);
 
