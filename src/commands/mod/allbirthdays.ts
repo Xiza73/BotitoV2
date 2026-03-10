@@ -1,6 +1,5 @@
 import { Client, MessageEmbed, Message, EmbedFieldData } from "discord.js";
 import { CumData, ICommand, Month } from "../../shared/types";
-import _config from "../../config";
 import {
   getBirthdays,
   getBirthdaysByMonth,
@@ -23,7 +22,7 @@ const pull: ICommand = {
           return msg.channel.send({
             content: `El mes debe estar entre 1 y 12`,
           });
-        response = await getBirthdaysByMonth(month);
+        response = await getBirthdaysByMonth(month as Month);
         if (Object.keys(response).length === 0)
           return msg.channel.send({
             content: `No hay cumpleaños en ${calendar.months[month as Month]}`,
@@ -42,7 +41,7 @@ const pull: ICommand = {
         const birthdays = response[res];
         const users = birthdays.map(
           (birthday: any) =>
-            ` \`${birthday.birthdayDay}\` <@${birthday.discordId}>`
+            ` \`${birthday.birthdayDay}\` <@${birthday.discordId}>`,
         );
         users.sort((a: string, b: string) => {
           const dayA = parseInt(a.split(" ")[1].replace("`", ""));

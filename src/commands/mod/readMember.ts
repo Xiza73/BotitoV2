@@ -1,11 +1,8 @@
 import { Client, MessageEmbed, Message, User } from "discord.js";
 import { ICommand, Month } from "../../shared/types";
-import _config from "../../config";
 import calendar from "../../shared/constants/calendar";
 import { getUserById, getUserByName } from "../../shared/services/user.service";
 import { errorHandler, mentionUser } from "../../shared/utils/helpers";
-
-const apiUrl = _config.api;
 
 const pull: ICommand = {
   name: "readmember",

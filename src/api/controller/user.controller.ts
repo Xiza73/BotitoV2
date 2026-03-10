@@ -4,7 +4,7 @@ import * as _dao from "../dao/user.dao";
 export const addUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const response = await _dao.addUser(req.body);
   if (response.statusCode === 200) return res.status(200).json(response);
@@ -14,7 +14,7 @@ export const addUser = async (
 export const readUsers = async (
   _: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const response = await _dao.readUsers();
   if (response.statusCode === 200) return res.status(200).json(response);
@@ -24,9 +24,9 @@ export const readUsers = async (
 export const readUserByName = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const response = await _dao.readUserByName(req.query.name);
+  const response = await _dao.readUserByName(req.query.name?.toString()!);
   if (response.statusCode === 200) return res.status(200).json(response);
   next(response);
 };
@@ -34,9 +34,11 @@ export const readUserByName = async (
 export const readUserByDiscordId = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const response = await _dao.readUserByDiscordId(req.query.discordId);
+  const response = await _dao.readUserByDiscordId(
+    req.query.discordId?.toString()!,
+  );
   if (response.statusCode === 200) return res.status(200).json(response);
   next(response);
 };
@@ -44,7 +46,7 @@ export const readUserByDiscordId = async (
 export const setDiscordId = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const response = await _dao.setDiscordId(req.body);
   if (response.statusCode === 200) return res.status(200).json(response);
@@ -54,7 +56,7 @@ export const setDiscordId = async (
 export const setBirthday = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const response = await _dao.setBirthday(req.body);
   if (response.statusCode === 200) return res.status(200).json(response);
@@ -64,7 +66,7 @@ export const setBirthday = async (
 export const getCurrentMessary = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { discordId } = req.query;
   const response = await _dao.getCurrentMessary(discordId?.toString()!);
@@ -75,12 +77,12 @@ export const getCurrentMessary = async (
 export const updateMonth = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { discordId, month } = req.query;
   const response = await _dao.updateMonth(
     discordId?.toString()!,
-    parseInt(month?.toString()!)
+    parseInt(month?.toString()!),
   );
   if (response.statusCode === 200) return res.status(200).json(response);
   next(response);

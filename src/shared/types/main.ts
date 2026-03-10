@@ -1,6 +1,5 @@
 import { VoiceConnection } from "@discordjs/voice";
 import {
-  ApplicationCommandDataResolvable,
   ChatInputApplicationCommandData,
   CommandInteraction,
   DMChannel,
@@ -26,7 +25,7 @@ export type ICommand = {
     client: ClientDiscord,
     msg: Message,
     args: string[],
-    cmd: string
+    cmd: string,
     // eslint-disable-next-line no-undef
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
@@ -70,7 +69,7 @@ export type ISlashCommand = {
   run: (
     client: ClientDiscord,
     interaction: CommandInteraction,
-    args: Argument[]
+    args: Argument[],
     // eslint-disable-next-line no-undef
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
