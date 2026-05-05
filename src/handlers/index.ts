@@ -28,7 +28,17 @@ export const loadEvents = async (client: ClientDiscord) => {
     ).filter((file) => file.endsWith(".js"));
 
     for (const file of eventFiles) {
-      const event = await import(`../events/${folder}/${file}`);
+      let event;
+      try {
+        event = await import(`../events/${folder}/${file}`);
+      } catch (err) {
+        logger(
+          chalk.bgRedBright.black(
+            ` ❌  => Event '${file.substring(0, file.length - 3)}' failed to load: ${err}`
+          )
+        );
+        continue;
+      }
 
       if (event.name) {
         logger(chalk.bgGreen.black(checkHandler("Event", file, 1)));
@@ -68,9 +78,19 @@ export const loadCommands = async (client: ClientDiscord) => {
     ).filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      const pull: IPull = await import(
-        path.resolve(__dirname, `./../commands/${folder}/${file}`)
-      );
+      let pull: IPull;
+      try {
+        pull = await import(
+          path.resolve(__dirname, `./../commands/${folder}/${file}`)
+        );
+      } catch (err) {
+        logger(
+          chalk.bgRedBright.black(
+            ` ❌  => Command '${file.substring(0, file.length - 3)}' failed to load: ${err}`
+          )
+        );
+        continue;
+      }
 
       if (pull.default?.name) {
         client.commands.set(pull.default.name, pull.default);
@@ -103,11 +123,21 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
     ).filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      const command = (
-        await import(
-          path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
-        )
-      ).default;
+      let command;
+      try {
+        command = (
+          await import(
+            path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
+          )
+        ).default;
+      } catch (err) {
+        logger(
+          chalk.bgRedBright.black(
+            ` ❌  => SlashCommand '${file.substring(0, file.length - 3)}' failed to load: ${err}`
+          )
+        );
+        continue;
+      }
 
       if (command.name) {
         client.slashCommands.set(command.name, command);
