@@ -1,9 +1,6 @@
 import { Client, MessageEmbed, Message } from "discord.js";
 import { ICommand } from "../../shared/types";
-import _config from "../../config";
-import fetch from "cross-fetch";
-
-const apiUrl = _config.api;
+import * as userDao from "../../api/dao/user.dao";
 
 const pull: ICommand = {
   name: "addmember",
@@ -35,21 +32,12 @@ const pull: ICommand = {
           `Falta segundo argumento\nSintaxis: <name> <user> <dayBirthday> <monthBirthday>`
         );
       const user = await client.users.fetch(mentions[0]);
-      const body = {
+      const data = await userDao.addUser({
         name: args[0],
         discordId: user.id,
-        birthdayDay: args[2] ?? null,
-        birthdayMonth: args[3] ?? null,
-      };
-      const response = await fetch(`${apiUrl}/api/user`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        birthdayDay: args[2],
+        birthdayMonth: args[3],
       });
-      const data: any = await response.json();
 
       const embed = new MessageEmbed({
         title: `Status: ${data.statusCode}`,
