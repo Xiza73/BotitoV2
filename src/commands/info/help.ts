@@ -64,7 +64,7 @@ const pull: ICommand = {
           \n**Cantidad de comandos:** ${client.commands.size}
           \n**Cantidad de /comandos:** ${client.slashCommands.size}`
           )
-          .setColor("RANDOM")
+          .setColor("Random")
           .addFields([
             {
               name: "Commands",
@@ -124,7 +124,7 @@ const pull: ICommand = {
           { name: "Aliases", value: aliases.toString() },
           { name: "Category", value: category }
         )
-        .setColor("RANDOM");
+        .setColor("Random");
 
       message.reply({
         embeds: [helpCmdEmbed],

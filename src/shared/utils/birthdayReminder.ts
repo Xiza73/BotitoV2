@@ -18,7 +18,7 @@ export const reminder = async (client: ClientDiscord) => {
       if (today.day === e.birthdayDay && today.month === e.birthdayMonth) {
         const user = await client.users.fetch(e.discordId);
         const embed = new EmbedBuilder()
-          .setColor("RANDOM")
+          .setColor("Random")
           .setTitle("GangBang al CUMpleañero! 🥳🎂🎉")
           .setDescription(`👑 Felicitaciones **<@${user.id}>**`)
           .setThumbnail(

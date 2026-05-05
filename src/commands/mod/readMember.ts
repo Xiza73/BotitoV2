@@ -41,7 +41,7 @@ const pull: ICommand = {
             }\``,
           },
         ],
-      }).setColor("RANDOM");
+      }).setColor("Random");
 
       msg.channel.send({ embeds: [embed] });
       return;

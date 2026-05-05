@@ -31,7 +31,7 @@ const pull: ISlashCommand = {
         result.push(Math.random() < 0.5 ? "🧑 Heads" : "🛡️ Tails");
       }
       const embed = new Discord.EmbedBuilder()
-        .setColor("RANDOM")
+        .setColor("Random")
         .setTitle("Coin Flip")
         .setDescription(result.join("\n"))
         .setFooter({

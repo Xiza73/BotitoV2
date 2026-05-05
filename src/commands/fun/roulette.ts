@@ -55,7 +55,7 @@ const pull: ICommand = {
       // Elegimos el número de veces a girar el tambor del revólver
       if (muertoXD) {
         const e = new EmbedBuilder()
-          .setColor("RANDOM")
+          .setColor("Random")
           .setTitle("Los soplones, pum pum pum, al agua!")
           .setDescription(
             msg.author.toString() + " ha muerto! Se acabó la ronda!\n"

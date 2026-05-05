@@ -46,7 +46,7 @@ const pull: ISlashCommand = {
         result.push(random(1, sides));
       }
       const embed = new Discord.EmbedBuilder()
-        .setColor("GOLD")
+        .setColor("Gold")
         .setTitle("Dice Roll")
         .setFooter({
           text: `Requested by ${interaction.user.tag}`,

@@ -38,7 +38,7 @@ function getAll(client: ClientDiscord, message: Message) {
     .reduce((string: string, category: string) => string + "\n\n" + category);
 
   const embed = new EmbedBuilder()
-    .setColor("RANDOM")
+    .setColor("Random")
     .setTitle("Comandos")
     .setDescription(info);
 
@@ -55,7 +55,7 @@ function getCMD(client: ClientDiscord, message: Message, input: string) {
   const embed = new EmbedBuilder();
   if (!cmd) {
     return message.channel.send({
-      embeds: [embed.setColor("RED").setDescription(info)],
+      embeds: [embed.setColor("Red").setDescription(info)],
     });
   }
 
@@ -69,7 +69,7 @@ function getCMD(client: ClientDiscord, message: Message, input: string) {
   }
 
   return message.channel.send({
-    embeds: [embed.setColor("GREEN").setDescription(info)],
+    embeds: [embed.setColor("Green").setDescription(info)],
   });
 }
 

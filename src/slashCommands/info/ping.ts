@@ -86,7 +86,7 @@ const pull: ISlashCommand = {
             inline: true,
           },
         ])
-        .setColor("RANDOM");
+        .setColor("Random");
       await interaction.reply({ embeds: [pingEmbed] });
 
       await msg?.delete();

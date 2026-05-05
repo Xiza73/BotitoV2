@@ -123,7 +123,7 @@ export const errorHandler = (
   msg: string = "Error con el comando"
 ) => {
   const embed = new EmbedBuilder()
-    .setColor("RED")
+    .setColor("Red")
     .setTitle(`Error ${error?.response?.data?.statusCode || "☠️"}`)
     .setFields([
       {

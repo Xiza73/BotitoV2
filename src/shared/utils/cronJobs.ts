@@ -8,7 +8,7 @@ export const messaryController = async (client: ClientDiscord) => {
   const currentMonth = await getCurrentMessary(_config.ownerId);
   await updateMonth(_config.ownerId, currentMonth + 1);
   const embed = new EmbedBuilder()
-    .setColor("RANDOM")
+    .setColor("Random")
     .setTitle("Mesario con Michelly").setDescription(`
       Cumplen ${currentMonth + 1} meses como pareja
     `);

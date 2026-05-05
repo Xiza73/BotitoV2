@@ -69,7 +69,7 @@ const pull: ISlashCommand = {
           \n**Cantidad de comandos:** ${client.commands.size}
           \n**Cantidad de /comandos:** ${client.slashCommands.size}`
           )
-          .setColor("RANDOM")
+          .setColor("Random")
           .addFields([
             {
               name: "Commands",
@@ -129,7 +129,7 @@ const pull: ISlashCommand = {
           { name: "Aliases", value: aliases.toString() },
           { name: "Category", value: category }
         )
-        .setColor("RANDOM");
+        .setColor("Random");
 
       interaction.reply({
         embeds: [helpCmdEmbed],

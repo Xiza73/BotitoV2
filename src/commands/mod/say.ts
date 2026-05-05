@@ -30,7 +30,7 @@ const pull: ICommand = {
     if (args[0].toLowerCase() === "embed") {
       const embed = new EmbedBuilder()
         .setDescription(args.slice(1).join(" "))
-        .setColor("WHITE");
+        .setColor("White");
 
       return message.channel.send({ embeds: [embed] });
     } else {

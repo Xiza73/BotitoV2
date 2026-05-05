@@ -41,7 +41,7 @@ module.exports = {
         { name: "Edited", value: edited }
       )
       .setTimestamp()
-      .setColor("YELLOW");
+      .setColor("Yellow");
 
     const user = await client.users.fetch(config.ownerId, {
       cache: false,

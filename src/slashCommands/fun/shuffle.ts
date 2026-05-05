@@ -83,7 +83,7 @@ const pull: ISlashCommand = {
         const shuffledList = shuffle(list);
 
         const embed = new Discord.EmbedBuilder()
-          .setColor("RANDOM")
+          .setColor("Random")
           .setTitle(title)
           .setDescription(enumerateArray(shuffledList, winners))
           .setFields([
@@ -111,7 +111,7 @@ const pull: ISlashCommand = {
         const shuffledList = shuffle(list);
 
         const embed = new Discord.EmbedBuilder()
-          .setColor("RANDOM")
+          .setColor("Random")
           .setTitle("Shuffled List")
           .setDescription(shuffledList.join(", "))
           .setFooter({

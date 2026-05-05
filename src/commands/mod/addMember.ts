@@ -43,7 +43,7 @@ const pull: ICommand = {
         title: `Status: ${data.statusCode}`,
         description: data.message,
         timestamp: new Date(),
-      }).setColor("RANDOM");
+      }).setColor("Random");
 
       return msg.channel.send({ embeds: [embed] });
     } catch (error) {
