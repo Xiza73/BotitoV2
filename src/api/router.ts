@@ -1,6 +1,4 @@
 import { Router } from "express";
-import _userRouter from "./routes/user.router";
-import _birthdayRouter from "./routes/birthday.router";
 import { readdirSync } from "fs";
 import path from "path";
 
