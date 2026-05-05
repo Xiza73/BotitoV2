@@ -37,9 +37,7 @@ export const loadEvents = async (client: ClientDiscord) => {
         continue;
       }
 
-      if (event.type === "distube") {
-        event.execute(client);
-      } else if (event.type) {
+      if (event.type) {
         if (event.once) {
           client.once(
             event.name,

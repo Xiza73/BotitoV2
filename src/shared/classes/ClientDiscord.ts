@@ -1,6 +1,5 @@
 import { Client, ClientOptions, Collection } from "discord.js";
 import { ClientConfig, ICommand, ISlashCommand } from "../types";
-// import { DisTube } from "distube";
 
 export default class ClientDiscord extends Client {
   public get commands() {
@@ -23,14 +22,6 @@ export default class ClientDiscord extends Client {
     this._categories = path;
   }
 
-  public get distube() {
-    return this._distube;
-  }
-
-  public set distube(dtube: any) {
-    this._distube = dtube;
-  }
-
   public get config() {
     return this._config;
   }
@@ -44,7 +35,6 @@ export default class ClientDiscord extends Client {
   private readonly _aliases: Collection<string, any>;
   private _config: ClientConfig;
   private _categories: string[] = [];
-  private _distube: any;
 
   constructor(options: ClientOptions, config: ClientConfig) {
     super(options);

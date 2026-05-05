@@ -1,14 +1,9 @@
-import { VoiceConnection } from "@discordjs/voice";
 import {
   ChatInputApplicationCommandData,
   CommandInteraction,
-  DMChannel,
   Message,
   MessageApplicationCommandData,
-  NewsChannel,
-  TextChannel,
   UserApplicationCommandData,
-  VoiceChannel,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { ApplicationCommandTypes } from "discord.js/typings/enums";
@@ -84,18 +79,6 @@ export type IDate = {
   hours: number;
   minutes: number;
   week: Week;
-};
-
-export type Song = {
-  title: string;
-  url: string;
-};
-
-export type SongQueue = {
-  voice_channel: VoiceChannel;
-  text_channel: TextChannel | DMChannel | NewsChannel;
-  connection: VoiceConnection | null;
-  songs: Song[];
 };
 
 export type ClientConfig = {
