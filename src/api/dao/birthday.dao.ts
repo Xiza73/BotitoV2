@@ -4,7 +4,7 @@ import User, { IUser } from "../models/User";
 import { capitalize } from "../../shared/utils/helpers";
 import calendar from "../../shared/constants/calendar";
 import { CumData, CumUser, Month } from "../../shared/types";
-import moment from "moment";
+import { getNewDate } from "../../shared/utils/dayjs";
 
 export const getBirthdays = async () => {
   try {
@@ -58,8 +58,7 @@ export const getBirthdaysByMonth = async (month: Month) => {
 
 export const getNextBirthday = async () => {
   try {
-    // getting current date with moment in "America/Lima" timezone
-    const now = moment().utcOffset("-05:00");
+    const now = getNewDate("lima");
     const currentMonth = now.month() + 1;
     const currentDay = now.date();
 
