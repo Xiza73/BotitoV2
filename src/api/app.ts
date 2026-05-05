@@ -1,5 +1,5 @@
 import express, { Application, Response, Request, NextFunction } from "express";
-import "../database";
+import mongoose from "../database";
 import _config from "../config";
 import cors from "cors";
 import morgan from "morgan";
@@ -28,10 +28,15 @@ _app.use((err: ErrorHandler, req: Request, res: Response, _: NextFunction) => {
   });
 });
 
-// _app.use(express.static(path.join(__dirname, "public")));
-_app.get("*", (_: Request, res: Response) => {
-  // res.sendFile(path.resolve(__dirname, "public/index.html"));
-  res.send("Hello World");
+_app.get("/", (_: Request, res: Response) => {
+  const mongoConnected = mongoose.connection.readyState === 1;
+
+  res.status(mongoConnected ? 200 : 503).json({
+    status: mongoConnected ? "ok" : "degraded",
+    uptime: process.uptime(),
+    mongo: mongoConnected ? "connected" : "disconnected",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 _app.listen(_app.get("port"));
