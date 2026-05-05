@@ -11,7 +11,7 @@ const pull: ICommand = {
   usage: "<param>",
   aliases: ["whois", "wi", "read"],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, args: string[], _: string) => {
+  run: async (client: Client, msg: Message<true>, args: string[], _: string) => {
     let res;
     let user: User;
     try {

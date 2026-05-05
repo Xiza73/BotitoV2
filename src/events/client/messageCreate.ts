@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, OmitPartialGroupDMChannel } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { action } from "../../shared/utils/actions";
 import * as gptmi2 from "../../shared/utils/gptmi2";
@@ -7,11 +7,12 @@ module.exports = {
   name: "messageCreate",
   type: "client",
   async execute(message: Message, client: ClientDiscord) {
-    gptmi2.handler(message, client);
+    if (message.channel.isDMBased() && !message.channel.isSendable()) return;
+    gptmi2.handler(message as OmitPartialGroupDMChannel<Message>, client);
 
     if (
       message.author.bot ||
-      !message.guild ||
+      !message.inGuild() ||
       !message.content.toLowerCase().startsWith(client.config.prefix)
     )
       return;

@@ -9,7 +9,7 @@ const pull: ICommand = {
   category: "fun",
   description: "Genera un Pokémon aleatorio",
   ownerOnly: false,
-  run: async (client: Client, message: Message, args: string[], _: string) => {
+  run: async (client: Client, message: Message<true>, args: string[], _: string) => {
     const types = [
       "bug",
       "dark",
@@ -63,7 +63,7 @@ const pull: ICommand = {
   aliases: [],
 };
 
-const fetchData = async (id: number, message: Message, client: Client) => {
+const fetchData = async (id: number, message: Message<true>, client: Client) => {
   try {
     const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
     const data = await res.json();
@@ -71,7 +71,7 @@ const fetchData = async (id: number, message: Message, client: Client) => {
   } catch (error) {}
 };
 
-const fetchType = async (id: string, message: Message, client: Client) => {
+const fetchType = async (id: string, message: Message<true>, client: Client) => {
   try {
     const res = await fetch(`https://pokeapi.co/api/v2/type/${id}`);
     const dat = await res.json();
@@ -84,7 +84,7 @@ const fetchType = async (id: string, message: Message, client: Client) => {
   } catch (error) {}
 };
 
-function pintarCard(poke: any, message: Message) {
+function pintarCard(poke: any, message: Message<true>) {
   let type = "";
   if (poke.type[1] === undefined) {
     type = `\`${poke.type[0]}\``;

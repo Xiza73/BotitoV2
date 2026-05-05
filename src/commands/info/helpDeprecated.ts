@@ -10,7 +10,7 @@ const pull: ICommand = {
   usage: `[command]`,
   aliases: [],
   ownerOnly: true,
-  run: async (client: Client, message: Message, args: string[], _: string) => {
+  run: async (client: Client, message: Message<true>, args: string[], _: string) => {
     if (client instanceof ClientDiscord)
       if (args[0]) {
         return getCMD(client, message, args[0]);
@@ -20,7 +20,7 @@ const pull: ICommand = {
   },
 };
 
-function getAll(client: ClientDiscord, message: Message) {
+function getAll(client: ClientDiscord, message: Message<true>) {
   const commands = (category: string) => {
     return client.commands
       .filter((cmd) => cmd.category === category)
@@ -45,7 +45,7 @@ function getAll(client: ClientDiscord, message: Message) {
   return message.channel.send({ embeds: [embed] });
 }
 
-function getCMD(client: ClientDiscord, message: Message, input: string) {
+function getCMD(client: ClientDiscord, message: Message<true>, input: string) {
   const cmd =
     client.commands.get(input.toLowerCase()) ||
     client.commands.get(client.aliases.get(input.toLowerCase()));

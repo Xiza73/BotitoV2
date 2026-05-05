@@ -1,4 +1,4 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, { ChatInputCommandInteraction } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
@@ -34,7 +34,7 @@ const pull: ISlashCommand = {
   ],
   run: async (
     _: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {

@@ -49,20 +49,18 @@ module.exports = {
       return;
     }
 
+    const attachmentUrl = message.attachments?.at(0)?.url;
     const log = new EmbedBuilder({
       author: {
         name: message.author.username || message.author.tag,
         iconURL: message.author.displayAvatarURL(),
       },
       description: deletedMesaage,
-      timestamp: new Date(),
-      ...(message.attachments?.at(0)?.url && {
-        image: {
-          url: message.attachments?.at(0)?.url,
-        },
+      timestamp: new Date().toISOString(),
+      ...(attachmentUrl && {
+        image: { url: attachmentUrl },
       }),
-      color: "RED",
-    });
+    }).setColor("Red");
 
     await user.send({ embeds: [log] });
   },

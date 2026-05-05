@@ -1,8 +1,8 @@
 import {
-  AnyChannel,
+  Channel,
   Message,
   EmbedBuilder,
-  MessageOptions,
+  MessageCreateOptions,
   MessagePayload,
   CommandInteraction,
 } from "discord.js";
@@ -65,12 +65,12 @@ export const dateToUTC5 = (date: Date) => {
 export const channelSender = (
   client: ClientDiscord,
   idChannel: string,
-  msg: string | MessagePayload | MessageOptions
+  msg: string | MessagePayload | MessageCreateOptions
 ) => {
-  const channel: AnyChannel | undefined = client.channels.cache.find(
+  const channel: Channel | undefined = client.channels.cache.find(
     (channel) => channel.id === idChannel
   );
-  if (!channel || !channel?.isText()) return;
+  if (!channel || !channel.isTextBased() || !channel.isSendable()) return;
 
   channel.send(msg);
 };
@@ -97,7 +97,7 @@ export const shuffle = <T>(array: T[]): T[] => {
 
 export const ownerSender = async (
   client: ClientDiscord,
-  msg: string | EmbedBuilder | MessagePayload | MessageOptions,
+  msg: string | EmbedBuilder | MessagePayload | MessageCreateOptions,
   isEmbed?: boolean
 ) => {
   const user = await client.users.fetch(_config.ownerId, {
@@ -136,7 +136,8 @@ export const errorHandler = (
         }`,
       },
     ]);
-  return sender.channel?.send({ embeds: [embed] });
+  if (!sender.channel?.isSendable()) return;
+  return sender.channel.send({ embeds: [embed] });
 };
 
 export const rangeHandler = (

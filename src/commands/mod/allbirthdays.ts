@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message, EmbedFieldData } from "discord.js";
+import { Client, EmbedBuilder, Message, APIEmbedField } from "discord.js";
 import { CumData, ICommand, Month } from "../../shared/types";
 import {
   getBirthdays,
@@ -13,7 +13,7 @@ const pull: ICommand = {
   usage: "",
   aliases: ["allb", "allbirths", "cums"],
   ownerOnly: false,
-  run: async (___: Client, msg: Message, args: string[], _: string) => {
+  run: async (___: Client, msg: Message<true>, args: string[], _: string) => {
     try {
       let response: CumData = {};
       const month: typeof NaN | Month = parseInt(args[0]) - 1;
@@ -36,7 +36,7 @@ const pull: ICommand = {
         color: 0x00ff00,
       });
 
-      const fields: EmbedFieldData[] = [];
+      const fields: APIEmbedField[] = [];
       for (const res in response) {
         const birthdays = response[res];
         const users = birthdays.map(

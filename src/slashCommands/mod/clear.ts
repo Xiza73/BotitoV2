@@ -1,4 +1,4 @@
-import Discord, { CommandInteraction, Permissions } from "discord.js";
+import Discord, { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -20,14 +20,14 @@ const pull: ISlashCommand = {
   ],
   run: async (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {
       // Member doesn't have permissions
       if (
-        !(interaction.member!.permissions as Readonly<Permissions>).has(
-          "MANAGE_MESSAGES"
+        !(interaction.member!.permissions as Readonly<PermissionsBitField>).has(
+          PermissionFlagsBits.ManageMessages
         )
       ) {
         return interaction.reply({
@@ -49,8 +49,8 @@ const pull: ISlashCommand = {
 
       // Maybe the bot can't delete messages
       if (
-        !(interaction.member?.permissions as Readonly<Permissions>).has(
-          "MANAGE_MESSAGES"
+        !(interaction.member?.permissions as Readonly<PermissionsBitField>).has(
+          PermissionFlagsBits.ManageMessages
         )
       ) {
         return interaction.reply({

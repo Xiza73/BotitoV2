@@ -9,7 +9,7 @@ const pull: ICommand = {
   usage: "<player>(+) (Excepto tú)",
   aliases: ["ruleta"],
   ownerOnly: false,
-  run: async (__: Client, message: Message, _: string[], ___: string) => {
+  run: async (__: Client, message: Message<true>, _: string[], ___: string) => {
     const Death = require("death-games");
 
     const author = [message.author.id]; // Hacemos que el jugador N.1 siempre sea el autor del mensaje

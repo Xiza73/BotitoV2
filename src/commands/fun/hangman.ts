@@ -29,7 +29,7 @@ const pull: ICommand = {
   usage: "<player>(+)",
   aliases: ["ahorcado"],
   ownerOnly: false,
-  run: async (__: Client, message: Message, _: string[], ___: string) => {
+  run: async (__: Client, message: Message<true>, _: string[], ___: string) => {
     const author = [message.author.id];
     let turn = 0;
     const lifes = 7;

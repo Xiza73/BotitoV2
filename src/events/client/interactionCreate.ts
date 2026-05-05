@@ -1,11 +1,16 @@
-import { CommandInteraction } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  CommandInteractionOption,
+  Interaction,
+} from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { Argument, ISlashCommand } from "../../shared/types";
 
 module.exports = {
   name: "interactionCreate",
   type: "client",
-  execute(interaction: CommandInteraction, client: ClientDiscord) {
+  execute(interaction: Interaction, client: ClientDiscord) {
+    if (!interaction.isChatInputCommand()) return;
     if (!interaction.command) return;
 
     const command: ISlashCommand | undefined = client.slashCommands.get(
@@ -24,14 +29,14 @@ module.exports = {
 
     const args: Argument[] = [];
 
-    interaction.options.data.forEach((option) => {
+    interaction.options.data.forEach((option: CommandInteractionOption) => {
       if (option.name) {
         args.push({
           name: option.name,
           type: option.type as any,
           ...(option.value && { value: option.value }),
-          ...(option.type === "SUB_COMMAND" && {
-            args: option.options?.map((x) => ({
+          ...(option.type === ApplicationCommandOptionType.Subcommand && {
+            args: option.options?.map((x: CommandInteractionOption) => ({
               name: x.name,
               type: x.type as any,
               value: x.value,

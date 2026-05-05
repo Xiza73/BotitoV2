@@ -8,7 +8,7 @@ const pull: ICommand = {
   usage: null,
   aliases: [],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, __: string[], _: string) => {
+  run: async (client: Client, msg: Message<true>, __: string[], _: string) => {
     const exampleEmbed = new EmbedBuilder({
       color: 0xff2d00,
       title: "Información del Servidor",

@@ -12,7 +12,7 @@ const pull: ICommand = {
   ownerOnly: false,
   run: async (
     client: Client<boolean> | ClientDiscord,
-    message: Message,
+    message: Message<true>,
     args: string[],
     _: string
   ) => {

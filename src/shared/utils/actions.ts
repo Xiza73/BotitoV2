@@ -10,13 +10,13 @@ import {
 import { IDate } from "../types";
 import calendar from "../constants/calendar";
 
-const getArgs = (msg: Message): string[] => {
+const getArgs = (msg: Message<true>): string[] => {
   const s = msg.toString();
   const args = s.split(" ");
   return args;
 };
 
-export const action = (comando: string, msg: Message): any => {
+export const action = (comando: string, msg: Message<true>): any => {
   // COMANDOS
   const comandos: any = {
     role: async function () {

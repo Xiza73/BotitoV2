@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message, EmbedFieldData } from "discord.js";
+import { Client, EmbedBuilder, Message } from "discord.js";
 import { CumData, CumUser, ICommand, Month } from "../../shared/types";
 import _config from "../../config";
 import { getNextBirthday } from "../../shared/services/birthday.service";
@@ -12,7 +12,7 @@ const pull: ICommand = {
   usage: "",
   aliases: ["nextb", "nextbirth", "nextcum"],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, __: string[], _: string) => {
+  run: async (client: Client, msg: Message<true>, __: string[], _: string) => {
     try {
       const response: CumUser = await getNextBirthday();
       const user = await client.users.fetch(response.discordId);
@@ -22,7 +22,7 @@ const pull: ICommand = {
         color: 0x00ff00,
         description: mentionUser(response.discordId),
         thumbnail: {
-          url: user.avatarURL() || undefined,
+          url: user.avatarURL() ?? "",
         },
       });
 

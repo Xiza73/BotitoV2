@@ -8,7 +8,7 @@ const pull: ICommand = {
   aliases: [],
   description: "Sintaxis de los comandos",
   ownerOnly: false,
-  run: async (__: Client, message: Message, _: string[], ___: string) => {
+  run: async (__: Client, message: Message<true>, _: string[], ___: string) => {
     let s = "";
     s += `\`<>\` : obligatorio
       \`[]\` : opcional

@@ -9,7 +9,7 @@ const pull: ICommand = {
   usage: "<name> <user> <dayBirthday> <monthBirthday>",
   aliases: ["add"],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, args: string[], _: string) => {
+  run: async (client: Client, msg: Message<true>, args: string[], _: string) => {
     if (
       msg.member!.roles.highest.name !== "Staff" &&
       msg.member!.roles.highest.name !== "Admin"

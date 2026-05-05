@@ -1,9 +1,10 @@
 import {
   ApplicationCommandType,
   ChatInputApplicationCommandData,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   Message,
   MessageApplicationCommandData,
+  OmitPartialGroupDMChannel,
   UserApplicationCommandData,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
@@ -18,11 +19,10 @@ export type ICommand = {
   ownerOnly: boolean;
   run: (
     client: ClientDiscord,
-    msg: Message,
+    msg: OmitPartialGroupDMChannel<Message<true>>,
     args: string[],
     cmd: string,
-    // eslint-disable-next-line no-undef
-  ) => Promise<Message | undefined | void | NodeJS.Timeout>;
+  ) => Promise<unknown>;
 };
 
 export type TypeCommandOption = ApplicationCommandType | MoreCommandTypes;
@@ -63,10 +63,9 @@ export type ISlashCommand = {
   ownerOnly: boolean;
   run: (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[],
-    // eslint-disable-next-line no-undef
-  ) => Promise<Message | undefined | void | NodeJS.Timeout>;
+  ) => Promise<unknown>;
 };
 
 export type Week = 0 | 1 | 2 | 3 | 4 | 5 | 6;

@@ -1,4 +1,4 @@
-import { CommandInteraction, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, TextChannel } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -77,7 +77,7 @@ const pull: ISlashCommand = {
   ],
   run: async (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {

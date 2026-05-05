@@ -1,3 +1,4 @@
+import { ActivityType } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import ScheduleMessage from "../../shared/classes/ScheduleMessage";
 import { goodMorning } from "../../shared/utils/goodMorning";
@@ -19,7 +20,7 @@ module.exports = {
       activities: [
         {
           name: `${client.config.prefix}help`,
-          type: "PLAYING",
+          type: ActivityType.Playing,
         },
       ],
     });
