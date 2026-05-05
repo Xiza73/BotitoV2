@@ -7,8 +7,7 @@
     "start": "node dist/index.js",
     "dev": "tsc-watch --onSuccess \"nodemon dist/index.js\"",
     "ts": "nodemon src/index.ts",
-    "build": "tsc -p .",
-    "replit": "npm i --save-dev node@16.14.2 && npm config set prefix=$(pwd)/node_modules/node && export PATH=$(pwd)/node_modules/node/bin:$PATH && npm install && npm run build"
+    "build": "tsc -p ."
   },
   "keywords": [],
   "author": "",
@@ -25,14 +24,11 @@
     "discord.js": "13.11.0",
     "dotenv": "^16.3.1",
     "express": "^4.17.1",
-    "fs": "0.0.1-security",
     "jimp": "^0.22.4",
-    "moment": "^2.29.4",
     "mongoose": "^6.0.12",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "@discordjs/voice": "^0.8.0",
     "@types/common-tags": "^1.8.1",
     "@types/cors": "^2.8.12",
     "@types/cron": "^1.7.3",
