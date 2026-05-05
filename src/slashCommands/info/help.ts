@@ -62,7 +62,7 @@ const pull: ISlashCommand = {
         });
 
         // This is what it commands when using the command without arguments
-        const helpEmbed = new Discord.MessageEmbed()
+        const helpEmbed = new Discord.EmbedBuilder()
           .setTitle(`${client.user?.username} Help`)
           .setDescription(
             ` Hola **<@${interaction.user.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!
@@ -117,7 +117,7 @@ const pull: ISlashCommand = {
       const aliases = command?.aliases.toString() || "[]";
       const category = command?.category || "No category provided!";
 
-      const helpCmdEmbed = new Discord.MessageEmbed()
+      const helpCmdEmbed = new Discord.EmbedBuilder()
         .setTitle(
           `${
             client.user?.username

@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, Message, EmbedFieldData } from "discord.js";
+import { Client, EmbedBuilder, Message, EmbedFieldData } from "discord.js";
 import { CumData, CumUser, ICommand, Month } from "../../shared/types";
 import _config from "../../config";
 import { getNextBirthday } from "../../shared/services/birthday.service";
@@ -17,7 +17,7 @@ const pull: ICommand = {
       const response: CumUser = await getNextBirthday();
       const user = await client.users.fetch(response.discordId);
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: "Próximo cumpleaños 🎂",
         color: 0x00ff00,
         description: mentionUser(response.discordId),

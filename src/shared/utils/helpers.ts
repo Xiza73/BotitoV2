@@ -1,7 +1,7 @@
 import {
   AnyChannel,
   Message,
-  MessageEmbed,
+  EmbedBuilder,
   MessageOptions,
   MessagePayload,
   CommandInteraction,
@@ -97,7 +97,7 @@ export const shuffle = <T>(array: T[]): T[] => {
 
 export const ownerSender = async (
   client: ClientDiscord,
-  msg: string | MessageEmbed | MessagePayload | MessageOptions,
+  msg: string | EmbedBuilder | MessagePayload | MessageOptions,
   isEmbed?: boolean
 ) => {
   const user = await client.users.fetch(_config.ownerId, {
@@ -107,7 +107,7 @@ export const ownerSender = async (
   if (!user) return;
 
   if (isEmbed) {
-    return await user.send({ embeds: [msg as MessageEmbed] });
+    return await user.send({ embeds: [msg as EmbedBuilder] });
   }
 
   return await user.send(msg as string);
@@ -122,7 +122,7 @@ export const errorHandler = (
   error: any,
   msg: string = "Error con el comando"
 ) => {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setColor("RED")
     .setTitle(`Error ${error?.response?.data?.statusCode || "☠️"}`)
     .setFields([

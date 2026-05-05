@@ -1,4 +1,4 @@
-import { Client, ColorResolvable, Message, MessageEmbed } from "discord.js";
+import { Client, ColorResolvable, Message, EmbedBuilder } from "discord.js";
 import { ICommand } from "../../shared/types";
 
 type imcMessage = {
@@ -76,7 +76,7 @@ const pull: ICommand = {
         }
       }
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: "Índice de Masa Corporal  🩺",
         fields: [
           {

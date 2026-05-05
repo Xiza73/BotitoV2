@@ -3,7 +3,7 @@ import ClientDiscord from "../classes/ClientDiscord";
 import * as userDao from "../../api/dao/user.dao";
 import { ResponseData } from "../../handlers/ResponseData";
 import { channelSender, dateToUTC5 } from "./helpers";
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 
 export const reminder = async (client: ClientDiscord) => {
   try {
@@ -17,7 +17,7 @@ export const reminder = async (client: ClientDiscord) => {
     users.forEach(async (e: any) => {
       if (today.day === e.birthdayDay && today.month === e.birthdayMonth) {
         const user = await client.users.fetch(e.discordId);
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
           .setColor("RANDOM")
           .setTitle("GangBang al CUMpleañero! 🥳🎂🎉")
           .setDescription(`👑 Felicitaciones **<@${user.id}>**`)

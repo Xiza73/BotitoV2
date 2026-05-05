@@ -1,5 +1,5 @@
 import fetch from "cross-fetch";
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, EmbedBuilder } from "discord.js";
 import config from "../../config";
 import { ICommand } from "../../shared/types";
 import { random as getRandom } from "../../shared/utils/helpers";
@@ -92,7 +92,7 @@ function pintarCard(poke: any, message: Message) {
     type = `\`${poke.type[0]}\` \`${poke.type[1]}\``;
   }
 
-  const exampleEmbed = new MessageEmbed({
+  const exampleEmbed = new EmbedBuilder({
     color: 0x0099ff,
     title: `${poke.name}${poke.shiny} #${poke.order}`,
     description: type,

@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Message, EmbedBuilder } from "discord.js";
 import { dateToUTC5, random } from "./helpers";
 import client from "../../discord";
 import { reminder } from "./birthdayReminder";
@@ -126,7 +126,7 @@ export const action = (comando: string, msg: Message): any => {
     },
     // EMBEDS
     embed1: function () {
-      const exampleEmbed = new MessageEmbed({
+      const exampleEmbed = new EmbedBuilder({
         color: 0x0099ff,
         title: "Some title",
         url: "https://discord.js.org",
@@ -178,7 +178,7 @@ export const action = (comando: string, msg: Message): any => {
       msg.channel.send({ embeds: [exampleEmbed] });
     },
     examplembed: function () {
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle("Título")
         .setColor(0x5e9de4) // color barra izquierda
         .setDescription("descipción")

@@ -82,7 +82,7 @@ const pull: ISlashCommand = {
           : "Lista aleatoria";
         const shuffledList = shuffle(list);
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
           .setColor("RANDOM")
           .setTitle(title)
           .setDescription(enumerateArray(shuffledList, winners))
@@ -110,7 +110,7 @@ const pull: ISlashCommand = {
         // const shuffledList = list.sort(() => Math.random() - 0.5);
         const shuffledList = shuffle(list);
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
           .setColor("RANDOM")
           .setTitle("Shuffled List")
           .setDescription(shuffledList.join(", "))

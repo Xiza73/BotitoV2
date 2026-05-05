@@ -45,7 +45,7 @@ const pull: ISlashCommand = {
       for (let i = 0; i < quantity; i++) {
         result.push(random(1, sides));
       }
-      const embed = new Discord.MessageEmbed()
+      const embed = new Discord.EmbedBuilder()
         .setColor("GOLD")
         .setTitle("Dice Roll")
         .setFooter({

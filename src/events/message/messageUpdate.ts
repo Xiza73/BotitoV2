@@ -1,4 +1,4 @@
-import { MessageEmbed, Message } from "discord.js";
+import { EmbedBuilder, Message } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
@@ -28,7 +28,7 @@ module.exports = {
       newMessage.content.slice(0, count) +
       (newMessage.content.length > count ? "..." : "");
 
-    const log = new MessageEmbed()
+    const log = new EmbedBuilder()
       .setAuthor({
         name: oldMessage.author.tag,
         iconURL: oldMessage.author.displayAvatarURL(),

@@ -1,5 +1,5 @@
 import { ICommand } from "../../shared/types";
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, EmbedBuilder } from "discord.js";
 
 const pull: ICommand = {
   name: "say",
@@ -28,7 +28,7 @@ const pull: ICommand = {
       );
 
     if (args[0].toLowerCase() === "embed") {
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setDescription(args.slice(1).join(" "))
         .setColor("WHITE");
 

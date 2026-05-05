@@ -1,4 +1,4 @@
-import { MessageEmbed, Message } from "discord.js";
+import { EmbedBuilder, Message } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
@@ -49,7 +49,7 @@ module.exports = {
       return;
     }
 
-    const log = new MessageEmbed({
+    const log = new EmbedBuilder({
       author: {
         name: message.author.username || message.author.tag,
         iconURL: message.author.displayAvatarURL(),

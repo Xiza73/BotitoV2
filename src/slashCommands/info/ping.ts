@@ -70,7 +70,7 @@ const pull: ISlashCommand = {
     try {
       const msg = await interaction.channel?.send(`🏓 Pinging...`);
 
-      const pingEmbed = new Discord.MessageEmbed()
+      const pingEmbed = new Discord.EmbedBuilder()
         .setTitle(":signal_strength: Bot Ping")
         .addFields([
           {

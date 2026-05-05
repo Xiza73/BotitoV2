@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, Message } from "discord.js";
+import { Client, EmbedBuilder, Message } from "discord.js";
 import { ICommand } from "../../shared/types";
 import * as userDao from "../../api/dao/user.dao";
 
@@ -39,7 +39,7 @@ const pull: ICommand = {
         birthdayMonth: args[3],
       });
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: `Status: ${data.statusCode}`,
         description: data.message,
         timestamp: new Date(),

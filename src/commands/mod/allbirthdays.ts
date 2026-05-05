@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, Message, EmbedFieldData } from "discord.js";
+import { Client, EmbedBuilder, Message, EmbedFieldData } from "discord.js";
 import { CumData, ICommand, Month } from "../../shared/types";
 import {
   getBirthdays,
@@ -31,7 +31,7 @@ const pull: ICommand = {
         response = await getBirthdays();
       }
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: "Cumpleaños 🎂",
         color: 0x00ff00,
       });
