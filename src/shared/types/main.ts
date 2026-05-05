@@ -1,4 +1,5 @@
 import {
+  ApplicationCommandType,
   ChatInputApplicationCommandData,
   CommandInteraction,
   Message,
@@ -6,7 +7,6 @@ import {
   UserApplicationCommandData,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
-import { ApplicationCommandTypes } from "discord.js/typings/enums";
 import { MoreCommandTypes } from "../constants/commands";
 
 export type ICommand = {
@@ -25,7 +25,7 @@ export type ICommand = {
   ) => Promise<Message | undefined | void | NodeJS.Timeout>;
 };
 
-export type TypeCommandOption = ApplicationCommandTypes | MoreCommandTypes;
+export type TypeCommandOption = ApplicationCommandType | MoreCommandTypes;
 
 export type Argument = {
   name: string;

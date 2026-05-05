@@ -58,7 +58,7 @@ const pull: ISlashCommand = {
     /* {
       name: "number",
       description: "The number to ping",
-      type: ApplicationCommandTypes.MESSAGE,
+      type: ApplicationCommandType.Message,
       required: false,
     } as MessageApplicationCommandData, */
   ],
