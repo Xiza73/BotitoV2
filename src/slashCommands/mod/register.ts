@@ -1,7 +1,8 @@
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
-  GuildMember,
+  PermissionFlagsBits,
+  PermissionsBitField,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
@@ -9,13 +10,12 @@ import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 import * as userDao from "../../api/dao/user.dao";
 
-const ALLOWED_ROLES = ["Staff", "Admin"] as const;
-
 const pull: ISlashCommand = {
   name: "register",
   category: "mod",
   description: "Agrega un miembro a la base de datos de Gmi2",
   ownerOnly: false,
+  defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
     {
       name: "name",
@@ -48,14 +48,13 @@ const pull: ISlashCommand = {
     args: Argument[]
   ) => {
     try {
-      const member = interaction.member as GuildMember | null;
-      const highestRole = member?.roles.highest.name;
-      if (!highestRole || !ALLOWED_ROLES.includes(highestRole as any)) {
+      if (
+        !(
+          interaction.member?.permissions as Readonly<PermissionsBitField>
+        )?.has(PermissionFlagsBits.Administrator)
+      ) {
         return interaction.reply({
-          content:
-            `No tiene permisos para esta acción\n` +
-            `rol actual: ${highestRole ?? "?"}\n` +
-            `rol requerido: ${ALLOWED_ROLES.join(" o ")}`,
+          content: "Necesitás permiso de Administrator para usar este comando.",
           ephemeral: true,
         });
       }

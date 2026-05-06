@@ -14,6 +14,7 @@ const pull: ISlashCommand = {
   category: "mod",
   description: "Botito repite lo que dices",
   ownerOnly: false,
+  defaultMemberPermissions: PermissionFlagsBits.ManageMessages,
   options: [
     {
       name: "message",

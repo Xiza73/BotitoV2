@@ -4,6 +4,7 @@ import {
   ChatInputCommandInteraction,
   Message,
   MessageApplicationCommandData,
+  PermissionResolvable,
   UserApplicationCommandData,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
@@ -45,6 +46,7 @@ export type ISlashCommand = {
   description: string;
   options?: SlashCommandsOptions[];
   ownerOnly: boolean;
+  defaultMemberPermissions?: PermissionResolvable;
   run: (
     client: ClientDiscord,
     interaction: ChatInputCommandInteraction,
