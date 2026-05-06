@@ -25,7 +25,7 @@ const client: ClientDiscord = new ClientDiscord(
     ownerId: _config.ownerId,
   }
 );
-client.categories = readdirSync(path.join(__dirname, "commands"));
+client.categories = readdirSync(path.join(__dirname, "slashCommands"));
 
 (async () => {
   await handler.loadEvents(client);
