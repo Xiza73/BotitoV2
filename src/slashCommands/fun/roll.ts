@@ -4,7 +4,7 @@ import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random } from "../../shared/utils/helpers";
-import Jimp from "jimp";
+import { Jimp } from "jimp";
 
 const OPTIONS = {
   quantity: "quantity",
@@ -55,25 +55,20 @@ const pull: ISlashCommand = {
 
       if (existImages.includes(sides)) {
         const images = await Promise.all(
-          result.map(async (r) => {
-            const image = await Jimp.read(`${repo}/d${sides}/d${r}.png`);
-            return image;
-          })
+          result.map((r) => Jimp.read(`${repo}/d${sides}/d${r}.png`))
         );
 
-        const width =
-          (images.length > 6 ? 6 : images.length) * images[0].getWidth();
-        const height = Math.ceil(images.length / 6) * images[0].getHeight();
-        const finalImage = new Jimp(width, height);
+        const tileWidth = images[0].width;
+        const tileHeight = images[0].height;
+        const width = (images.length > 6 ? 6 : images.length) * tileWidth;
+        const height = Math.ceil(images.length / 6) * tileHeight;
+        const finalImage = new Jimp({ width, height });
         let x = 0;
-        // if image is base image x 6 then go to next line
         let col = 0;
         let row = 0;
         for (const image of images) {
-          /* finalImage.composite(image, x, 0);
-          x += image.getWidth(); */
-          finalImage.composite(image, x, row * image.getHeight());
-          x += image.getWidth();
+          finalImage.composite(image, x, row * tileHeight);
+          x += tileWidth;
           col++;
           if (col === 6) {
             col = 0;
@@ -81,7 +76,7 @@ const pull: ISlashCommand = {
             x = 0;
           }
         }
-        const buffer = await finalImage.getBufferAsync(Jimp.MIME_PNG);
+        const buffer = await finalImage.getBuffer("image/png");
         embed.setImage(`attachment://dice.png`);
         interaction.reply({
           embeds: [embed],
