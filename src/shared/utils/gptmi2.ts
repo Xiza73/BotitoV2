@@ -18,17 +18,11 @@ const chatBotUrl = "https://chatbot.theb.ai/api/chat-process";
 let authorType: "user" | "bot" = "user";
 
 const isGPTRequest = async (
-  message: OmitPartialGroupDMChannel<Message>,
-  client: ClientDiscord
+  message: OmitPartialGroupDMChannel<Message>
 ): Promise<boolean> => {
   const { isChannelAllowed } = await getGPTChannelsInfo(message.channel.id);
 
-  if (
-    !isChannelAllowed ||
-    message.author.bot ||
-    message.content.toLowerCase().startsWith(client.config.prefix)
-  )
-    return false;
+  if (!isChannelAllowed || message.author.bot) return false;
 
   return true;
 };
@@ -120,7 +114,7 @@ export const handler = async (
   let loadingMessage: Message | null = null;
 
   try {
-    if (!(await isGPTRequest(message, client))) return;
+    if (!(await isGPTRequest(message))) return;
 
     if (message.author.bot) authorType = "bot";
 

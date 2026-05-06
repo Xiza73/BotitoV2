@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from "fs";
+import { readdirSync } from "fs";
 
 import ClientDiscord from "../shared/classes/ClientDiscord";
-import { ICommand } from "../shared/types";
 import { ApplicationCommandDataResolvable } from "discord.js";
 import path from "path";
 import chalk from "chalk";
@@ -15,7 +14,7 @@ const isLoadable = (file: string) =>
   file.endsWith(sourceExt) && !file.endsWith(".d.ts");
 
 const checkHandler = (
-  type: "Event" | "Command" | "SlashCommand",
+  type: "Event" | "SlashCommand",
   file: string,
   status: 0 | 1
 ) => {
@@ -72,53 +71,6 @@ export const loadEvents = async (client: ClientDiscord) => {
   }
 };
 
-/**
- * Load Prefix Commands
- */
-type IPull = {
-  default: ICommand;
-};
-export const loadCommands = async (client: ClientDiscord) => {
-  const commandsDir = path.resolve(__dirname, "./../commands");
-  if (!existsSync(commandsDir)) return;
-  const commandFolders = readdirSync(commandsDir);
-  for (const folder of commandFolders) {
-    const commandFiles = readdirSync(
-      path.resolve(__dirname, `./../commands/${folder}`)
-    ).filter(isLoadable);
-
-    for (const file of commandFiles) {
-      let pull: IPull;
-      try {
-        pull = await import(`../commands/${folder}/${file}`);
-      } catch (err) {
-        logger(
-          chalk.bgRedBright.black(
-            ` ❌  => Command '${file.substring(0, file.length - 3)}' failed to load: ${err}`
-          )
-        );
-        continue;
-      }
-
-      if (pull.default?.name) {
-        client.commands.set(pull.default.name, pull.default);
-        logger(chalk.bgYellowBright.black(checkHandler("Command", file, 1)));
-      } else {
-        logger(chalk.bgRedBright.black(checkHandler("Command", file, 0)));
-        continue;
-      }
-
-      if (pull.default.aliases && Array.isArray(pull.default.aliases))
-        pull.default.aliases.forEach((alias) =>
-          client.aliases.set(alias, pull.default.name)
-        );
-    }
-  }
-};
-
-/**
- * Load SlashCommands
- */
 export const loadSlashCommands = async (client: ClientDiscord) => {
   const slash: ApplicationCommandDataResolvable[] = [];
 

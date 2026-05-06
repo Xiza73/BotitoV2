@@ -4,15 +4,17 @@ import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 const pull: ISlashCommand = {
   name: "help",
   category: "info",
-  description: "Muestra todos los comandos o un comando específico",
+  description: "Muestra todos los slash commands o detalle de uno específico",
   ownerOnly: false,
   options: [
     {
       name: "command",
-      description: "Comando a mostrar",
+      description: "Slash command a mostrar en detalle",
       type: MoreCommandTypes.STRING,
       required: false,
     },
@@ -23,115 +25,72 @@ const pull: ISlashCommand = {
     args: Argument[]
   ) => {
     try {
-      const arg = args[0]?.value || null;
+      const arg = (args[0]?.value as string | undefined)?.toLowerCase();
 
       if (!arg) {
-        const commands = (category: string) => {
-          return client.commands
-            .filter((cmd) => cmd.category === category)
-            .map((cmd) => `\`${cmd.name}\``)
-            .join(", ");
-        };
+        const categories = [
+          ...new Set(
+            client.slashCommands
+              .map((cmd) => cmd.category)
+              .filter((c): c is string => Boolean(c))
+          ),
+        ].sort();
 
-        const slashCommands = (category: string) => {
-          return client.slashCommands
-            .filter((cmd) => cmd.category === category)
-            .map((cmd) => `\`${cmd.name}\``)
-            .join(", ");
-        };
+        const fields = categories.map((cat) => ({
+          name: `▫ ${capitalize(cat)}`,
+          value:
+            client.slashCommands
+              .filter((cmd) => cmd.category === cat)
+              .map((cmd) => `\`/${cmd.name}\``)
+              .join(", ") || "—",
+          inline: true,
+        }));
 
-        const commandsInfo: { name: string; value: string; inline: boolean }[] =
-          client.categories.map((cat: string) => {
-            return {
-              name: `▫ ${cat[0].toUpperCase() + cat.slice(1)} Slash Commands`,
-              value: `${commands(cat) || "No slash commands found"}`,
-              inline: true,
-            };
-          });
-
-        const slashCommandsInfo: {
-          name: string;
-          value: string;
-          inline: boolean;
-        }[] = client.categories.map((cat: string) => {
-          return {
-            name: `▫ ${cat[0].toUpperCase() + cat.slice(1)} Slash Commands`,
-            value: `${slashCommands(cat) || "No slash commands found"}`,
-            inline: true,
-          };
-        });
-
-        // This is what it commands when using the command without arguments
         const helpEmbed = new Discord.EmbedBuilder()
           .setTitle(`${client.user?.username} Help`)
           .setDescription(
-            ` Hola **<@${interaction.user.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!
-          \n**Cantidad de comandos:** ${client.commands.size}
-          \n**Cantidad de /comandos:** ${client.slashCommands.size}`
+            `Hola **<@${interaction.user.id}>** — usá ` +
+              "`/help command:<nombre>`" +
+              ` para ver el detalle de un slash command.\n` +
+              `**Total slash commands:** ${client.slashCommands.size}`
           )
           .setColor("Random")
-          .addFields([
-            {
-              name: "Commands",
-              inline: false,
-              value: " ",
-            },
-          ])
-          .addFields(commandsInfo)
-          .addFields([
-            {
-              name: "Slash Commands",
-              inline: false,
-              value: " ",
-            },
-          ])
-          .addFields(slashCommandsInfo);
+          .addFields(fields);
 
-        interaction.reply({
+        return interaction.reply({
           embeds: [helpEmbed],
           allowedMentions: { repliedUser: false },
         });
-
-        return;
       }
 
-      const command =
-        client.commands.get(arg.toString().toLowerCase()) ||
-        client.commands.find(
-          (c) => c.aliases && c.aliases.includes(arg.toString().toLowerCase())
-        );
-
-      // This is what it sends when using the command with argument and it does not find the command
+      const command = client.slashCommands.get(arg);
       if (!command) {
-        interaction.reply({
-          content: `No existe un comando llamado "${args[0].value}"!`,
+        return interaction.reply({
+          content: `No existe un slash command llamado "${args[0].value}".`,
           allowedMentions: { repliedUser: false },
+          ephemeral: true,
         });
-
-        return;
       }
-
-      const name = command?.name;
-      const description = command?.description || "No descrpition provided";
-      const usage = command?.usage || "No usage provided";
-      const aliases = command?.aliases.toString() || "[]";
-      const category = command?.category || "No category provided!";
 
       const helpCmdEmbed = new Discord.EmbedBuilder()
-        .setTitle(
-          `${
-            client.user?.username
-          } Help | \`${name?.toLocaleString()}\` Command`
-        )
+        .setTitle(`${client.user?.username} Help | /${command.name}`)
         .addFields(
-          { name: "Description", value: description },
-          { name: "Usage", value: usage },
-          { name: "Aliases", value: aliases.toString() },
-          { name: "Category", value: category }
+          {
+            name: "Descripción",
+            value: command.description || "Sin descripción",
+          },
+          {
+            name: "Categoría",
+            value: command.category || "—",
+          },
+          {
+            name: "Owner only",
+            value: command.ownerOnly ? "Sí" : "No",
+          }
         )
         .setColor("Random");
 
-      interaction.reply({
+      return interaction.reply({
         embeds: [helpCmdEmbed],
         allowedMentions: { repliedUser: false },
       });
