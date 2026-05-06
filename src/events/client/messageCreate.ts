@@ -3,7 +3,7 @@ import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { action } from "../../shared/utils/actions";
 import * as gptmi2 from "../../shared/utils/gptmi2";
 
-module.exports = {
+export default {
   name: "messageCreate",
   type: "client",
   async execute(message: Message, client: ClientDiscord) {

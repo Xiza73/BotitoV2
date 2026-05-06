@@ -6,7 +6,7 @@ import { reminder } from "../../shared/utils/birthdayReminder";
 import { messaryController } from "../../shared/utils/cronJobs";
 import { logger } from "../../shared/utils/helpers";
 
-module.exports = {
+export default {
   name: "clientReady",
   once: true,
   type: "client",

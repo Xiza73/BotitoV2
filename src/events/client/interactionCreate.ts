@@ -6,7 +6,7 @@ import {
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { Argument, ISlashCommand } from "../../shared/types";
 
-module.exports = {
+export default {
   name: "interactionCreate",
   type: "client",
   execute(interaction: Interaction, client: ClientDiscord) {

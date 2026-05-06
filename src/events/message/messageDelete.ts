@@ -2,7 +2,7 @@ import { EmbedBuilder, Message } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
-module.exports = {
+export default {
   name: "messageDelete",
   type: "message",
   // just work on the first message update, and just in gmi2 channel

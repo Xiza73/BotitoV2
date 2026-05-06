@@ -37,7 +37,8 @@ export const loadEvents = async (client: ClientDiscord) => {
     for (const file of eventFiles) {
       let event;
       try {
-        event = await import(`../events/${folder}/${file}`);
+        const mod = await import(`../events/${folder}/${file}`);
+        event = mod.default ?? mod;
       } catch (err) {
         logger(
           chalk.bgRedBright.black(
