@@ -1,4 +1,3 @@
-export * from './base.command';
 export * from './birthdayReminder';
 export * from './cronJobs';
 export * from './dayjs';

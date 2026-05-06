@@ -4,26 +4,10 @@ import {
   ChatInputCommandInteraction,
   Message,
   MessageApplicationCommandData,
-  OmitPartialGroupDMChannel,
   UserApplicationCommandData,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { MoreCommandTypes } from "../constants/commands";
-
-export type ICommand = {
-  name: string;
-  category: string | null;
-  description: string;
-  usage: string | null;
-  aliases: string[];
-  ownerOnly: boolean;
-  run: (
-    client: ClientDiscord,
-    msg: OmitPartialGroupDMChannel<Message<true>>,
-    args: string[],
-    cmd: string,
-  ) => Promise<unknown>;
-};
 
 export type TypeCommandOption = ApplicationCommandType | MoreCommandTypes;
 
