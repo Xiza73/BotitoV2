@@ -82,7 +82,6 @@ export type IDate = {
 
 export type ClientConfig = {
   botId?: string;
-  prefix: string;
   ownerId: string;
 };
 

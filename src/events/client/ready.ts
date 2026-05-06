@@ -19,7 +19,7 @@ export default {
       status: "online",
       activities: [
         {
-          name: `${client.config.prefix}help`,
+          name: "/help",
           type: ActivityType.Playing,
         },
       ],
