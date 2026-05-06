@@ -7,6 +7,13 @@ import path from "path";
 import chalk from "chalk";
 import { logger } from "../shared/utils/helpers";
 
+// Match the runtime's source file extension: .ts when running via tsx
+// (npm run dev), .js when running compiled output (npm start). Skip
+// .d.ts declaration files in either case.
+const sourceExt = __filename.endsWith(".ts") ? ".ts" : ".js";
+const isLoadable = (file: string) =>
+  file.endsWith(sourceExt) && !file.endsWith(".d.ts");
+
 const checkHandler = (
   type: "Event" | "Command" | "SlashCommand",
   file: string,
@@ -25,7 +32,7 @@ export const loadEvents = async (client: ClientDiscord) => {
   for (const folder of eventFolders) {
     const eventFiles = readdirSync(
       path.resolve(__dirname, `./../events/${folder}`)
-    ).filter((file) => file.endsWith(".js"));
+    ).filter(isLoadable);
 
     for (const file of eventFiles) {
       let event;
@@ -75,7 +82,7 @@ export const loadCommands = async (client: ClientDiscord) => {
   for (const folder of commandFolders) {
     const commandFiles = readdirSync(
       path.resolve(__dirname, `./../commands/${folder}`)
-    ).filter((file) => file.endsWith(".js"));
+    ).filter(isLoadable);
 
     for (const file of commandFiles) {
       let pull: IPull;
@@ -120,7 +127,7 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
   for (const folder of commandFolders) {
     const commandFiles = readdirSync(
       path.resolve(__dirname, `./../slashCommands/${folder}`)
-    ).filter((file) => file.endsWith(".js"));
+    ).filter(isLoadable);
 
     for (const file of commandFiles) {
       let command;
