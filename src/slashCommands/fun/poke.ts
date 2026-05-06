@@ -1,4 +1,3 @@
-import fetch from "cross-fetch";
 import { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
