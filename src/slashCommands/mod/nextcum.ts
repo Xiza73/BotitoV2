@@ -11,7 +11,7 @@ import { errorHandler, mentionUser } from "../../shared/utils/helpers";
 import { getNextBirthday } from "../../shared/services/birthday.service";
 
 const pull: ISlashCommand = {
-  name: "nextbirthday",
+  name: "nextcum",
   category: "mod",
   description: "Próximo cumpleaños registrado",
   ownerOnly: false,

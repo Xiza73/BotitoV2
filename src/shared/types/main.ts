@@ -1,15 +1,15 @@
 import {
-  ApplicationCommandType,
+  ApplicationCommandOptionType,
   ChatInputApplicationCommandData,
   ChatInputCommandInteraction,
   Message,
   MessageApplicationCommandData,
+  PermissionResolvable,
   UserApplicationCommandData,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
-import { MoreCommandTypes } from "../constants/commands";
 
-export type TypeCommandOption = ApplicationCommandType | MoreCommandTypes;
+export type TypeCommandOption = ApplicationCommandOptionType;
 
 export type Argument = {
   name: string;
@@ -45,6 +45,7 @@ export type ISlashCommand = {
   description: string;
   options?: SlashCommandsOptions[];
   ownerOnly: boolean;
+  defaultMemberPermissions?: PermissionResolvable;
   run: (
     client: ClientDiscord,
     interaction: ChatInputCommandInteraction,

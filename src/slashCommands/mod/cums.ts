@@ -4,7 +4,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import calendar from "../../shared/constants/calendar";
 import { Argument, CumData, ISlashCommand, Month } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
@@ -14,7 +14,7 @@ import {
 } from "../../shared/services/birthday.service";
 
 const pull: ISlashCommand = {
-  name: "allbirthdays",
+  name: "cums",
   category: "mod",
   description: "Lista todos los cumpleaños del servidor",
   ownerOnly: false,
@@ -22,7 +22,7 @@ const pull: ISlashCommand = {
     {
       name: "month",
       description: "Filtrar por mes (1-12)",
-      type: MoreCommandTypes.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: false,
     },
   ],

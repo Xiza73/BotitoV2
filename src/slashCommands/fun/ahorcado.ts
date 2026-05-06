@@ -7,7 +7,7 @@ import {
 import Death from "death-games";
 import _config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import words from "../../shared/data/words";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random, shuffle } from "../../shared/utils/helpers";
@@ -25,7 +25,7 @@ const rotate = (turn: number, last: number, step: number) => {
 };
 
 const pull: ISlashCommand = {
-  name: "hangman",
+  name: "ahorcado",
   category: "fun",
   description:
     "Ahorcado. Vos elegís palabra (DM con menú) o el bot la elige (con bot_picks_word).",
@@ -34,31 +34,31 @@ const pull: ISlashCommand = {
     {
       name: "player2",
       description: "Segundo jugador (obligatorio)",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: "player3",
       description: "Tercer jugador",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
     {
       name: "player4",
       description: "Cuarto jugador",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
     {
       name: "player5",
       description: "Quinto jugador",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
     {
       name: "bot_picks_word",
       description: "Si está en true, el bot elige la palabra",
-      type: MoreCommandTypes.BOOLEAN,
+      type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
   ],

@@ -1,6 +1,6 @@
 import Discord, { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 import config from "../../config";
@@ -10,11 +10,12 @@ const pull: ISlashCommand = {
   category: "mod",
   description: "Limpia el chat",
   ownerOnly: false,
+  defaultMemberPermissions: PermissionFlagsBits.ManageMessages,
   options: [
     {
       name: "amount",
       description: "Cantidad de mensajes a borrar",
-      type: MoreCommandTypes.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: false,
     },
   ],

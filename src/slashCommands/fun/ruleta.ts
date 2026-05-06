@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import Death from "death-games";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random as getRandom } from "../../shared/utils/helpers";
 
@@ -17,7 +17,7 @@ const ALIVE_MSGS = [
 ];
 
 const pull: ISlashCommand = {
-  name: "roulette",
+  name: "ruleta",
   category: "fun",
   description: "Ruleta rusa. Cada jugador escribe `roll` cuando es su turno.",
   ownerOnly: false,
@@ -25,25 +25,25 @@ const pull: ISlashCommand = {
     {
       name: "player2",
       description: "Segundo jugador (obligatorio)",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: "player3",
       description: "Tercer jugador",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
     {
       name: "player4",
       description: "Cuarto jugador",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
     {
       name: "player5",
       description: "Quinto jugador",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
   ],

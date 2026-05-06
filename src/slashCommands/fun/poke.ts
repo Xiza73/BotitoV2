@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random } from "../../shared/utils/helpers";
 
@@ -40,22 +40,22 @@ const pull: ISlashCommand = {
     {
       name: SUB.random,
       description: "Pokémon completamente random (1-898)",
-      type: MoreCommandTypes.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
     },
     {
       name: SUB.types,
       description: "Lista los tipos disponibles",
-      type: MoreCommandTypes.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
     },
     {
       name: SUB.type,
       description: "Pokémon random de un tipo específico",
-      type: MoreCommandTypes.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: "name",
           description: "Tipo (fire, water, grass, etc.)",
-          type: MoreCommandTypes.STRING,
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
       ],

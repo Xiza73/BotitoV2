@@ -1,6 +1,6 @@
 import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
@@ -13,7 +13,7 @@ const pull: ISlashCommand = {
     {
       name: "coins",
       description: "The number of coins to flip",
-      type: MoreCommandTypes.NUMBER,
+      type: ApplicationCommandOptionType.Number,
       required: false,
     },
   ],
