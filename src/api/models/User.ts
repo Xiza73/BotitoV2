@@ -1,7 +1,6 @@
 import { model, Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
-  _id: string;
   name: string;
   discordId: string;
   telegramId: string;

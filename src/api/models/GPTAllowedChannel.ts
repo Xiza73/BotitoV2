@@ -1,7 +1,6 @@
 import { model, Schema, Document } from "mongoose";
 
 export interface IGPTAllowedChannel extends Document {
-  _id: string;
   channelId: string;
   isActive: boolean;
 }
