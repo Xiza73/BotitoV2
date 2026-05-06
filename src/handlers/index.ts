@@ -1,4 +1,4 @@
-import { readdirSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 
 import ClientDiscord from "../shared/classes/ClientDiscord";
 import { ICommand } from "../shared/types";
@@ -79,7 +79,9 @@ type IPull = {
   default: ICommand;
 };
 export const loadCommands = async (client: ClientDiscord) => {
-  const commandFolders = readdirSync(path.resolve(__dirname, "./../commands"));
+  const commandsDir = path.resolve(__dirname, "./../commands");
+  if (!existsSync(commandsDir)) return;
+  const commandFolders = readdirSync(commandsDir);
   for (const folder of commandFolders) {
     const commandFiles = readdirSync(
       path.resolve(__dirname, `./../commands/${folder}`)
