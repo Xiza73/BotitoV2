@@ -17,7 +17,7 @@ const ALIVE_MSGS = [
 ];
 
 const pull: ISlashCommand = {
-  name: "roulette",
+  name: "ruleta",
   category: "fun",
   description: "Ruleta rusa. Cada jugador escribe `roll` cuando es su turno.",
   ownerOnly: false,

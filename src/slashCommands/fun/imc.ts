@@ -28,7 +28,7 @@ const thresholds = Object.keys(imcData)
   .sort((a, b) => a - b);
 
 const pull: ISlashCommand = {
-  name: "imccalculator",
+  name: "imc",
   category: "fun",
   description: "Calcula tu IMC",
   ownerOnly: false,
