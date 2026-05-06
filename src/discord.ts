@@ -13,6 +13,7 @@ const client: ClientDiscord = new ClientDiscord(
       GatewayIntentBits.GuildMembers,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.GuildMessageReactions,
+      GatewayIntentBits.MessageContent,
     ],
     allowedMentions: {
       parse: ["users", "roles"],
