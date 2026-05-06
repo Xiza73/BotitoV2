@@ -176,8 +176,4 @@ export const antiCrash = async (_: ClientDiscord) => {
     logger(" [antiCrash] :: Uncaught Exception/Catch (MONITOR)");
     logger({ err, origin });
   });
-  process.on("multipleResolves", (type, promise, reason) => {
-    logger(" [antiCrash] :: Multiple Resolves");
-    logger({ type, promise, reason });
-  });
 };
