@@ -1,5 +1,5 @@
 import {
-  ApplicationCommandType,
+  ApplicationCommandOptionType,
   ChatInputApplicationCommandData,
   ChatInputCommandInteraction,
   Message,
@@ -8,9 +8,8 @@ import {
   UserApplicationCommandData,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
-import { MoreCommandTypes } from "../constants/commands";
 
-export type TypeCommandOption = ApplicationCommandType | MoreCommandTypes;
+export type TypeCommandOption = ApplicationCommandOptionType;
 
 export type Argument = {
   name: string;

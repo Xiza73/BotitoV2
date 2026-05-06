@@ -1,7 +1,7 @@
 import Discord, { ChatInputCommandInteraction } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random } from "../../shared/utils/helpers";
 import Jimp from "jimp";
@@ -22,13 +22,13 @@ const pull: ISlashCommand = {
     {
       name: OPTIONS.quantity,
       description: "The number of dices to roll",
-      type: MoreCommandTypes.NUMBER,
+      type: ApplicationCommandOptionType.Number,
       required: false,
     },
     {
       name: OPTIONS.sides,
       description: "The number of sides of the dice",
-      type: MoreCommandTypes.NUMBER,
+      type: ApplicationCommandOptionType.Number,
       required: false,
     },
   ],

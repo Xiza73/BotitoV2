@@ -1,6 +1,6 @@
 import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
@@ -23,18 +23,18 @@ const pull: ISlashCommand = {
     {
       name: OPTIONS.words,
       description: "Shuffle a list of words",
-      type: MoreCommandTypes.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: OPTIONS.list,
           description: "example: name1 name2 name3",
-          type: MoreCommandTypes.STRING,
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
         {
           name: OPTIONS.winners,
           description: "the number of winners",
-          type: MoreCommandTypes.INTEGER,
+          type: ApplicationCommandOptionType.Integer,
           required: false,
         },
       ],
@@ -42,12 +42,12 @@ const pull: ISlashCommand = {
     {
       name: OPTIONS.numbers,
       description: "Shuffle a list of numbers",
-      type: MoreCommandTypes.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: OPTIONS.quantity,
           description: "the number of numbers to sort",
-          type: MoreCommandTypes.INTEGER,
+          type: ApplicationCommandOptionType.Integer,
           required: true,
         },
       ],
