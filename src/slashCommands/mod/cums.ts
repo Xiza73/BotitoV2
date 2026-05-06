@@ -14,7 +14,7 @@ import {
 } from "../../shared/services/birthday.service";
 
 const pull: ISlashCommand = {
-  name: "allbirthdays",
+  name: "cums",
   category: "mod",
   description: "Lista todos los cumpleaños del servidor",
   ownerOnly: false,

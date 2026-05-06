@@ -12,7 +12,7 @@ import * as userDao from "../../api/dao/user.dao";
 const ALLOWED_ROLES = ["Staff", "Admin"] as const;
 
 const pull: ISlashCommand = {
-  name: "addmember",
+  name: "register",
   category: "mod",
   description: "Agrega un miembro a la base de datos de Gmi2",
   ownerOnly: false,

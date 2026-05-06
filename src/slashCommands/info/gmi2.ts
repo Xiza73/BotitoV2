@@ -4,7 +4,7 @@ import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
 const pull: ISlashCommand = {
-  name: "info",
+  name: "gmi2",
   category: "info",
   description: "Info facherita",
   ownerOnly: false,

@@ -10,7 +10,7 @@ import {
 } from "../../shared/services/user.service";
 
 const pull: ISlashCommand = {
-  name: "readmember",
+  name: "who",
   category: "mod",
   description: "Leer datos de un miembro de Gmi2",
   ownerOnly: false,

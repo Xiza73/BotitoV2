@@ -25,7 +25,7 @@ const rotate = (turn: number, last: number, step: number) => {
 };
 
 const pull: ISlashCommand = {
-  name: "hangman",
+  name: "ahorcado",
   category: "fun",
   description:
     "Ahorcado. Vos elegís palabra (DM con menú) o el bot la elige (con bot_picks_word).",
