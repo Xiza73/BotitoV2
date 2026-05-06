@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
@@ -13,7 +13,7 @@ const pull: ISlashCommand = {
     {
       name: "channel",
       description: "Canal a consultar (default: este)",
-      type: MoreCommandTypes.CHANNEL,
+      type: ApplicationCommandOptionType.Channel,
       required: false,
     },
   ],

@@ -5,7 +5,7 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
@@ -19,13 +19,13 @@ const pull: ISlashCommand = {
     {
       name: "message",
       description: "Texto a repetir",
-      type: MoreCommandTypes.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
     {
       name: "as_embed",
       description: "Mandarlo como embed",
-      type: MoreCommandTypes.BOOLEAN,
+      type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
   ],

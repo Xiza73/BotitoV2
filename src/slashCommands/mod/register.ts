@@ -5,7 +5,7 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 import * as userDao from "../../api/dao/user.dao";
@@ -20,25 +20,25 @@ const pull: ISlashCommand = {
     {
       name: "name",
       description: "Nombre real del miembro",
-      type: MoreCommandTypes.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
     {
       name: "user",
       description: "Usuario de Discord",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: "day",
       description: "Día de cumpleaños (1-31)",
-      type: MoreCommandTypes.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
     {
       name: "month",
       description: "Mes de cumpleaños (1-12)",
-      type: MoreCommandTypes.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
   ],

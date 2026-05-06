@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
+import { ApplicationCommandOptionType } from "discord.js";
 import calendar from "../../shared/constants/calendar";
 import { Argument, ISlashCommand, Month } from "../../shared/types";
 import { errorHandler, mentionUser } from "../../shared/utils/helpers";
@@ -18,13 +18,13 @@ const pull: ISlashCommand = {
     {
       name: "user",
       description: "Buscar por usuario de Discord",
-      type: MoreCommandTypes.USER,
+      type: ApplicationCommandOptionType.User,
       required: false,
     },
     {
       name: "name",
       description: "Buscar por nombre real",
-      type: MoreCommandTypes.STRING,
+      type: ApplicationCommandOptionType.String,
       required: false,
     },
   ],
