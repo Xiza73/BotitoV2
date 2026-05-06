@@ -10,7 +10,7 @@ const pull: ICommand = {
   usage: "[<tiros>d<caras>]",
   aliases: [],
   ownerOnly: false,
-  run: async (__: Client, msg: Message, args: string[], _: string) => {
+  run: async (__: Client, msg: Message<true>, args: string[], _: string) => {
     const root = config.oldRoot;
     if (!args[0]) {
       const img = `${root}/d6/d${random(1, 6).toString()}.png`;

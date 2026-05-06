@@ -1,4 +1,4 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -19,7 +19,7 @@ const pull: ISlashCommand = {
   ],
   run: async (
     _: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {
@@ -30,8 +30,8 @@ const pull: ISlashCommand = {
       for (let i = 0; i < number; i++) {
         result.push(Math.random() < 0.5 ? "🧑 Heads" : "🛡️ Tails");
       }
-      const embed = new Discord.MessageEmbed()
-        .setColor("RANDOM")
+      const embed = new Discord.EmbedBuilder()
+        .setColor("Random")
         .setTitle("Coin Flip")
         .setDescription(result.join("\n"))
         .setFooter({

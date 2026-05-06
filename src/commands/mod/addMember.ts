@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, Message } from "discord.js";
+import { Client, EmbedBuilder, Message } from "discord.js";
 import { ICommand } from "../../shared/types";
 import * as userDao from "../../api/dao/user.dao";
 
@@ -9,7 +9,7 @@ const pull: ICommand = {
   usage: "<name> <user> <dayBirthday> <monthBirthday>",
   aliases: ["add"],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, args: string[], _: string) => {
+  run: async (client: Client, msg: Message<true>, args: string[], _: string) => {
     if (
       msg.member!.roles.highest.name !== "Staff" &&
       msg.member!.roles.highest.name !== "Admin"
@@ -39,11 +39,11 @@ const pull: ICommand = {
         birthdayMonth: args[3],
       });
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: `Status: ${data.statusCode}`,
         description: data.message,
         timestamp: new Date(),
-      }).setColor("RANDOM");
+      }).setColor("Random");
 
       return msg.channel.send({ embeds: [embed] });
     } catch (error) {

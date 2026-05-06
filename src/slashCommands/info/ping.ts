@@ -1,4 +1,4 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -58,19 +58,20 @@ const pull: ISlashCommand = {
     /* {
       name: "number",
       description: "The number to ping",
-      type: ApplicationCommandTypes.MESSAGE,
+      type: ApplicationCommandType.Message,
       required: false,
     } as MessageApplicationCommandData, */
   ],
   run: async (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     _: Argument[]
   ) => {
     try {
-      const msg = await interaction.channel?.send(`🏓 Pinging...`);
+      if (!interaction.channel?.isSendable()) return;
+      const msg = await interaction.channel.send(`🏓 Pinging...`);
 
-      const pingEmbed = new Discord.MessageEmbed()
+      const pingEmbed = new Discord.EmbedBuilder()
         .setTitle(":signal_strength: Bot Ping")
         .addFields([
           {
@@ -86,7 +87,7 @@ const pull: ISlashCommand = {
             inline: true,
           },
         ])
-        .setColor("RANDOM");
+        .setColor("Random");
       await interaction.reply({ embeds: [pingEmbed] });
 
       await msg?.delete();

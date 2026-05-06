@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, Message } from "discord.js";
+import { Client, EmbedBuilder, Message } from "discord.js";
 import { ICommand } from "../../shared/types";
 import { random as getRandom } from "../../shared/utils/helpers";
 
@@ -9,7 +9,7 @@ const pull: ICommand = {
   usage: "<player>(+) (Excepto tú)",
   aliases: ["ruleta"],
   ownerOnly: false,
-  run: async (__: Client, message: Message, _: string[], ___: string) => {
+  run: async (__: Client, message: Message<true>, _: string[], ___: string) => {
     const Death = require("death-games");
 
     const author = [message.author.id]; // Hacemos que el jugador N.1 siempre sea el autor del mensaje
@@ -54,8 +54,8 @@ const pull: ICommand = {
       const muertoXD = ruleta.elegir(roll);
       // Elegimos el número de veces a girar el tambor del revólver
       if (muertoXD) {
-        const e = new MessageEmbed()
-          .setColor("RANDOM")
+        const e = new EmbedBuilder()
+          .setColor("Random")
           .setTitle("Los soplones, pum pum pum, al agua!")
           .setDescription(
             msg.author.toString() + " ha muerto! Se acabó la ronda!\n"

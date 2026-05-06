@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Client } from "discord.js";
+import { Message, EmbedBuilder, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ICommand } from "../../shared/types";
 import { stripIndents } from "common-tags";
@@ -10,7 +10,7 @@ const pull: ICommand = {
   usage: `[command]`,
   aliases: [],
   ownerOnly: true,
-  run: async (client: Client, message: Message, args: string[], _: string) => {
+  run: async (client: Client, message: Message<true>, args: string[], _: string) => {
     if (client instanceof ClientDiscord)
       if (args[0]) {
         return getCMD(client, message, args[0]);
@@ -20,7 +20,7 @@ const pull: ICommand = {
   },
 };
 
-function getAll(client: ClientDiscord, message: Message) {
+function getAll(client: ClientDiscord, message: Message<true>) {
   const commands = (category: string) => {
     return client.commands
       .filter((cmd) => cmd.category === category)
@@ -37,25 +37,25 @@ function getAll(client: ClientDiscord, message: Message) {
     )
     .reduce((string: string, category: string) => string + "\n\n" + category);
 
-  const embed = new MessageEmbed()
-    .setColor("RANDOM")
+  const embed = new EmbedBuilder()
+    .setColor("Random")
     .setTitle("Comandos")
     .setDescription(info);
 
   return message.channel.send({ embeds: [embed] });
 }
 
-function getCMD(client: ClientDiscord, message: Message, input: string) {
+function getCMD(client: ClientDiscord, message: Message<true>, input: string) {
   const cmd =
     client.commands.get(input.toLowerCase()) ||
     client.commands.get(client.aliases.get(input.toLowerCase()));
 
   let info = `No hay información del comando **${input.toLowerCase()}**`;
 
-  const embed = new MessageEmbed();
+  const embed = new EmbedBuilder();
   if (!cmd) {
     return message.channel.send({
-      embeds: [embed.setColor("RED").setDescription(info)],
+      embeds: [embed.setColor("Red").setDescription(info)],
     });
   }
 
@@ -69,7 +69,7 @@ function getCMD(client: ClientDiscord, message: Message, input: string) {
   }
 
   return message.channel.send({
-    embeds: [embed.setColor("GREEN").setDescription(info)],
+    embeds: [embed.setColor("Green").setDescription(info)],
   });
 }
 

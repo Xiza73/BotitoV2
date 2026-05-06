@@ -1,3 +1,4 @@
+import { ActivityType } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import ScheduleMessage from "../../shared/classes/ScheduleMessage";
 import { goodMorning } from "../../shared/utils/goodMorning";
@@ -5,8 +6,8 @@ import { reminder } from "../../shared/utils/birthdayReminder";
 import { messaryController } from "../../shared/utils/cronJobs";
 import { logger } from "../../shared/utils/helpers";
 
-module.exports = {
-  name: "ready",
+export default {
+  name: "clientReady",
   once: true,
   type: "client",
   execute(client: ClientDiscord) {
@@ -19,7 +20,7 @@ module.exports = {
       activities: [
         {
           name: `${client.config.prefix}help`,
-          type: "PLAYING",
+          type: ActivityType.Playing,
         },
       ],
     });

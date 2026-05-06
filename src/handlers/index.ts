@@ -7,6 +7,13 @@ import path from "path";
 import chalk from "chalk";
 import { logger } from "../shared/utils/helpers";
 
+// Match the runtime's source file extension: .ts when running via tsx
+// (npm run dev), .js when running compiled output (npm start). Skip
+// .d.ts declaration files in either case.
+const sourceExt = __filename.endsWith(".ts") ? ".ts" : ".js";
+const isLoadable = (file: string) =>
+  file.endsWith(sourceExt) && !file.endsWith(".d.ts");
+
 const checkHandler = (
   type: "Event" | "Command" | "SlashCommand",
   file: string,
@@ -25,10 +32,21 @@ export const loadEvents = async (client: ClientDiscord) => {
   for (const folder of eventFolders) {
     const eventFiles = readdirSync(
       path.resolve(__dirname, `./../events/${folder}`)
-    ).filter((file) => file.endsWith(".js"));
+    ).filter(isLoadable);
 
     for (const file of eventFiles) {
-      const event = await import(`../events/${folder}/${file}`);
+      let event;
+      try {
+        const mod = await import(`../events/${folder}/${file}`);
+        event = mod.default ?? mod;
+      } catch (err) {
+        logger(
+          chalk.bgRedBright.black(
+            ` ❌  => Event '${file.substring(0, file.length - 3)}' failed to load: ${err}`
+          )
+        );
+        continue;
+      }
 
       if (event.name) {
         logger(chalk.bgGreen.black(checkHandler("Event", file, 1)));
@@ -65,12 +83,20 @@ export const loadCommands = async (client: ClientDiscord) => {
   for (const folder of commandFolders) {
     const commandFiles = readdirSync(
       path.resolve(__dirname, `./../commands/${folder}`)
-    ).filter((file) => file.endsWith(".js"));
+    ).filter(isLoadable);
 
     for (const file of commandFiles) {
-      const pull: IPull = await import(
-        path.resolve(__dirname, `./../commands/${folder}/${file}`)
-      );
+      let pull: IPull;
+      try {
+        pull = await import(`../commands/${folder}/${file}`);
+      } catch (err) {
+        logger(
+          chalk.bgRedBright.black(
+            ` ❌  => Command '${file.substring(0, file.length - 3)}' failed to load: ${err}`
+          )
+        );
+        continue;
+      }
 
       if (pull.default?.name) {
         client.commands.set(pull.default.name, pull.default);
@@ -100,14 +126,20 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
   for (const folder of commandFolders) {
     const commandFiles = readdirSync(
       path.resolve(__dirname, `./../slashCommands/${folder}`)
-    ).filter((file) => file.endsWith(".js"));
+    ).filter(isLoadable);
 
     for (const file of commandFiles) {
-      const command = (
-        await import(
-          path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
-        )
-      ).default;
+      let command;
+      try {
+        command = (await import(`../slashCommands/${folder}/${file}`)).default;
+      } catch (err) {
+        logger(
+          chalk.bgRedBright.black(
+            ` ❌  => SlashCommand '${file.substring(0, file.length - 3)}' failed to load: ${err}`
+          )
+        );
+        continue;
+      }
 
       if (command.name) {
         client.slashCommands.set(command.name, command);
@@ -122,7 +154,7 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
     }
   }
 
-  client.on("ready", async () => {
+  client.on("clientReady", async () => {
     // Register Slash Commands for a single guild
     // await client.guilds.cache
     //    .get("YOUR_GUILD_ID")
@@ -145,9 +177,5 @@ export const antiCrash = async (_: ClientDiscord) => {
   process.on("uncaughtExceptionMonitor", (err, origin) => {
     logger(" [antiCrash] :: Uncaught Exception/Catch (MONITOR)");
     logger({ err, origin });
-  });
-  process.on("multipleResolves", (type, promise, reason) => {
-    logger(" [antiCrash] :: Multiple Resolves");
-    logger({ type, promise, reason });
   });
 };

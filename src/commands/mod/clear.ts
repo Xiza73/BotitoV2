@@ -1,4 +1,4 @@
-import { Client, Message, TextChannel } from "discord.js";
+import { Client, Message, PermissionFlagsBits, TextChannel } from "discord.js";
 import { ICommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils";
 import config from "../../config";
@@ -10,10 +10,10 @@ const pull: ICommand = {
   usage: "[cantidad]",
   aliases: ["clean", "purge"],
   ownerOnly: false,
-  run: async (client: Client, message: Message, args: string[], _: string) => {
+  run: async (client: Client, message: Message<true>, args: string[], _: string) => {
     try {
       // Member doesn't have permissions
-      if (!message.member!.permissions.has("MANAGE_MESSAGES")) {
+      if (!message.member!.permissions.has(PermissionFlagsBits.ManageMessages)) {
         return message
           .reply("No tienes permisos para eliminar mensajes...")
           .then((m) =>
@@ -37,7 +37,7 @@ const pull: ICommand = {
       }
 
       // Maybe the bot can't delete messages
-      if (!message.member?.permissions.has("MANAGE_MESSAGES")) {
+      if (!message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) {
         return message
           .reply("No cuento con permisos para eliminar mensajes.")
           .then((m) =>

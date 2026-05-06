@@ -1,4 +1,4 @@
-import { Client, ColorResolvable, Message, MessageEmbed } from "discord.js";
+import { Client, ColorResolvable, Message, EmbedBuilder } from "discord.js";
 import { ICommand } from "../../shared/types";
 
 type imcMessage = {
@@ -53,7 +53,7 @@ const pull: ICommand = {
   usage: "<peso> <altura>",
   aliases: ["imc", "imccalc"],
   ownerOnly: false,
-  run: async (__: Client, msg: Message, args: string[], _: string) => {
+  run: async (__: Client, msg: Message<true>, args: string[], _: string) => {
     try {
       if (!args[0]) return msg.channel.send("Falta agregar peso");
       if (!args[1]) return msg.channel.send("Falta agregar altura");
@@ -76,7 +76,7 @@ const pull: ICommand = {
         }
       }
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: "Índice de Masa Corporal  🩺",
         fields: [
           {

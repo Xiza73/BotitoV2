@@ -1,4 +1,4 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -19,7 +19,7 @@ const pull: ISlashCommand = {
   ],
   run: async (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {
@@ -62,14 +62,14 @@ const pull: ISlashCommand = {
         });
 
         // This is what it commands when using the command without arguments
-        const helpEmbed = new Discord.MessageEmbed()
+        const helpEmbed = new Discord.EmbedBuilder()
           .setTitle(`${client.user?.username} Help`)
           .setDescription(
             ` Hola **<@${interaction.user.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!
           \n**Cantidad de comandos:** ${client.commands.size}
           \n**Cantidad de /comandos:** ${client.slashCommands.size}`
           )
-          .setColor("RANDOM")
+          .setColor("Random")
           .addFields([
             {
               name: "Commands",
@@ -117,7 +117,7 @@ const pull: ISlashCommand = {
       const aliases = command?.aliases.toString() || "[]";
       const category = command?.category || "No category provided!";
 
-      const helpCmdEmbed = new Discord.MessageEmbed()
+      const helpCmdEmbed = new Discord.EmbedBuilder()
         .setTitle(
           `${
             client.user?.username
@@ -129,7 +129,7 @@ const pull: ISlashCommand = {
           { name: "Aliases", value: aliases.toString() },
           { name: "Category", value: category }
         )
-        .setColor("RANDOM");
+        .setColor("Random");
 
       interaction.reply({
         embeds: [helpCmdEmbed],

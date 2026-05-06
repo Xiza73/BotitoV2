@@ -1,5 +1,5 @@
 import fetch from "cross-fetch";
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, EmbedBuilder } from "discord.js";
 import config from "../../config";
 import { ICommand } from "../../shared/types";
 import { random as getRandom } from "../../shared/utils/helpers";
@@ -9,7 +9,7 @@ const pull: ICommand = {
   category: "fun",
   description: "Genera un Pokémon aleatorio",
   ownerOnly: false,
-  run: async (client: Client, message: Message, args: string[], _: string) => {
+  run: async (client: Client, message: Message<true>, args: string[], _: string) => {
     const types = [
       "bug",
       "dark",
@@ -63,7 +63,7 @@ const pull: ICommand = {
   aliases: [],
 };
 
-const fetchData = async (id: number, message: Message, client: Client) => {
+const fetchData = async (id: number, message: Message<true>, client: Client) => {
   try {
     const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
     const data = await res.json();
@@ -71,7 +71,7 @@ const fetchData = async (id: number, message: Message, client: Client) => {
   } catch (error) {}
 };
 
-const fetchType = async (id: string, message: Message, client: Client) => {
+const fetchType = async (id: string, message: Message<true>, client: Client) => {
   try {
     const res = await fetch(`https://pokeapi.co/api/v2/type/${id}`);
     const dat = await res.json();
@@ -84,7 +84,7 @@ const fetchType = async (id: string, message: Message, client: Client) => {
   } catch (error) {}
 };
 
-function pintarCard(poke: any, message: Message) {
+function pintarCard(poke: any, message: Message<true>) {
   let type = "";
   if (poke.type[1] === undefined) {
     type = `\`${poke.type[0]}\``;
@@ -92,7 +92,7 @@ function pintarCard(poke: any, message: Message) {
     type = `\`${poke.type[0]}\` \`${poke.type[1]}\``;
   }
 
-  const exampleEmbed = new MessageEmbed({
+  const exampleEmbed = new EmbedBuilder({
     color: 0x0099ff,
     title: `${poke.name}${poke.shiny} #${poke.order}`,
     description: type,

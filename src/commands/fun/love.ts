@@ -8,7 +8,7 @@ const pull: ICommand = {
   usage: "<user1> <user2>",
   aliases: [],
   ownerOnly: false,
-  run: async (__: Client, msg: Message, args: string[], _: string) => {
+  run: async (__: Client, msg: Message<true>, args: string[], _: string) => {
     if (args[1]) {
       msg.delete();
       msg.channel.send(`${args[0]} y ${args[1]} se  quieren, se besan :3 <3`);

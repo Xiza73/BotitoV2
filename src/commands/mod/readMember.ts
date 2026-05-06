@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, Message, User } from "discord.js";
+import { Client, EmbedBuilder, Message, User } from "discord.js";
 import { ICommand, Month } from "../../shared/types";
 import calendar from "../../shared/constants/calendar";
 import { getUserById, getUserByName } from "../../shared/services/user.service";
@@ -11,7 +11,7 @@ const pull: ICommand = {
   usage: "<param>",
   aliases: ["whois", "wi", "read"],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, args: string[], _: string) => {
+  run: async (client: Client, msg: Message<true>, args: string[], _: string) => {
     let res;
     let user: User;
     try {
@@ -27,7 +27,7 @@ const pull: ICommand = {
       }
       if (!user || !res) throw new Error("No se encontró usuario");
 
-      const embed = new MessageEmbed({
+      const embed = new EmbedBuilder({
         title: "CUMpleaños 🎂",
         thumbnail: {
           url: user.avatarURL()!,
@@ -41,7 +41,7 @@ const pull: ICommand = {
             }\``,
           },
         ],
-      }).setColor("RANDOM");
+      }).setColor("Random");
 
       msg.channel.send({ embeds: [embed] });
       return;

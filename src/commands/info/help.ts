@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Client } from "discord.js";
+import { Message, EmbedBuilder, Client } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ICommand } from "../../shared/types";
 import { logger } from "../../shared/utils";
@@ -12,7 +12,7 @@ const pull: ICommand = {
   ownerOnly: false,
   run: async (
     client: Client<boolean> | ClientDiscord,
-    message: Message,
+    message: Message<true>,
     args: string[],
     _: string
   ) => {
@@ -57,14 +57,14 @@ const pull: ICommand = {
         });
 
         // This is what it commands when using the command without arguments
-        const helpEmbed = new MessageEmbed()
+        const helpEmbed = new EmbedBuilder()
           .setTitle(`${client.user?.username} Help`)
           .setDescription(
             ` Hola **<@${message.author.id}>**  \nPuedes usar \`${client.config.prefix}help <command>\` para ver más información de los comandos!
           \n**Cantidad de comandos:** ${client.commands.size}
           \n**Cantidad de /comandos:** ${client.slashCommands.size}`
           )
-          .setColor("RANDOM")
+          .setColor("Random")
           .addFields([
             {
               name: "Commands",
@@ -112,7 +112,7 @@ const pull: ICommand = {
       const aliases = command?.aliases.toString() || "[]";
       const category = command?.category || "No category provided!";
 
-      const helpCmdEmbed = new MessageEmbed()
+      const helpCmdEmbed = new EmbedBuilder()
         .setTitle(
           `${
             client.user?.username
@@ -124,7 +124,7 @@ const pull: ICommand = {
           { name: "Aliases", value: aliases.toString() },
           { name: "Category", value: category }
         )
-        .setColor("RANDOM");
+        .setColor("Random");
 
       message.reply({
         embeds: [helpCmdEmbed],

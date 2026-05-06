@@ -1,15 +1,15 @@
 import {
-  MessageActionRow,
+  ActionRowBuilder,
   Client,
+  ComponentType,
   Message,
-  MessageSelectMenu,
+  StringSelectMenuBuilder,
 } from "discord.js";
 import { ICommand } from "../../shared/types";
 import Death from "death-games";
 import { random, shuffle } from "../../shared/utils/helpers";
 import words from "../../shared/data/words";
 import _config from "../../config";
-import { SelectMenuBuilder } from "@discordjs/builders";
 
 const { photoRoot } = _config;
 
@@ -29,7 +29,7 @@ const pull: ICommand = {
   usage: "<player>(+)",
   aliases: ["ahorcado"],
   ownerOnly: false,
-  run: async (__: Client, message: Message, _: string[], ___: string) => {
+  run: async (__: Client, message: Message<true>, _: string[], ___: string) => {
     const author = [message.author.id];
     let turn = 0;
     const lifes = 7;
@@ -50,8 +50,8 @@ const pull: ICommand = {
       // word = "hola"; // Para pruebas
       word = word.toLowerCase();
     } else {
-      const actionRowComponent = new MessageActionRow().setComponents(
-        new MessageSelectMenu()
+      const actionRowComponent = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+        new StringSelectMenuBuilder()
           .setCustomId("hangman")
           .setPlaceholder("Selecciona una palabra")
           .addOptions(
@@ -69,7 +69,7 @@ const pull: ICommand = {
       await channel.send({ components: [actionRowComponent] });
 
       const interaction = await channel.awaitMessageComponent({
-        componentType: "SELECT_MENU",
+        componentType: ComponentType.StringSelect,
         time: 20000,
         idle: 20000,
         dispose: true,

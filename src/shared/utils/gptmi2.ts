@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, OmitPartialGroupDMChannel } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { ResponseData } from "../../handlers/ResponseData";
 import config from "../../config";
@@ -18,7 +18,7 @@ const chatBotUrl = "https://chatbot.theb.ai/api/chat-process";
 let authorType: "user" | "bot" = "user";
 
 const isGPTRequest = async (
-  message: Message,
+  message: OmitPartialGroupDMChannel<Message>,
   client: ClientDiscord
 ): Promise<boolean> => {
   const { isChannelAllowed } = await getGPTChannelsInfo(message.channel.id);
@@ -69,7 +69,7 @@ const useFetch = async (
 };
 
 const resolvePrompt = async (
-  message: Message,
+  message: OmitPartialGroupDMChannel<Message>,
   prompt: string
 ): Promise<void> => {
   const res = await useFetch(prompt);
@@ -114,7 +114,7 @@ const resolvePrompt = async (
 };
 
 export const handler = async (
-  message: Message,
+  message: OmitPartialGroupDMChannel<Message>,
   client: ClientDiscord
 ): Promise<void | Message<boolean>> => {
   let loadingMessage: Message | null = null;
@@ -137,7 +137,7 @@ export const handler = async (
       content: "Generando...",
     });
 
-    await resolvePrompt(loadingMessage, prompt);
+    await resolvePrompt(loadingMessage as OmitPartialGroupDMChannel<Message>, prompt);
   } catch (error) {
     logger("fetch error", error ? (error as Error).message : "unknown");
 

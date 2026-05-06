@@ -8,7 +8,7 @@ const pull: ICommand = {
   aliases: [],
   description: "Tu ping!",
   ownerOnly: false,
-  run: async (___: Client, message: Message, _: string[], __: string) => {
+  run: async (___: Client, message: Message<true>, _: string[], __: string) => {
     const msg = await message.channel.send(`🏓 Pinging....`);
 
     await msg.edit(`🏓 Pong!

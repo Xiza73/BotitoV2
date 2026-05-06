@@ -1,4 +1,4 @@
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, EmbedBuilder } from "discord.js";
 import { ICommand } from "../../shared/types";
 
 const pull: ICommand = {
@@ -8,8 +8,8 @@ const pull: ICommand = {
   usage: null,
   aliases: [],
   ownerOnly: false,
-  run: async (client: Client, msg: Message, __: string[], _: string) => {
-    const exampleEmbed = new MessageEmbed({
+  run: async (client: Client, msg: Message<true>, __: string[], _: string) => {
+    const exampleEmbed = new EmbedBuilder({
       color: 0xff2d00,
       title: "Información del Servidor",
       author: {
