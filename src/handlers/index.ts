@@ -152,7 +152,7 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
     }
   }
 
-  client.on("ready", async () => {
+  client.on("clientReady", async () => {
     // Register Slash Commands for a single guild
     // await client.guilds.cache
     //    .get("YOUR_GUILD_ID")

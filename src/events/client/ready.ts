@@ -7,7 +7,7 @@ import { messaryController } from "../../shared/utils/cronJobs";
 import { logger } from "../../shared/utils/helpers";
 
 module.exports = {
-  name: "ready",
+  name: "clientReady",
   once: true,
   type: "client",
   execute(client: ClientDiscord) {
