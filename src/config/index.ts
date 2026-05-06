@@ -11,6 +11,5 @@ export default {
   gmi2Channel: process.env.GMI2_CHANNEL ?? "",
   photoRoot: process.env.PHOTO_ROOT ?? "",
   oldRoot: "https://res.cloudinary.com/dnbgxu47a/image/upload/v1612837856",
-  userAgent: process.env.USER_AGENT ?? "",
   maxDeleteMessages: parseInt(process.env.MAX_DELETE_MESSAGES || "20"),
 };
