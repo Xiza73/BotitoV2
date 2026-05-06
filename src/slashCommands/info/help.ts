@@ -27,7 +27,7 @@ const pull: ISlashCommand = {
 
       if (!arg) {
         const commands = (category: string) => {
-          return client.slashCommands
+          return client.commands
             .filter((cmd) => cmd.category === category)
             .map((cmd) => `\`${cmd.name}\``)
             .join(", ");
