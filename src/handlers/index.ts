@@ -88,9 +88,7 @@ export const loadCommands = async (client: ClientDiscord) => {
     for (const file of commandFiles) {
       let pull: IPull;
       try {
-        pull = await import(
-          path.resolve(__dirname, `./../commands/${folder}/${file}`)
-        );
+        pull = await import(`../commands/${folder}/${file}`);
       } catch (err) {
         logger(
           chalk.bgRedBright.black(
@@ -133,11 +131,7 @@ export const loadSlashCommands = async (client: ClientDiscord) => {
     for (const file of commandFiles) {
       let command;
       try {
-        command = (
-          await import(
-            path.resolve(__dirname, `../slashCommands/${folder}/${file}`)
-          )
-        ).default;
+        command = (await import(`../slashCommands/${folder}/${file}`)).default;
       } catch (err) {
         logger(
           chalk.bgRedBright.black(
