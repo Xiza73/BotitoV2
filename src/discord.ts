@@ -1,19 +1,17 @@
-import { Intents } from "discord.js";
-import { readdirSync } from "fs";
-import path from "path";
+import { GatewayIntentBits, Partials } from "discord.js";
 import _config from "./config";
 import ClientDiscord from "./shared/classes/ClientDiscord";
 import * as handler from "./handlers";
 
 const client: ClientDiscord = new ClientDiscord(
   {
-    partials: ["CHANNEL", "MESSAGE", "REACTION", "GUILD_MEMBER"],
+    partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.GuildMember],
     intents: [
-      Intents.FLAGS.GUILDS,
-      Intents.FLAGS.GUILD_MEMBERS,
-      Intents.FLAGS.GUILD_VOICE_STATES,
-      Intents.FLAGS.GUILD_MESSAGES,
-      Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.GuildMessageReactions,
+      GatewayIntentBits.MessageContent,
     ],
     allowedMentions: {
       parse: ["users", "roles"],
@@ -21,15 +19,12 @@ const client: ClientDiscord = new ClientDiscord(
     },
   },
   {
-    prefix: _config.prefix,
     ownerId: _config.ownerId,
   }
 );
-client.categories = readdirSync(path.join(__dirname, "commands"));
 
 (async () => {
   await handler.loadEvents(client);
-  await handler.loadCommands(client);
   await handler.loadSlashCommands(client);
   await handler.antiCrash(client);
   await client.login(_config.token);

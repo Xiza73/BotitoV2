@@ -1,76 +1,23 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
-// Example of how to make a SlashCommand
 
 const pull: ISlashCommand = {
   name: "ping",
   category: "info",
   description: "Check the bot's ping!",
   ownerOnly: false,
-  options: [
-    /* {
-      name: "user",
-      description: "The user to ping",
-      type: "USER",
-      required: false,
-    } as UserApplicationCommandData, */
-    {
-      name: "color",
-      description: "The color to ping",
-      type: MoreCommandTypes.SUB_COMMAND,
-      options: [
-        {
-          name: "red",
-          description: "The color red",
-          type: MoreCommandTypes.STRING,
-          required: false,
-        },
-        {
-          name: "blue",
-          description: "The color blue",
-          type: MoreCommandTypes.STRING,
-          required: false,
-        },
-      ],
-    },
-    {
-      name: "height",
-      description: "The color to ping",
-      type: MoreCommandTypes.SUB_COMMAND,
-      options: [
-        {
-          name: "tall",
-          description: "The color red",
-          type: MoreCommandTypes.STRING,
-          required: false,
-        },
-        {
-          name: "short",
-          description: "The color blue",
-          type: MoreCommandTypes.STRING,
-          required: false,
-        },
-      ],
-    },
-    /* {
-      name: "number",
-      description: "The number to ping",
-      type: ApplicationCommandTypes.MESSAGE,
-      required: false,
-    } as MessageApplicationCommandData, */
-  ],
   run: async (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     _: Argument[]
   ) => {
     try {
-      const msg = await interaction.channel?.send(`🏓 Pinging...`);
+      if (!interaction.channel?.isSendable()) return;
+      const msg = await interaction.channel.send(`🏓 Pinging...`);
 
-      const pingEmbed = new Discord.MessageEmbed()
+      const pingEmbed = new Discord.EmbedBuilder()
         .setTitle(":signal_strength: Bot Ping")
         .addFields([
           {
@@ -86,7 +33,7 @@ const pull: ISlashCommand = {
             inline: true,
           },
         ])
-        .setColor("RANDOM");
+        .setColor("Random");
       await interaction.reply({ embeds: [pingEmbed] });
 
       await msg?.delete();

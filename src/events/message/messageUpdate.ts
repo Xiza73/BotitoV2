@@ -1,8 +1,8 @@
-import { MessageEmbed, Message } from "discord.js";
+import { EmbedBuilder, Message } from "discord.js";
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 
-module.exports = {
+export default {
   name: "messageUpdate",
   type: "message",
   // just work on the first message update, and just in gmi2 channel
@@ -28,7 +28,7 @@ module.exports = {
       newMessage.content.slice(0, count) +
       (newMessage.content.length > count ? "..." : "");
 
-    const log = new MessageEmbed()
+    const log = new EmbedBuilder()
       .setAuthor({
         name: oldMessage.author.tag,
         iconURL: oldMessage.author.displayAvatarURL(),
@@ -41,7 +41,7 @@ module.exports = {
         { name: "Edited", value: edited }
       )
       .setTimestamp()
-      .setColor("YELLOW");
+      .setColor("Yellow");
 
     const user = await client.users.fetch(config.ownerId, {
       cache: false,

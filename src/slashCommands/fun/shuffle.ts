@@ -1,4 +1,4 @@
-import Discord, { CommandInteraction } from "discord.js";
+import Discord, { ChatInputCommandInteraction } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { MoreCommandTypes } from "../../shared/constants/commands";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -55,7 +55,7 @@ const pull: ISlashCommand = {
   ],
   run: async (
     _: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {
@@ -82,8 +82,8 @@ const pull: ISlashCommand = {
           : "Lista aleatoria";
         const shuffledList = shuffle(list);
 
-        const embed = new Discord.MessageEmbed()
-          .setColor("RANDOM")
+        const embed = new Discord.EmbedBuilder()
+          .setColor("Random")
           .setTitle(title)
           .setDescription(enumerateArray(shuffledList, winners))
           .setFields([
@@ -110,8 +110,8 @@ const pull: ISlashCommand = {
         // const shuffledList = list.sort(() => Math.random() - 0.5);
         const shuffledList = shuffle(list);
 
-        const embed = new Discord.MessageEmbed()
-          .setColor("RANDOM")
+        const embed = new Discord.EmbedBuilder()
+          .setColor("Random")
           .setTitle("Shuffled List")
           .setDescription(shuffledList.join(", "))
           .setFooter({

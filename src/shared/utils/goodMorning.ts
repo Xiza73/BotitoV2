@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import _config from "../../config";
 import ClientDiscord from "../classes/ClientDiscord";
 import images from "../constants/images";
@@ -8,7 +8,7 @@ import { channelSender, dateToUTC5 } from "./helpers";
 export const goodMorning = (client: ClientDiscord) => {
   const { week }: IDate = dateToUTC5(new Date());
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setColor(0xecff07)
     .setTitle("Buenos días estrellitas!")
     .setDescription("La tierra les dice holaaaaa")
@@ -26,18 +26,18 @@ export const goodMorning = (client: ClientDiscord) => {
 
 export const thursdayEmbedController = (
   week: Week
-): MessageEmbed | undefined => {
+): EmbedBuilder | undefined => {
   if (week !== 4) return;
-  return new MessageEmbed()
+  return new EmbedBuilder()
     .setColor(0xf14d00)
     .setTitle("Feliz Jueves!")
     .setThumbnail(images.asukaThumbnail)
     .setImage(images.asukaGif);
 };
 
-export const fridayEmbedController = (week: Week): MessageEmbed | undefined => {
+export const fridayEmbedController = (week: Week): EmbedBuilder | undefined => {
   if (week !== 5) return;
-  return new MessageEmbed()
+  return new EmbedBuilder()
     .setColor(0x0099ff)
     .setTitle("PREPARATE LA PUTA QUE TE RE PARIÓ")
     .setDescription(

@@ -1,36 +1,15 @@
-import { VoiceConnection } from "@discordjs/voice";
 import {
+  ApplicationCommandType,
   ChatInputApplicationCommandData,
-  CommandInteraction,
-  DMChannel,
+  ChatInputCommandInteraction,
   Message,
   MessageApplicationCommandData,
-  NewsChannel,
-  TextChannel,
   UserApplicationCommandData,
-  VoiceChannel,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
-import { ApplicationCommandTypes } from "discord.js/typings/enums";
 import { MoreCommandTypes } from "../constants/commands";
 
-export type ICommand = {
-  name: string;
-  category: string | null;
-  description: string;
-  usage: string | null;
-  aliases: string[];
-  ownerOnly: boolean;
-  run: (
-    client: ClientDiscord,
-    msg: Message,
-    args: string[],
-    cmd: string,
-    // eslint-disable-next-line no-undef
-  ) => Promise<Message | undefined | void | NodeJS.Timeout>;
-};
-
-export type TypeCommandOption = ApplicationCommandTypes | MoreCommandTypes;
+export type TypeCommandOption = ApplicationCommandType | MoreCommandTypes;
 
 export type Argument = {
   name: string;
@@ -68,10 +47,9 @@ export type ISlashCommand = {
   ownerOnly: boolean;
   run: (
     client: ClientDiscord,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     args: Argument[],
-    // eslint-disable-next-line no-undef
-  ) => Promise<Message | undefined | void | NodeJS.Timeout>;
+  ) => Promise<unknown>;
 };
 
 export type Week = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -86,21 +64,8 @@ export type IDate = {
   week: Week;
 };
 
-export type Song = {
-  title: string;
-  url: string;
-};
-
-export type SongQueue = {
-  voice_channel: VoiceChannel;
-  text_channel: TextChannel | DMChannel | NewsChannel;
-  connection: VoiceConnection | null;
-  songs: Song[];
-};
-
 export type ClientConfig = {
   botId?: string;
-  prefix: string;
   ownerId: string;
 };
 

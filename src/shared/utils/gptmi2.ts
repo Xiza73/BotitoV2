@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, OmitPartialGroupDMChannel } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
 import { ResponseData } from "../../handlers/ResponseData";
 import config from "../../config";
@@ -18,17 +18,11 @@ const chatBotUrl = "https://chatbot.theb.ai/api/chat-process";
 let authorType: "user" | "bot" = "user";
 
 const isGPTRequest = async (
-  message: Message,
-  client: ClientDiscord
+  message: OmitPartialGroupDMChannel<Message>
 ): Promise<boolean> => {
   const { isChannelAllowed } = await getGPTChannelsInfo(message.channel.id);
 
-  if (
-    !isChannelAllowed ||
-    message.author.bot ||
-    message.content.toLowerCase().startsWith(client.config.prefix)
-  )
-    return false;
+  if (!isChannelAllowed || message.author.bot) return false;
 
   return true;
 };
@@ -69,7 +63,7 @@ const useFetch = async (
 };
 
 const resolvePrompt = async (
-  message: Message,
+  message: OmitPartialGroupDMChannel<Message>,
   prompt: string
 ): Promise<void> => {
   const res = await useFetch(prompt);
@@ -114,13 +108,13 @@ const resolvePrompt = async (
 };
 
 export const handler = async (
-  message: Message,
+  message: OmitPartialGroupDMChannel<Message>,
   client: ClientDiscord
 ): Promise<void | Message<boolean>> => {
   let loadingMessage: Message | null = null;
 
   try {
-    if (!(await isGPTRequest(message, client))) return;
+    if (!(await isGPTRequest(message))) return;
 
     if (message.author.bot) authorType = "bot";
 
@@ -137,7 +131,7 @@ export const handler = async (
       content: "Generando...",
     });
 
-    await resolvePrompt(loadingMessage, prompt);
+    await resolvePrompt(loadingMessage as OmitPartialGroupDMChannel<Message>, prompt);
   } catch (error) {
     logger("fetch error", error ? (error as Error).message : "unknown");
 
