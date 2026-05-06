@@ -10,6 +10,7 @@ const pull: ISlashCommand = {
   category: "mod",
   description: "Limpia el chat",
   ownerOnly: false,
+  defaultMemberPermissions: PermissionFlagsBits.ManageMessages,
   options: [
     {
       name: "amount",
