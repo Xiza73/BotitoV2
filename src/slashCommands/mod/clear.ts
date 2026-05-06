@@ -73,15 +73,24 @@ const pull: ISlashCommand = {
         interaction.channel
       );
 
+      await interaction.reply({
+        content: "Limpiando chat...",
+        ephemeral: true,
+      });
+
       channel
         .bulkDelete(amountToDelete, true)
         .then(async (deleted) => {
-          await interaction.reply({
-            content: `\`${deleted.size}\` mensajes borrados.`,
-            ephemeral: true,
-          });
+          const notice = await channel.send(
+            `\`${deleted.size}\` mensajes borrados.`
+          );
+          setTimeout(() => {
+            notice.delete().catch(() => {});
+          }, 5000);
         })
-        .catch((err) => interaction.reply(`Error: ${err}`));
+        .catch((err) =>
+          interaction.editReply(`Error: ${err}`).catch(() => {})
+        );
     } catch (error) {
       errorHandler(interaction, error);
     }
