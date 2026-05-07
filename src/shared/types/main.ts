@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  AutocompleteInteraction,
   ChatInputApplicationCommandData,
   ChatInputCommandInteraction,
   Message,
@@ -31,6 +32,7 @@ export type SlashCommandsOptions = {
   options?: SlashCommandsOptions[];
   type?: TypeCommandOption;
   required?: boolean;
+  autocomplete?: boolean;
 };
 
 /* UserApplicationCommandData
@@ -46,10 +48,15 @@ export type ISlashCommand = {
   options?: SlashCommandsOptions[];
   ownerOnly: boolean;
   defaultMemberPermissions?: PermissionResolvable;
+  examples?: string[];
   run: (
     client: ClientDiscord,
     interaction: ChatInputCommandInteraction,
     args: Argument[],
+  ) => Promise<unknown>;
+  autocomplete?: (
+    client: ClientDiscord,
+    interaction: AutocompleteInteraction,
   ) => Promise<unknown>;
 };
 

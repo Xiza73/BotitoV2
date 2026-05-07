@@ -10,6 +10,23 @@ export default {
   name: "interactionCreate",
   type: "client",
   execute(interaction: Interaction, client: ClientDiscord) {
+    // Autocomplete interactions: route to the command's autocomplete handler
+    // if it declared one. They MUST respond within 3s with up to 25 choices,
+    // and they cannot reply with messages — only with respond().
+    if (interaction.isAutocomplete()) {
+      const command: ISlashCommand | undefined = client.slashCommands.get(
+        interaction.commandName
+      );
+      if (command?.autocomplete) {
+        try {
+          command.autocomplete(client, interaction);
+        } catch {
+          // Best-effort; autocomplete has no error reply channel.
+        }
+      }
+      return;
+    }
+
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.command) return;
 

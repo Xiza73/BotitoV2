@@ -12,7 +12,7 @@ import { errorHandler } from "../../shared/utils/helpers";
 const pull: ISlashCommand = {
   name: "say",
   category: "mod",
-  description: "Botito repite lo que dices",
+  description: "Xiza Bot repite lo que dices",
   ownerOnly: false,
   defaultMemberPermissions: PermissionFlagsBits.ManageMessages,
   options: [
