@@ -30,11 +30,13 @@ const MIN_ITEMS = 2;
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 50;
 
-/**
- * Splits the raw list on commas, semicolons, or any whitespace, trims each
- * item and drops empties. Supports `"ana bob carla"`, `"ana,bob,carla"`,
- * `"ana, bob, carla"`, etc. — whichever feels natural to the user.
- */
+// Animation only fires for /shuffle words winners:N — the dramatic reveal case.
+// Total wait: ANIMATION_FRAMES * FRAME_DELAY_MS = 1.8s with the defaults.
+const ANIMATION_FRAMES = 3;
+const FRAME_DELAY_MS = 600;
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
 const parseWordList = (raw: string): string[] =>
   raw
     .split(/[,;\s]+/)
@@ -44,64 +46,67 @@ const parseWordList = (raw: string): string[] =>
 const enumerateLines = (items: (string | number)[]) =>
   items.map((item, i) => `**${i + 1}.** ${item}`).join("\n");
 
-const buildBaseEmbed = (title: string, description: string) =>
+const teaserDescription = (list: string[]) =>
+  list.map((w, i) => `**${i + 1}.** ${w}`).join("\n");
+
+const baseEmbed = (title: string, description: string) =>
   new EmbedBuilder()
     .setTitle(title)
     .setDescription(description)
     .setColor(colorForCategory("fun"))
     .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
 
-type Result = { embed?: EmbedBuilder; error?: string };
+const buildTeaserEmbed = (list: string[]) =>
+  baseEmbed("🎰 Sorteando...", teaserDescription(shuffle(list)));
 
-const handleWords = (rawList: string, winners: number | undefined): Result => {
-  const list = parseWordList(rawList);
-  if (list.length < MIN_ITEMS) {
-    return {
-      error: `Necesito al menos ${MIN_ITEMS} elementos. Separá la lista con espacios, comas o punto y coma.`,
-    };
-  }
-  if (winners !== undefined && winners < 1) {
-    return { error: "El número de ganadores debe ser al menos 1." };
-  }
-
-  const shuffled = shuffle(list);
-  const cap =
-    winners !== undefined ? Math.min(winners, list.length) : list.length;
+const buildWinnersEmbed = (
+  shuffled: string[],
+  cap: number,
+  originalList: string[]
+) => {
   const picked = shuffled.slice(0, cap);
+  const title = cap === 1 ? "🏆 Ganador" : `🏆 Ganadores (${cap})`;
+  return baseEmbed(title, enumerateLines(picked)).addFields({
+    name: "Lista original",
+    value: originalList.join(", "),
+  });
+};
 
-  let title: string;
-  if (winners !== undefined) {
-    title = cap === 1 ? "🏆 Ganador" : `🏆 Ganadores (${cap})`;
-  } else {
-    title = "🔀 Lista aleatoria";
-  }
-
-  const embed = buildBaseEmbed(title, enumerateLines(picked)).addFields({
+const buildShuffleEmbed = (list: string[]) =>
+  baseEmbed("🔀 Lista aleatoria", enumerateLines(shuffle(list))).addFields({
     name: "Lista original",
     value: list.join(", "),
   });
 
-  return { embed };
-};
-
-const handleNumbers = (rawQuantity: number | undefined): Result => {
-  if (rawQuantity === undefined) {
-    return { error: "Tenés que pasar la cantidad." };
-  }
-  if (rawQuantity < MIN_QUANTITY) {
-    return { error: `La cantidad debe ser al menos ${MIN_QUANTITY}.` };
-  }
-
-  const quantity = Math.min(rawQuantity, MAX_QUANTITY);
-  const list = Array.from({ length: quantity }, (_, i) => i + 1);
-  const shuffled = shuffle(list);
-
-  const embed = buildBaseEmbed(
+const buildNumbersEmbed = (quantity: number) =>
+  baseEmbed(
     `🔀 Números (1–${quantity})`,
-    shuffled.join(", ")
+    shuffle(Array.from({ length: quantity }, (_, i) => i + 1)).join(", ")
   );
 
-  return { embed };
+/**
+ * Animated raffle reveal: defer → N teaser frames with re-shuffles → final winners.
+ * Runs purely on editReply so it works in both public and ephemeral mode.
+ */
+const animateWinnersReveal = async (
+  interaction: ChatInputCommandInteraction,
+  list: string[],
+  cap: number,
+  isPrivate: boolean
+) => {
+  await interaction.deferReply({
+    flags: isPrivate ? MessageFlags.Ephemeral : undefined,
+  });
+
+  for (let i = 0; i < ANIMATION_FRAMES; i++) {
+    await interaction.editReply({ embeds: [buildTeaserEmbed(list)] });
+    await sleep(FRAME_DELAY_MS);
+  }
+
+  const finalShuffle = shuffle(list);
+  await interaction.editReply({
+    embeds: [buildWinnersEmbed(finalShuffle, cap, list)],
+  });
 };
 
 const pull: ISlashCommand = {
@@ -124,7 +129,7 @@ const pull: ISlashCommand = {
         {
           name: OPT.winners,
           description:
-            "Cantidad de ganadores a elegir (default: toda la lista)",
+            "Cantidad de ganadores a elegir (default: toda la lista, activa animación)",
           type: ApplicationCommandOptionType.Integer,
           required: false,
         },
@@ -174,30 +179,60 @@ const pull: ISlashCommand = {
       const findArg = (name: string) =>
         subArgs.find((a) => a.name === name)?.value;
       const isPrivate = (findArg(OPT.private) as boolean | undefined) ?? false;
+      const flags = isPrivate ? MessageFlags.Ephemeral : undefined;
 
-      let result: Result;
       if (sub.name === SUB.words) {
         const rawList = (findArg(OPT.list) as string) ?? "";
         const winners = findArg(OPT.winners) as number | undefined;
-        result = handleWords(rawList, winners);
-      } else if (sub.name === SUB.numbers) {
-        const quantity = findArg(OPT.quantity) as number | undefined;
-        result = handleNumbers(quantity);
-      } else {
-        return;
-      }
+        const list = parseWordList(rawList);
 
-      if (result.error) {
+        if (list.length < MIN_ITEMS) {
+          return interaction.reply({
+            content: `Necesito al menos ${MIN_ITEMS} elementos. Separá la lista con espacios, comas o punto y coma.`,
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+        if (winners !== undefined && winners < 1) {
+          return interaction.reply({
+            content: "El número de ganadores debe ser al menos 1.",
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+
+        // Winners path → dramatic reveal with animation
+        if (winners !== undefined) {
+          const cap = Math.min(winners, list.length);
+          return animateWinnersReveal(interaction, list, cap, isPrivate);
+        }
+
+        // No winners → instant shuffle
         return interaction.reply({
-          content: result.error,
-          flags: MessageFlags.Ephemeral,
+          embeds: [buildShuffleEmbed(list)],
+          flags,
         });
       }
 
-      return interaction.reply({
-        embeds: [result.embed!],
-        flags: isPrivate ? MessageFlags.Ephemeral : undefined,
-      });
+      if (sub.name === SUB.numbers) {
+        const rawQuantity = findArg(OPT.quantity) as number | undefined;
+        if (rawQuantity === undefined) {
+          return interaction.reply({
+            content: "Tenés que pasar la cantidad.",
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+        if (rawQuantity < MIN_QUANTITY) {
+          return interaction.reply({
+            content: `La cantidad debe ser al menos ${MIN_QUANTITY}.`,
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+
+        const quantity = Math.min(rawQuantity, MAX_QUANTITY);
+        return interaction.reply({
+          embeds: [buildNumbersEmbed(quantity)],
+          flags,
+        });
+      }
     } catch (error) {
       errorHandler(interaction, error);
     }

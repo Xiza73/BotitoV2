@@ -1,5 +1,5 @@
 import { MessageFlags } from "discord.js";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   createMockClient,
@@ -9,7 +9,7 @@ import {
 import shuffle from "./shuffle";
 
 describe("/shuffle", () => {
-  describe("words subcommand", () => {
+  describe("words subcommand — no winners (instant)", () => {
     it("replies with the shuffled list and an original-list field", async () => {
       const interaction = createMockInteraction();
       await shuffle.run(createMockClient(), interaction, [
@@ -21,7 +21,9 @@ describe("/shuffle", () => {
       expect(payload.embeds).toHaveLength(1);
       const embed = payload.embeds[0].data;
       expect(embed.title).toBe("🔀 Lista aleatoria");
-      const original = embed.fields.find((f: any) => f.name === "Lista original");
+      const original = embed.fields.find(
+        (f: any) => f.name === "Lista original"
+      );
       expect(original.value).toBe("ana, bob, carla, david");
     });
 
@@ -33,35 +35,10 @@ describe("/shuffle", () => {
 
       const payload = interaction.reply.mock.calls[0][0];
       const embed = payload.embeds[0].data;
-      const original = embed.fields.find((f: any) => f.name === "Lista original");
+      const original = embed.fields.find(
+        (f: any) => f.name === "Lista original"
+      );
       expect(original.value).toBe("ana, bob, carla");
-    });
-
-    it("uses the singular 'Ganador' title when winners=1", async () => {
-      const interaction = createMockInteraction();
-      await shuffle.run(createMockClient(), interaction, [
-        subCommandArg("words", [
-          { name: "list", value: "ana bob carla" },
-          { name: "winners", value: 1 },
-        ]),
-      ]);
-
-      const payload = interaction.reply.mock.calls[0][0];
-      expect(payload.embeds[0].data.title).toBe("🏆 Ganador");
-    });
-
-    it("caps winners to the list length when winners > items", async () => {
-      const interaction = createMockInteraction();
-      await shuffle.run(createMockClient(), interaction, [
-        subCommandArg("words", [
-          { name: "list", value: "ana bob" },
-          { name: "winners", value: 99 },
-        ]),
-      ]);
-
-      const payload = interaction.reply.mock.calls[0][0];
-      // capped to 2 → plural
-      expect(payload.embeds[0].data.title).toBe("🏆 Ganadores (2)");
     });
 
     it("rejects ephemerally when the list has fewer than 2 items", async () => {
@@ -74,8 +51,73 @@ describe("/shuffle", () => {
       expect(payload.flags).toBe(MessageFlags.Ephemeral);
       expect(payload.content).toContain("al menos 2");
     });
+  });
 
-    it("rejects ephemerally when winners < 1", async () => {
+  describe("words subcommand — winners (animated raffle)", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("defers, edits N teaser frames, then edits with the final winners embed", async () => {
+      const interaction = createMockInteraction();
+      const promise = shuffle.run(createMockClient(), interaction, [
+        subCommandArg("words", [
+          { name: "list", value: "ana bob carla" },
+          { name: "winners", value: 1 },
+        ]),
+      ]);
+
+      // Drive the timers so all setTimeout-based sleeps resolve
+      await vi.runAllTimersAsync();
+      await promise;
+
+      expect(interaction.deferReply).toHaveBeenCalledOnce();
+      // 3 teaser frames + 1 final reveal = 4 editReply calls
+      expect(interaction.editReply).toHaveBeenCalledTimes(4);
+      expect(interaction.reply).not.toHaveBeenCalled();
+
+      // The final edit should carry the winners embed
+      const finalCall = interaction.editReply.mock.calls.at(-1)![0];
+      expect(finalCall.embeds[0].data.title).toBe("🏆 Ganador");
+    });
+
+    it("uses 'Ganadores (N)' title for plural winners", async () => {
+      const interaction = createMockInteraction();
+      const promise = shuffle.run(createMockClient(), interaction, [
+        subCommandArg("words", [
+          { name: "list", value: "ana bob carla david" },
+          { name: "winners", value: 3 },
+        ]),
+      ]);
+
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const finalCall = interaction.editReply.mock.calls.at(-1)![0];
+      expect(finalCall.embeds[0].data.title).toBe("🏆 Ganadores (3)");
+    });
+
+    it("caps winners to the list length when winners > items", async () => {
+      const interaction = createMockInteraction();
+      const promise = shuffle.run(createMockClient(), interaction, [
+        subCommandArg("words", [
+          { name: "list", value: "ana bob" },
+          { name: "winners", value: 99 },
+        ]),
+      ]);
+
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const finalCall = interaction.editReply.mock.calls.at(-1)![0];
+      expect(finalCall.embeds[0].data.title).toBe("🏆 Ganadores (2)");
+    });
+
+    it("rejects ephemerally when winners < 1 (no defer, no animation)", async () => {
       const interaction = createMockInteraction();
       await shuffle.run(createMockClient(), interaction, [
         subCommandArg("words", [
@@ -87,6 +129,44 @@ describe("/shuffle", () => {
       const payload = interaction.reply.mock.calls[0][0];
       expect(payload.flags).toBe(MessageFlags.Ephemeral);
       expect(payload.content).toContain("al menos 1");
+      expect(interaction.deferReply).not.toHaveBeenCalled();
+      expect(interaction.editReply).not.toHaveBeenCalled();
+    });
+
+    it("teaser frames use the '🎰 Sorteando...' title before the reveal", async () => {
+      const interaction = createMockInteraction();
+      const promise = shuffle.run(createMockClient(), interaction, [
+        subCommandArg("words", [
+          { name: "list", value: "ana bob carla" },
+          { name: "winners", value: 1 },
+        ]),
+      ]);
+
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const calls = interaction.editReply.mock.calls;
+      // First three calls are teasers, last is the reveal
+      for (let i = 0; i < 3; i++) {
+        expect(calls[i][0].embeds[0].data.title).toBe("🎰 Sorteando...");
+      }
+    });
+
+    it("respects private:true on deferReply (animation runs ephemerally)", async () => {
+      const interaction = createMockInteraction();
+      const promise = shuffle.run(createMockClient(), interaction, [
+        subCommandArg("words", [
+          { name: "list", value: "ana bob carla" },
+          { name: "winners", value: 1 },
+          { name: "private", value: true },
+        ]),
+      ]);
+
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const deferPayload = interaction.deferReply.mock.calls[0][0];
+      expect(deferPayload.flags).toBe(MessageFlags.Ephemeral);
     });
   });
 
@@ -136,7 +216,7 @@ describe("/shuffle", () => {
       expect(embed.author).toBeUndefined();
     });
 
-    it("becomes ephemeral when private:true is passed (words)", async () => {
+    it("becomes ephemeral when private:true is passed (words, no winners)", async () => {
       const interaction = createMockInteraction();
       await shuffle.run(createMockClient(), interaction, [
         subCommandArg("words", [
