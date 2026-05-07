@@ -77,7 +77,19 @@ export const createMockClient = (overrides: Record<string, any> = {}) =>
     slashCommands: new Collection<string, any>(),
     commands: new Collection<string, any>(),
     ws: { ping: 50 },
-    channels: { cache: new Collection<string, any>() },
+    channels: {
+      cache: new Collection<string, any>(),
+      fetch: vi.fn().mockImplementation((id: string) =>
+        Promise.resolve({
+          id,
+          name: `channel-${id}`,
+          type: 0, // ChannelType.GuildText
+          guild: { id: "guild-1", name: "TestGuild" },
+          parent: null,
+          nsfw: false,
+        })
+      ),
+    },
     guilds: { cache: new Collection<string, any>() },
     application: {
       commands: {
