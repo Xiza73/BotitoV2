@@ -8,10 +8,13 @@ import { logger } from "../shared/utils/helpers";
 
 // Match the runtime's source file extension: .ts when running via tsx
 // (npm run dev), .js when running compiled output (npm start). Skip
-// .d.ts declaration files in either case.
+// .d.ts declaration files and co-located *.test.* files (Vitest is
+// ESM-only and breaks when required from CJS at runtime).
 const sourceExt = __filename.endsWith(".ts") ? ".ts" : ".js";
 const isLoadable = (file: string) =>
-  file.endsWith(sourceExt) && !file.endsWith(".d.ts");
+  file.endsWith(sourceExt) &&
+  !file.endsWith(".d.ts") &&
+  !file.endsWith(`.test${sourceExt}`);
 
 const checkHandler = (
   type: "Event" | "SlashCommand",
