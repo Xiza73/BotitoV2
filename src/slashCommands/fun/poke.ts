@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -84,7 +84,7 @@ const pull: ISlashCommand = {
         if (!POKE_TYPES.includes(typeName as (typeof POKE_TYPES)[number])) {
           return interaction.reply({
             content: `Tipo no encontrado. Prueba con: ${POKE_TYPES.join(", ")}`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
         await interaction.deferReply();

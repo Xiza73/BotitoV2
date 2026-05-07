@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../api/dao/user.dao");
@@ -52,7 +53,7 @@ describe("/register", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(userDao.addUser).not.toHaveBeenCalled();
   });
 });

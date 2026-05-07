@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   ColorResolvable,
   EmbedBuilder,
+  MessageFlags,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ApplicationCommandOptionType } from "discord.js";
@@ -58,7 +59,7 @@ const pull: ISlashCommand = {
       if (!weight || !rawHeight || weight <= 0 || rawHeight <= 0) {
         return interaction.reply({
           content: "No seas pendejo, peso y altura tienen que ser > 0.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 

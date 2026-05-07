@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockClient, createMockInteraction, subCommandArg } from "../../test-utils/discord-mocks";
@@ -85,7 +86,7 @@ describe("/poke", () => {
 
       expect(interaction.reply).toHaveBeenCalledOnce();
       const payload = interaction.reply.mock.calls[0][0];
-      expect(payload.ephemeral).toBe(true);
+      expect(payload.flags).toBe(MessageFlags.Ephemeral);
       expect(global.fetch).not.toHaveBeenCalled();
     });
   });

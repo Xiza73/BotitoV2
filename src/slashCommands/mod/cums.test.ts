@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../shared/services/birthday.service");
@@ -42,7 +43,7 @@ describe("/cums", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
   });
 
   it("returns the empty-state notice when the filter has no results", async () => {
@@ -53,7 +54,7 @@ describe("/cums", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(payload.content).toContain("No hay cumpleaños");
   });
 });

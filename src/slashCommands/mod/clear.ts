@@ -1,4 +1,4 @@
-import Discord, { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField } from "discord.js";
+import Discord, { ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits, PermissionsBitField } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -33,7 +33,7 @@ const pull: ISlashCommand = {
       ) {
         return interaction.reply({
           content: "No tienes permisos para eliminar mensajes...",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -44,7 +44,7 @@ const pull: ISlashCommand = {
         return interaction.reply({
           content:
             "Por favor selecciona una cantidad de mensajes a eliminar apropiada.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -56,7 +56,7 @@ const pull: ISlashCommand = {
       ) {
         return interaction.reply({
           content: "No cuento con permisos para eliminar mensajes.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -76,7 +76,7 @@ const pull: ISlashCommand = {
 
       await interaction.reply({
         content: "Limpiando chat...",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
 
       channel

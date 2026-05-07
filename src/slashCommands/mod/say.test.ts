@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from "discord.js";
+import { MessageFlags, PermissionFlagsBits } from "discord.js";
 import { describe, expect, it, vi } from "vitest";
 
 import { arg, createMockClient, createMockInteraction } from "../../test-utils/discord-mocks";
@@ -11,7 +11,7 @@ describe("/say", () => {
 
     expect(interaction.reply).toHaveBeenCalledWith({
       content: "Listo.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     expect(interaction.channel.send).toHaveBeenCalledWith("hola mundo");
   });
@@ -37,7 +37,7 @@ describe("/say", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(interaction.channel.send).not.toHaveBeenCalled();
   });
 

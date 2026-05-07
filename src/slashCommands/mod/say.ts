@@ -1,6 +1,7 @@
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
+  MessageFlags,
   PermissionFlagsBits,
   PermissionsBitField,
 } from "discord.js";
@@ -42,14 +43,14 @@ const pull: ISlashCommand = {
       ) {
         return interaction.reply({
           content: "No tienes los permisos requeridos para usar este comando.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
       if (!interaction.channel?.isSendable()) {
         return interaction.reply({
           content: "Este canal no soporta envío de mensajes.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -57,7 +58,7 @@ const pull: ISlashCommand = {
       const asEmbed =
         (args.find((a) => a.name === "as_embed")?.value as boolean) ?? false;
 
-      await interaction.reply({ content: "Listo.", ephemeral: true });
+      await interaction.reply({ content: "Listo.", flags: MessageFlags.Ephemeral });
 
       if (asEmbed) {
         const embed = new EmbedBuilder()

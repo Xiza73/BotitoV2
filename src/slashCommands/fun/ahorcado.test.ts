@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("death-games", () => ({
@@ -75,7 +76,7 @@ describe("/ahorcado", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
   });
 
   it("rejects when any chosen player is a bot", async () => {
@@ -97,7 +98,7 @@ describe("/ahorcado", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(payload.content).toContain("bots");
   });
 });

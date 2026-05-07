@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockClient } from "../../test-utils/discord-mocks";
@@ -67,7 +67,7 @@ describe("interactionCreate", () => {
     expect(command.run).not.toHaveBeenCalled();
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
   });
 
   it("dispatches to command.run with parsed args on the happy path", () => {

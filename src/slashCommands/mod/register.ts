@@ -1,6 +1,7 @@
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
+  MessageFlags,
   PermissionFlagsBits,
   PermissionsBitField,
 } from "discord.js";
@@ -55,7 +56,7 @@ const pull: ISlashCommand = {
       ) {
         return interaction.reply({
           content: "Necesitás permiso de Administrator para usar este comando.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 

@@ -2,6 +2,7 @@ import {
   ApplicationCommandOptionType,
   CommandInteractionOption,
   Interaction,
+  MessageFlags,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { Argument, ISlashCommand } from "../../shared/types";
@@ -39,7 +40,7 @@ export default {
       if (interaction.user.id !== client.config.ownerId) {
         return interaction.reply({
           content: "Este comando es privado",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }
