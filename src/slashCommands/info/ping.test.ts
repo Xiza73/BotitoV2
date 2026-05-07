@@ -41,7 +41,7 @@ describe("/ping", () => {
     const payload = interaction.editReply.mock.calls[0][0];
     const fieldNames = payload.embeds[0].data.fields.map((f: any) => f.name);
 
-    expect(fieldNames).toContain("🏓 Round-trip");
+    expect(fieldNames).toContain("📶 Round-trip");
     expect(fieldNames).toContain("📡 API");
     expect(fieldNames).toContain("⏰ Uptime");
     expect(fieldNames).toContain("📦 Versión");

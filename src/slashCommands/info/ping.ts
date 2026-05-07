@@ -20,16 +20,12 @@ const buildEmbed = (
   uptimeSec: number
 ) =>
   new EmbedBuilder()
-    .setAuthor({
-      name: BOT_BRAND_NAME,
-      iconURL: client.user?.avatarURL() ?? undefined,
-    })
     .setTitle("🏓 Pong!")
     .setThumbnail(client.user?.avatarURL() ?? null)
     .setColor(colorForCategory("info"))
     .addFields(
       {
-        name: "🏓 Round-trip",
+        name: "📶 Round-trip",
         value: `\`${roundTripMs}ms\``,
         inline: true,
       },
