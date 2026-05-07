@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
 import Death from "death-games";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ApplicationCommandOptionType } from "discord.js";
@@ -56,7 +60,7 @@ const pull: ISlashCommand = {
       if (!interaction.channel?.isTextBased() || !interaction.channel.isSendable()) {
         return interaction.reply({
           content: "Este canal no soporta el juego.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const channel = interaction.channel;
@@ -75,7 +79,7 @@ const pull: ISlashCommand = {
       if (users.some((u) => u.bot)) {
         return interaction.reply({
           content: "No puedes agregar bots.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 

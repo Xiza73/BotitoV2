@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { describe, expect, it } from "vitest";
 
 import { createMockClient, createMockInteraction } from "../../test-utils/discord-mocks";
@@ -20,6 +21,6 @@ describe("/gmi2", () => {
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
   });
 });

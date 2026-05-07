@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import calendar from "../../shared/constants/calendar";
 import {
@@ -25,7 +29,7 @@ const pull: ISlashCommand = {
       if (!response?.discordId) {
         return interaction.reply({
           content: "No hay cumpleaños próximos registrados.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 

@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   ChatInputCommandInteraction,
   ComponentType,
+  MessageFlags,
   StringSelectMenuBuilder,
 } from "discord.js";
 import Death from "death-games";
@@ -71,7 +72,7 @@ const pull: ISlashCommand = {
       if (!interaction.channel?.isTextBased() || !interaction.channel.isSendable()) {
         return interaction.reply({
           content: "Este canal no soporta el juego.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const channel = interaction.channel;
@@ -94,7 +95,7 @@ const pull: ISlashCommand = {
       if (users.some((u) => u.bot)) {
         return interaction.reply({
           content: "No puedes agregar bots.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const usernames = users.map((u) => u.username);
@@ -126,7 +127,7 @@ const pull: ISlashCommand = {
           return interaction.reply({
             content:
               "No te pude enviar un DM. Activa los DMs del servidor o usa `bot_picks_word: true`.",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
 

@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockClient } from "../../test-utils/discord-mocks";
@@ -8,6 +8,7 @@ const createInteraction = (overrides: Record<string, any> = {}) => {
   const reply = vi.fn().mockResolvedValue(undefined);
   return {
     reply,
+    isAutocomplete: () => false,
     isChatInputCommand: () => true,
     command: { id: "cmd" },
     commandName: "ping",
@@ -66,7 +67,7 @@ describe("interactionCreate", () => {
     expect(command.run).not.toHaveBeenCalled();
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
   });
 
   it("dispatches to command.run with parsed args on the happy path", () => {
@@ -93,6 +94,54 @@ describe("interactionCreate", () => {
     expect(passedClient).toBe(client);
     expect(passedInteraction).toBe(interaction);
     expect(args).toEqual([{ name: "foo", type: 3, value: "bar" }]);
+  });
+
+  describe("autocomplete", () => {
+    it("routes to command.autocomplete when interaction.isAutocomplete() is true", () => {
+      const client = createMockClient();
+      const command = {
+        name: "help",
+        autocomplete: vi.fn().mockResolvedValue(undefined),
+        run: vi.fn(),
+      };
+      client.slashCommands.set("help", command);
+
+      const interaction = createInteraction({
+        isAutocomplete: () => true,
+        commandName: "help",
+      });
+
+      interactionCreate.execute(interaction, client);
+
+      expect(command.autocomplete).toHaveBeenCalledOnce();
+      expect(command.run).not.toHaveBeenCalled();
+      expect(interaction.reply).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the autocompleted command isn't registered", () => {
+      const interaction = createInteraction({
+        isAutocomplete: () => true,
+        commandName: "ghost",
+      });
+
+      interactionCreate.execute(interaction, createMockClient());
+
+      expect(interaction.reply).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the registered command has no autocomplete handler", () => {
+      const client = createMockClient();
+      client.slashCommands.set("plain", { name: "plain", run: vi.fn() });
+
+      const interaction = createInteraction({
+        isAutocomplete: () => true,
+        commandName: "plain",
+      });
+
+      interactionCreate.execute(interaction, client);
+
+      expect(interaction.reply).not.toHaveBeenCalled();
+    });
   });
 
   it("expands subcommand option arrays into the args[].args field", () => {

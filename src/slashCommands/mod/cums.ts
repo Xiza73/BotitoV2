@@ -2,6 +2,7 @@ import {
   APIEmbedField,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  MessageFlags,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { ApplicationCommandOptionType } from "discord.js";
@@ -42,14 +43,14 @@ const pull: ISlashCommand = {
         if (month < 0 || month > 11) {
           return interaction.reply({
             content: "El mes debe estar entre 1 y 12",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
         response = await getBirthdaysByMonth(month);
         if (Object.keys(response).length === 0) {
           return interaction.reply({
             content: `No hay cumpleaños en ${calendar.months[month]}`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
       } else {
