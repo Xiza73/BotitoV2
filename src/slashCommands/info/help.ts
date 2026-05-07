@@ -1,8 +1,12 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
   AutocompleteInteraction,
   ChatInputCommandInteraction,
+  ComponentType,
   EmbedBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import {
@@ -12,8 +16,15 @@ import {
   colorForCategory,
   emojiForCategory,
 } from "../../shared/constants/branding";
-import { Argument, ISlashCommand, SlashCommandsOptions } from "../../shared/types";
+import {
+  Argument,
+  ISlashCommand,
+  SlashCommandsOptions,
+} from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
+
+const SELECT_CUSTOM_ID = "help-pick-command";
+const SELECT_TIMEOUT_MS = 60_000;
 
 const formatOption = (opt: SlashCommandsOptions): string => {
   const flag = opt.required ? "**" : "";
@@ -51,9 +62,7 @@ const buildListEmbed = (
 
   const categories = [
     ...new Set(
-      filtered
-        .map((c) => c.category)
-        .filter((c): c is string => Boolean(c))
+      filtered.map((c) => c.category).filter((c): c is string => Boolean(c))
     ),
   ].sort();
 
@@ -72,12 +81,14 @@ const buildListEmbed = (
     .setTitle(filterCategory ? `Comandos de ${capitalize(filterCategory)}` : "Help")
     .setThumbnail(client.user?.avatarURL() ?? null)
     .setDescription(
-      `Hola **<@${userId}>** — usa \`/help command:<nombre>\` para ver el detalle de un comando.\n` +
+      `Hola **<@${userId}>** — elegí un comando del menú o usa \`/help command:<nombre>\` para ver el detalle.\n` +
         `**Total:** ${filtered.length} ${filtered.length === 1 ? "comando" : "comandos"}`
     )
     .setColor(filterCategory ? colorForCategory(filterCategory) : colorForCategory("info"))
     .addFields(fields)
-    .setFooter(buildFooter("usa /help solo para ver todos"));
+    .setFooter(
+      buildFooter(filterCategory ? "/help solo para ver todos" : undefined)
+    );
 };
 
 const buildDetailEmbed = (client: ClientDiscord, command: ISlashCommand) => {
@@ -116,6 +127,62 @@ const buildDetailEmbed = (client: ClientDiscord, command: ISlashCommand) => {
     .setColor(colorForCategory(command.category))
     .addFields(fields)
     .setFooter(buildFooter("/help para ver todos los comandos"));
+};
+
+const buildSelectRow = (commands: ISlashCommand[]) => {
+  const options = commands.slice(0, 25).map((c) => ({
+    label: `/${c.name}`,
+    description: c.description.slice(0, 100),
+    value: c.name,
+  }));
+
+  if (options.length === 0) return null;
+
+  return new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(SELECT_CUSTOM_ID)
+      .setPlaceholder("Elegí un comando para ver el detalle…")
+      .addOptions(options)
+  );
+};
+
+const attachSelectCollector = async (
+  client: ClientDiscord,
+  interaction: ChatInputCommandInteraction
+) => {
+  try {
+    const message = await interaction.fetchReply();
+    const select = (await message.awaitMessageComponent({
+      componentType: ComponentType.StringSelect,
+      time: SELECT_TIMEOUT_MS,
+      filter: (i) =>
+        i.user.id === interaction.user.id && i.customId === SELECT_CUSTOM_ID,
+    })) as StringSelectMenuInteraction;
+
+    const isOwner = interaction.user.id === client.config.ownerId;
+    const command = client.slashCommands.get(select.values[0]);
+    if (!command || (command.ownerOnly && !isOwner)) {
+      await select.update({
+        content: `No existe un slash command llamado "${select.values[0]}".`,
+        embeds: [],
+        components: [],
+      });
+      return;
+    }
+
+    await select.update({
+      embeds: [buildDetailEmbed(client, command)],
+      components: [],
+    });
+  } catch {
+    // Timeout or interaction expired — strip the select so the message
+    // doesn't keep an orphan dropdown.
+    try {
+      await interaction.editReply({ components: [] });
+    } catch {
+      // best-effort; ignore if the interaction is already gone
+    }
+  }
 };
 
 const pull: ISlashCommand = {
@@ -202,7 +269,7 @@ const pull: ISlashCommand = {
         false;
       const isOwner = interaction.user.id === client.config.ownerId;
 
-      // Detail view
+      // Detail view — no select, just the embed.
       if (commandArg) {
         const command = client.slashCommands.get(commandArg.toLowerCase());
         if (!command || (command.ownerOnly && !isOwner)) {
@@ -218,8 +285,15 @@ const pull: ISlashCommand = {
         });
       }
 
-      // Listing
-      return interaction.reply({
+      // Listing — embed + select menu so the user can drill in without
+      // re-typing /help.
+      const visible = visibleCommandsFor(client, isOwner);
+      const filtered = categoryArg
+        ? visible.filter((c) => c.category === categoryArg)
+        : visible;
+      const row = buildSelectRow(filtered);
+
+      await interaction.reply({
         embeds: [
           buildListEmbed(
             client,
@@ -228,9 +302,15 @@ const pull: ISlashCommand = {
             isOwner
           ),
         ],
+        components: row ? [row] : [],
         ephemeral: !publicArg,
         allowedMentions: { repliedUser: false },
       });
+
+      if (row) {
+        // Fire-and-forget: collector lives until selection or timeout.
+        attachSelectCollector(client, interaction);
+      }
     } catch (error) {
       errorHandler(interaction, error);
     }
