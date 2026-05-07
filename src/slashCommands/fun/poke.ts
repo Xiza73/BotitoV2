@@ -83,7 +83,7 @@ const pull: ISlashCommand = {
         const typeName = sub.args?.[0].value as string;
         if (!POKE_TYPES.includes(typeName as (typeof POKE_TYPES)[number])) {
           return interaction.reply({
-            content: `Tipo no encontrado. Probá con: ${POKE_TYPES.join(", ")}`,
+            content: `Tipo no encontrado. Prueba con: ${POKE_TYPES.join(", ")}`,
             ephemeral: true,
           });
         }

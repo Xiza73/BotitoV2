@@ -41,7 +41,7 @@ const pull: ISlashCommand = {
         )
       ) {
         return interaction.reply({
-          content: "No tenés los permisos requeridos para usar este comando.",
+          content: "No tienes los permisos requeridos para usar este comando.",
           ephemeral: true,
         });
       }

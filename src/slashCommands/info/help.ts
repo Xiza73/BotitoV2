@@ -49,7 +49,7 @@ const pull: ISlashCommand = {
         const helpEmbed = new Discord.EmbedBuilder()
           .setTitle(`${client.user?.username} Help`)
           .setDescription(
-            `Hola **<@${interaction.user.id}>** — usá ` +
+            `Hola **<@${interaction.user.id}>** — usa ` +
               "`/help command:<nombre>`" +
               ` para ver el detalle de un slash command.\n` +
               `**Total slash commands:** ${client.slashCommands.size}`
