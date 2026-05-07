@@ -46,6 +46,7 @@ export const createMockInteraction = (overrides: Record<string, any> = {}) => {
       bulkDelete: vi.fn().mockResolvedValue({ size: 5 }),
     },
     createdAt: new Date(),
+    createdTimestamp: Date.now(),
     commandName: "test",
     isChatInputCommand: () => true,
     ...overrides,
