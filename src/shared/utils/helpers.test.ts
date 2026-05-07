@@ -91,6 +91,18 @@ describe("helpers — pure functions", () => {
     it("handles empty input", () => {
       expect(shuffle([])).toEqual([]);
     });
+
+    it("does NOT mutate the input array", () => {
+      const input = [1, 2, 3, 4, 5];
+      const snapshot = [...input];
+      shuffle(input);
+      expect(input).toEqual(snapshot);
+    });
+
+    it("returns a new array reference", () => {
+      const input = [1, 2, 3];
+      expect(shuffle(input)).not.toBe(input);
+    });
   });
 
   describe("mentionUser(id)", () => {

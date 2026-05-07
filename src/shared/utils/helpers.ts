@@ -75,24 +75,17 @@ export const channelSender = (
   channel.send(msg);
 };
 
+/**
+ * Returns a shuffled COPY of the input array — the original is untouched.
+ * Uses Fisher-Yates so the distribution is uniform.
+ */
 export const shuffle = <T>(array: T[]): T[] => {
-  let currentIndex = array.length;
-  let randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
   }
-
-  return array;
+  return result;
 };
 
 export const ownerSender = async (

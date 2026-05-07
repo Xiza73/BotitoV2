@@ -1,57 +1,165 @@
-import Discord, { ChatInputCommandInteraction } from "discord.js";
-import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { ApplicationCommandOptionType } from "discord.js";
-import { Argument, ISlashCommand } from "../../shared/types";
-import { errorHandler } from "../../shared/utils/helpers";
+import {
+  ApplicationCommandOptionType,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
 
-const OPTIONS = {
+import ClientDiscord from "../../shared/classes/ClientDiscord";
+import {
+  BOT_BRAND_NAME,
+  BOT_VERSION,
+  colorForCategory,
+} from "../../shared/constants/branding";
+import { Argument, ISlashCommand } from "../../shared/types";
+import { errorHandler, shuffle } from "../../shared/utils/helpers";
+
+const SUB = {
   words: "words",
   numbers: "numbers",
+} as const;
+
+const OPT = {
   list: "list",
   winners: "winners",
   quantity: "quantity",
+  private: "private",
 } as const;
 
-type OPTIONS_TYPES = (typeof OPTIONS)[keyof typeof OPTIONS];
+const MIN_ITEMS = 2;
+const MIN_QUANTITY = 1;
+const MAX_QUANTITY = 50;
+
+/**
+ * Splits the raw list on commas, semicolons, or any whitespace, trims each
+ * item and drops empties. Supports `"ana bob carla"`, `"ana,bob,carla"`,
+ * `"ana, bob, carla"`, etc. — whichever feels natural to the user.
+ */
+const parseWordList = (raw: string): string[] =>
+  raw
+    .split(/[,;\s]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
+const enumerateLines = (items: (string | number)[]) =>
+  items.map((item, i) => `**${i + 1}.** ${item}`).join("\n");
+
+const buildBaseEmbed = (title: string, description: string) =>
+  new EmbedBuilder()
+    .setTitle(title)
+    .setDescription(description)
+    .setColor(colorForCategory("fun"))
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+
+type Result = { embed?: EmbedBuilder; error?: string };
+
+const handleWords = (rawList: string, winners: number | undefined): Result => {
+  const list = parseWordList(rawList);
+  if (list.length < MIN_ITEMS) {
+    return {
+      error: `Necesito al menos ${MIN_ITEMS} elementos. Separá la lista con espacios, comas o punto y coma.`,
+    };
+  }
+  if (winners !== undefined && winners < 1) {
+    return { error: "El número de ganadores debe ser al menos 1." };
+  }
+
+  const shuffled = shuffle(list);
+  const cap =
+    winners !== undefined ? Math.min(winners, list.length) : list.length;
+  const picked = shuffled.slice(0, cap);
+
+  let title: string;
+  if (winners !== undefined) {
+    title = cap === 1 ? "🏆 Ganador" : `🏆 Ganadores (${cap})`;
+  } else {
+    title = "🔀 Lista aleatoria";
+  }
+
+  const embed = buildBaseEmbed(title, enumerateLines(picked)).addFields({
+    name: "Lista original",
+    value: list.join(", "),
+  });
+
+  return { embed };
+};
+
+const handleNumbers = (rawQuantity: number | undefined): Result => {
+  if (rawQuantity === undefined) {
+    return { error: "Tenés que pasar la cantidad." };
+  }
+  if (rawQuantity < MIN_QUANTITY) {
+    return { error: `La cantidad debe ser al menos ${MIN_QUANTITY}.` };
+  }
+
+  const quantity = Math.min(rawQuantity, MAX_QUANTITY);
+  const list = Array.from({ length: quantity }, (_, i) => i + 1);
+  const shuffled = shuffle(list);
+
+  const embed = buildBaseEmbed(
+    `🔀 Números (1–${quantity})`,
+    shuffled.join(", ")
+  );
+
+  return { embed };
+};
 
 const pull: ISlashCommand = {
   name: "shuffle",
   category: "fun",
-  description: "Shuffle a list of words or numbers",
+  description: "Mezcla aleatoriamente una lista de palabras o números",
   ownerOnly: false,
   options: [
     {
-      name: OPTIONS.words,
-      description: "Shuffle a list of words",
+      name: SUB.words,
+      description: "Mezcla una lista de palabras",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
-          name: OPTIONS.list,
-          description: "example: name1 name2 name3",
+          name: OPT.list,
+          description: "Lista separada por espacios, comas o punto y coma",
           type: ApplicationCommandOptionType.String,
           required: true,
         },
         {
-          name: OPTIONS.winners,
-          description: "the number of winners",
+          name: OPT.winners,
+          description:
+            "Cantidad de ganadores a elegir (default: toda la lista)",
           type: ApplicationCommandOptionType.Integer,
+          required: false,
+        },
+        {
+          name: OPT.private,
+          description: "Mostrar la respuesta solo a vos (default: público)",
+          type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
       ],
     },
     {
-      name: OPTIONS.numbers,
-      description: "Shuffle a list of numbers",
+      name: SUB.numbers,
+      description: "Genera y mezcla los números del 1 al N",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
-          name: OPTIONS.quantity,
-          description: "the number of numbers to sort",
+          name: OPT.quantity,
+          description: `Cantidad de números (${MIN_QUANTITY}–${MAX_QUANTITY})`,
           type: ApplicationCommandOptionType.Integer,
           required: true,
         },
+        {
+          name: OPT.private,
+          description: "Mostrar la respuesta solo a vos (default: público)",
+          type: ApplicationCommandOptionType.Boolean,
+          required: false,
+        },
       ],
     },
+  ],
+  examples: [
+    "/shuffle words list:ana,bob,carla",
+    "/shuffle words list:ana bob carla winners:1",
+    "/shuffle numbers quantity:10",
   ],
   run: async (
     _: ClientDiscord,
@@ -59,91 +167,41 @@ const pull: ISlashCommand = {
     args: Argument[]
   ) => {
     try {
-      const subCommand = args[0];
+      const sub = args[0];
+      if (!sub) return;
 
-      if (subCommand.name === OPTIONS.words) {
-        let { list: value, winners } = subCommand.args!.reduce<
-          Partial<Record<OPTIONS_TYPES, string | number | boolean>>
-        >(
-          (acc, cur) => {
-            acc[cur.name as OPTIONS_TYPES] = cur.value;
-            return acc;
-          },
-          { list: "" }
-        );
+      const subArgs = sub.args ?? [];
+      const findArg = (name: string) =>
+        subArgs.find((a) => a.name === name)?.value;
+      const isPrivate = (findArg(OPT.private) as boolean | undefined) ?? false;
 
-        const list = (value as string)?.split(" ").map((item) => item.trim());
-        const withWinners = Boolean(winners);
-        winners = parseInt(winners?.toString() || list.length.toString());
-        const title = withWinners
-          ? winners === 1
-            ? "Ganador"
-            : "Ganadores"
-          : "Lista aleatoria";
-        const shuffledList = shuffle(list);
-
-        const embed = new Discord.EmbedBuilder()
-          .setColor("Random")
-          .setTitle(title)
-          .setDescription(enumerateArray(shuffledList, winners))
-          .setFields([
-            {
-              name: "Lista original",
-              value: list.join(", "),
-              inline: true,
-            },
-          ])
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          });
-
-        interaction.reply({ embeds: [embed] });
-      } else if (subCommand.name === OPTIONS.numbers) {
-        let quantity = subCommand.args?.[0].value as number;
-        if (quantity > 20) quantity = 20;
-        if (quantity < 1) quantity = 1;
-        const list = [];
-        for (let i = 1; i <= quantity; i++) {
-          list.push(i);
-        }
-        // const shuffledList = list.sort(() => Math.random() - 0.5);
-        const shuffledList = shuffle(list);
-
-        const embed = new Discord.EmbedBuilder()
-          .setColor("Random")
-          .setTitle("Shuffled List")
-          .setDescription(shuffledList.join(", "))
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          });
-
-        interaction.reply({ embeds: [embed] });
+      let result: Result;
+      if (sub.name === SUB.words) {
+        const rawList = (findArg(OPT.list) as string) ?? "";
+        const winners = findArg(OPT.winners) as number | undefined;
+        result = handleWords(rawList, winners);
+      } else if (sub.name === SUB.numbers) {
+        const quantity = findArg(OPT.quantity) as number | undefined;
+        result = handleNumbers(quantity);
+      } else {
+        return;
       }
+
+      if (result.error) {
+        return interaction.reply({
+          content: result.error,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      return interaction.reply({
+        embeds: [result.embed!],
+        flags: isPrivate ? MessageFlags.Ephemeral : undefined,
+      });
     } catch (error) {
       errorHandler(interaction, error);
     }
   },
 };
-
-const enumerateArray = (array: (string | number)[], winners: number) => {
-  const slicedArray = array.slice(0, winners);
-  let list = "";
-  for (let i = 0; i < slicedArray.length; i++) {
-    list += `${i + 1}. ${slicedArray[i]}\n`;
-  }
-  list = list.slice(0, -1);
-  return list;
-};
-
-function shuffle<T>(array: T[]): T[] {
-  const result = [...array]; // copiar para no mutar el original
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1)); // índice aleatorio 0..i
-    [result[i], result[j]] = [result[j], result[i]]; // swap
-  }
-  return result;
-}
 
 export default pull;
