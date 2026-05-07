@@ -74,7 +74,7 @@ const pull: ISlashCommand = {
       );
       if (users.some((u) => u.bot)) {
         return interaction.reply({
-          content: "No podés meter bots.",
+          content: "No puedes agregar bots.",
           ephemeral: true,
         });
       }

@@ -28,7 +28,7 @@ const pull: ISlashCommand = {
   name: "ahorcado",
   category: "fun",
   description:
-    "Ahorcado. Vos elegís palabra (DM con menú) o el bot la elige (con bot_picks_word).",
+    "Ahorcado. Tú eliges la palabra (DM con menú) o el bot la elige (con bot_picks_word).",
   ownerOnly: false,
   options: [
     {
@@ -93,7 +93,7 @@ const pull: ISlashCommand = {
       );
       if (users.some((u) => u.bot)) {
         return interaction.reply({
-          content: "No podés meter bots.",
+          content: "No puedes agregar bots.",
           ephemeral: true,
         });
       }
@@ -125,13 +125,13 @@ const pull: ISlashCommand = {
         } catch {
           return interaction.reply({
             content:
-              "No te pude mandar DM. Activá los DMs del servidor o usá `bot_picks_word: true`.",
+              "No te pude enviar un DM. Activa los DMs del servidor o usa `bot_picks_word: true`.",
             ephemeral: true,
           });
         }
 
         await interaction.reply({
-          content: `Te mandé un DM para elegir la palabra. Tenés 20s.`,
+          content: `Te envié un DM para elegir la palabra. Tienes 20s.`,
         });
 
         try {
