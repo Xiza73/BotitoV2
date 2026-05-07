@@ -2,11 +2,12 @@ import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   AutocompleteInteraction,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
-  ComponentType,
   EmbedBuilder,
+  MessageFlags,
   StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
 } from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import {
@@ -24,7 +25,8 @@ import {
 import { errorHandler } from "../../shared/utils/helpers";
 
 const SELECT_CUSTOM_ID = "help-pick-command";
-const SELECT_TIMEOUT_MS = 60_000;
+const BACK_BUTTON_ID = "help-back-to-list";
+const COLLECTOR_TIMEOUT_MS = 120_000;
 
 const formatOption = (opt: SlashCommandsOptions): string => {
   const flag = opt.required ? "**" : "";
@@ -146,42 +148,79 @@ const buildSelectRow = (commands: ISlashCommand[]) => {
   );
 };
 
-const attachSelectCollector = async (
+const buildBackRow = () =>
+  new ActionRowBuilder<ButtonBuilder>().setComponents(
+    new ButtonBuilder()
+      .setCustomId(BACK_BUTTON_ID)
+      .setLabel("← Volver al listado")
+      .setStyle(ButtonStyle.Secondary)
+  );
+
+const attachComponentCollector = async (
   client: ClientDiscord,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
+  state: { categoryArg: string | null; isOwner: boolean }
 ) => {
   try {
     const message = await interaction.fetchReply();
-    const select = (await message.awaitMessageComponent({
-      componentType: ComponentType.StringSelect,
-      time: SELECT_TIMEOUT_MS,
-      filter: (i) =>
-        i.user.id === interaction.user.id && i.customId === SELECT_CUSTOM_ID,
-    })) as StringSelectMenuInteraction;
+    const collector = message.createMessageComponentCollector({
+      time: COLLECTOR_TIMEOUT_MS,
+      filter: (i) => i.user.id === interaction.user.id,
+    });
 
-    const isOwner = interaction.user.id === client.config.ownerId;
-    const command = client.slashCommands.get(select.values[0]);
-    if (!command || (command.ownerOnly && !isOwner)) {
-      await select.update({
-        content: `No existe un slash command llamado "${select.values[0]}".`,
-        embeds: [],
-        components: [],
-      });
-      return;
-    }
+    collector.on("collect", async (i) => {
+      try {
+        if (i.isStringSelectMenu() && i.customId === SELECT_CUSTOM_ID) {
+          const command = client.slashCommands.get(i.values[0]);
+          if (!command || (command.ownerOnly && !state.isOwner)) {
+            await i.update({
+              content: `No existe un slash command llamado "${i.values[0]}".`,
+              embeds: [],
+              components: [],
+            });
+            collector.stop("invalid-selection");
+            return;
+          }
+          await i.update({
+            embeds: [buildDetailEmbed(client, command)],
+            components: [buildBackRow()],
+          });
+          return;
+        }
 
-    await select.update({
-      embeds: [buildDetailEmbed(client, command)],
-      components: [],
+        if (i.isButton() && i.customId === BACK_BUTTON_ID) {
+          const visible = visibleCommandsFor(client, state.isOwner);
+          const filtered = state.categoryArg
+            ? visible.filter((c) => c.category === state.categoryArg)
+            : visible;
+          const row = buildSelectRow(filtered);
+          await i.update({
+            embeds: [
+              buildListEmbed(
+                client,
+                interaction.user.id,
+                state.categoryArg,
+                state.isOwner
+              ),
+            ],
+            components: row ? [row] : [],
+          });
+        }
+      } catch {
+        // Component update failed (interaction expired, etc.) — keep the collector alive
+        // so other clicks can still try.
+      }
+    });
+
+    collector.on("end", async () => {
+      try {
+        await interaction.editReply({ components: [] });
+      } catch {
+        // best-effort; the message may already be gone
+      }
     });
   } catch {
-    // Timeout or interaction expired — strip the select so the message
-    // doesn't keep an orphan dropdown.
-    try {
-      await interaction.editReply({ components: [] });
-    } catch {
-      // best-effort; ignore if the interaction is already gone
-    }
+    // fetchReply failed — nothing to attach a collector to
   }
 };
 
@@ -275,12 +314,12 @@ const pull: ISlashCommand = {
         if (!command || (command.ownerOnly && !isOwner)) {
           return interaction.reply({
             content: `No existe un slash command llamado "${commandArg}".`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
         return interaction.reply({
           embeds: [buildDetailEmbed(client, command)],
-          ephemeral: !publicArg,
+          flags: publicArg ? undefined : MessageFlags.Ephemeral,
           allowedMentions: { repliedUser: false },
         });
       }
@@ -303,13 +342,16 @@ const pull: ISlashCommand = {
           ),
         ],
         components: row ? [row] : [],
-        ephemeral: !publicArg,
+        flags: publicArg ? undefined : MessageFlags.Ephemeral,
         allowedMentions: { repliedUser: false },
       });
 
       if (row) {
-        // Fire-and-forget: collector lives until selection or timeout.
-        attachSelectCollector(client, interaction);
+        // Fire-and-forget: collector lives until select/back click or timeout.
+        attachComponentCollector(client, interaction, {
+          categoryArg: categoryArg ?? null,
+          isOwner,
+        });
       }
     } catch (error) {
       errorHandler(interaction, error);

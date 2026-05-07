@@ -1,4 +1,4 @@
-import { Collection } from "discord.js";
+import { Collection, MessageFlags } from "discord.js";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -44,7 +44,7 @@ describe("/help — listing", () => {
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];
     expect(payload.embeds).toHaveLength(1);
-    expect(payload.ephemeral).toBe(true); // default
+    expect(payload.flags).toBe(MessageFlags.Ephemeral); // default
   });
 
   it("becomes public when public:true is passed", async () => {
@@ -54,7 +54,7 @@ describe("/help — listing", () => {
     await help.run(client, interaction, [arg("public", true)]);
 
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(false);
+    expect(payload.flags).toBeUndefined();
   });
 
   it("filters by category when the option is passed", async () => {
@@ -141,7 +141,7 @@ describe("/help — detail view", () => {
     await help.run(client, interaction, [arg("command", "ghost")]);
 
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(payload.content).toContain("ghost");
   });
 
@@ -155,7 +155,7 @@ describe("/help — detail view", () => {
     await help.run(client, interaction, [arg("command", "secret")]);
 
     const payload = interaction.reply.mock.calls[0][0];
-    expect(payload.ephemeral).toBe(true);
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(payload.content).toContain("secret");
   });
 });
