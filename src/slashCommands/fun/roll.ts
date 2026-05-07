@@ -1,118 +1,154 @@
-import Discord, { ChatInputCommandInteraction } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
+import { Jimp } from "jimp";
+
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { ApplicationCommandOptionType } from "discord.js";
+import {
+  BOT_BRAND_NAME,
+  BOT_VERSION,
+  colorForCategory,
+} from "../../shared/constants/branding";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random } from "../../shared/utils/helpers";
-import { Jimp } from "jimp";
 
 const OPTIONS = {
   quantity: "quantity",
   sides: "sides",
+  private: "private",
 } as const;
 
-type OPTIONS_TYPES = (typeof OPTIONS)[keyof typeof OPTIONS];
+const MIN_QUANTITY = 1;
+const MAX_QUANTITY = 20;
+const MIN_SIDES = 2;
+const MAX_SIDES = 100;
+
+const IMAGE_AVAILABLE_SIDES = [4, 6, 12] as const;
+const TILES_PER_ROW = 6;
+
+const composeDiceImage = async (rolls: number[], sides: number) => {
+  const repo = config.oldRoot;
+  const images = await Promise.all(
+    rolls.map((r) => Jimp.read(`${repo}/d${sides}/d${r}.png`))
+  );
+
+  const tileWidth = images[0].width;
+  const tileHeight = images[0].height;
+  const cols = Math.min(images.length, TILES_PER_ROW);
+  const rows = Math.ceil(images.length / TILES_PER_ROW);
+  const finalImage = new Jimp({
+    width: cols * tileWidth,
+    height: rows * tileHeight,
+  });
+
+  for (let i = 0; i < images.length; i++) {
+    const col = i % TILES_PER_ROW;
+    const row = Math.floor(i / TILES_PER_ROW);
+    finalImage.composite(images[i], col * tileWidth, row * tileHeight);
+  }
+
+  return finalImage.getBuffer("image/png");
+};
+
+const buildEmbed = (rolls: number[], sides: number) => {
+  const total = rolls.reduce((a, b) => a + b, 0);
+  const dieLabel = `${rolls.length}d${sides}`;
+
+  const description =
+    rolls.length === 1
+      ? `Sacaste un **${rolls[0]}** (\`d${sides}\`)`
+      : `**${dieLabel}**: ${rolls.join(", ")}\n\n**Total:** ${total}`;
+
+  return new EmbedBuilder()
+    .setTitle("🎲 Dados")
+    .setDescription(description)
+    .setColor(colorForCategory("fun"))
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+};
 
 const pull: ISlashCommand = {
   name: "roll",
   category: "fun",
-  description: "roll dices",
+  description: "Tira dados (con imagen para d4, d6 y d12)",
   ownerOnly: false,
   options: [
     {
       name: OPTIONS.quantity,
-      description: "The number of dices to roll",
-      type: ApplicationCommandOptionType.Number,
+      description: `Cantidad de dados (${MIN_QUANTITY}–${MAX_QUANTITY}, default: 1)`,
+      type: ApplicationCommandOptionType.Integer,
       required: false,
     },
     {
       name: OPTIONS.sides,
-      description: "The number of sides of the dice",
-      type: ApplicationCommandOptionType.Number,
+      description: `Cantidad de lados (${MIN_SIDES}–${MAX_SIDES}, default: 6)`,
+      type: ApplicationCommandOptionType.Integer,
+      required: false,
+    },
+    {
+      name: OPTIONS.private,
+      description: "Mostrar la respuesta solo a vos (default: público)",
+      type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
   ],
+  examples: ["/roll", "/roll quantity:3 sides:6", "/roll sides:20"],
   run: async (
     _: ClientDiscord,
     interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {
-      const { quantity, sides } = getArgs(args);
-      const result = [];
-      const existImages = [4, 6, 12];
-      const repo = config.oldRoot;
-      for (let i = 0; i < quantity; i++) {
-        result.push(random(1, sides));
-      }
-      const embed = new Discord.EmbedBuilder()
-        .setColor("Gold")
-        .setTitle("Dice Roll")
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
+      const rawQuantity = args.find((a) => a.name === OPTIONS.quantity)
+        ?.value as number | undefined;
+      const rawSides = args.find((a) => a.name === OPTIONS.sides)?.value as
+        | number
+        | undefined;
+      const isPrivate =
+        (args.find((a) => a.name === OPTIONS.private)?.value as
+          | boolean
+          | undefined) ?? false;
+
+      if (rawQuantity !== undefined && rawQuantity < MIN_QUANTITY) {
+        return interaction.reply({
+          content: `La cantidad de dados debe ser al menos ${MIN_QUANTITY}.`,
+          flags: MessageFlags.Ephemeral,
         });
+      }
+      if (rawSides !== undefined && rawSides < MIN_SIDES) {
+        return interaction.reply({
+          content: `Un dado debe tener al menos ${MIN_SIDES} lados.`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
 
-      if (existImages.includes(sides)) {
-        const images = await Promise.all(
-          result.map((r) => Jimp.read(`${repo}/d${sides}/d${r}.png`))
-        );
+      const quantity = Math.min(rawQuantity ?? 1, MAX_QUANTITY);
+      const sides = Math.min(rawSides ?? 6, MAX_SIDES);
 
-        const tileWidth = images[0].width;
-        const tileHeight = images[0].height;
-        const width = (images.length > 6 ? 6 : images.length) * tileWidth;
-        const height = Math.ceil(images.length / 6) * tileHeight;
-        const finalImage = new Jimp({ width, height });
-        let x = 0;
-        let col = 0;
-        let row = 0;
-        for (const image of images) {
-          finalImage.composite(image, x, row * tileHeight);
-          x += tileWidth;
-          col++;
-          if (col === 6) {
-            col = 0;
-            row++;
-            x = 0;
-          }
-        }
-        const buffer = await finalImage.getBuffer("image/png");
-        embed.setImage(`attachment://dice.png`);
-        interaction.reply({
+      const rolls: number[] = [];
+      for (let i = 0; i < quantity; i++) rolls.push(random(1, sides));
+
+      const embed = buildEmbed(rolls, sides);
+      const flags = isPrivate ? MessageFlags.Ephemeral : undefined;
+
+      if ((IMAGE_AVAILABLE_SIDES as readonly number[]).includes(sides)) {
+        const buffer = await composeDiceImage(rolls, sides);
+        embed.setImage("attachment://dice.png");
+        return interaction.reply({
           embeds: [embed],
           files: [{ attachment: buffer, name: "dice.png" }],
+          flags,
         });
-        return;
-      } else {
-        embed.setDescription(result.join("\n"));
       }
 
-      interaction.reply({ embeds: [embed] });
+      return interaction.reply({ embeds: [embed], flags });
     } catch (error) {
       errorHandler(interaction, error);
     }
   },
-};
-
-const maxQuantity = 20;
-
-const getArgs = (args: Argument[]) => {
-  let { quantity, sides } = args!.reduce<
-    Partial<Record<OPTIONS_TYPES, string | number | boolean>>
-  >(
-    (acc, cur) => {
-      acc[cur.name as OPTIONS_TYPES] = cur.value;
-      return acc;
-    },
-    { quantity: 1, sides: 6 }
-  );
-  quantity = Number(quantity);
-  sides = Number(sides);
-  if (!quantity) quantity = 1;
-  if (!sides) sides = 6;
-  quantity = quantity > maxQuantity ? maxQuantity : quantity < 1 ? 1 : quantity;
-  sides = sides > 100 ? 100 : sides < 1 ? 1 : sides;
-  return { quantity, sides };
 };
 
 export default pull;
