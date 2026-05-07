@@ -33,7 +33,7 @@ const TYPE_LABELS: Partial<Record<ChannelType, string>> = {
 const formatChannelType = (type: ChannelType): string =>
   TYPE_LABELS[type] ?? `Tipo ${type}`;
 
-const buildEmbed = (client: ClientDiscord, channel: Channel) => {
+const buildEmbed = (channel: Channel) => {
   const fields: { name: string; value: string; inline?: boolean }[] = [];
 
   // For guild channels we can mention them; for DMs we just show "—"
@@ -66,10 +66,6 @@ const buildEmbed = (client: ClientDiscord, channel: Channel) => {
   }
 
   return new EmbedBuilder()
-    .setAuthor({
-      name: BOT_BRAND_NAME,
-      iconURL: client.user?.avatarURL() ?? undefined,
-    })
     .setTitle("Información del canal")
     .setColor(colorForCategory("info"))
     .addFields(fields)
@@ -131,7 +127,7 @@ const pull: ISlashCommand = {
       }
 
       return interaction.reply({
-        embeds: [buildEmbed(client, channel)],
+        embeds: [buildEmbed(channel)],
         flags: publicArg ? undefined : MessageFlags.Ephemeral,
         allowedMentions: { repliedUser: false },
       });

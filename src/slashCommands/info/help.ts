@@ -42,11 +42,6 @@ const visibleCommandsFor = (
   return isOwner ? all : all.filter((c) => !c.ownerOnly);
 };
 
-const buildAuthor = (client: ClientDiscord) => ({
-  name: BOT_BRAND_NAME,
-  iconURL: client.user?.avatarURL() ?? undefined,
-});
-
 const buildFooter = (extra?: string) => ({
   text: `${BOT_BRAND_NAME} ${BOT_VERSION}${extra ? ` · ${extra}` : ""}`,
 });
@@ -79,7 +74,6 @@ const buildListEmbed = (
   }));
 
   return new EmbedBuilder()
-    .setAuthor(buildAuthor(client))
     .setTitle(filterCategory ? `Comandos de ${capitalize(filterCategory)}` : "Help")
     .setThumbnail(client.user?.avatarURL() ?? null)
     .setDescription(
@@ -93,7 +87,7 @@ const buildListEmbed = (
     );
 };
 
-const buildDetailEmbed = (client: ClientDiscord, command: ISlashCommand) => {
+const buildDetailEmbed = (command: ISlashCommand) => {
   const fields: { name: string; value: string; inline?: boolean }[] = [];
 
   fields.push({
@@ -123,7 +117,6 @@ const buildDetailEmbed = (client: ClientDiscord, command: ISlashCommand) => {
   }
 
   return new EmbedBuilder()
-    .setAuthor(buildAuthor(client))
     .setTitle(`/${command.name}`)
     .setDescription(command.description || "Sin descripción")
     .setColor(colorForCategory(command.category))
@@ -182,7 +175,7 @@ const attachComponentCollector = async (
             return;
           }
           await i.update({
-            embeds: [buildDetailEmbed(client, command)],
+            embeds: [buildDetailEmbed(command)],
             components: [buildBackRow()],
           });
           return;
@@ -318,7 +311,7 @@ const pull: ISlashCommand = {
           });
         }
         return interaction.reply({
-          embeds: [buildDetailEmbed(client, command)],
+          embeds: [buildDetailEmbed(command)],
           flags: publicArg ? undefined : MessageFlags.Ephemeral,
           allowedMentions: { repliedUser: false },
         });
