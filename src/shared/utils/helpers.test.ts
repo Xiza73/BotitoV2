@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   capitalize,
   dateToUTC5,
+  formatUptime,
   mentionUser,
   random,
   rangeHandler,
@@ -95,6 +96,43 @@ describe("helpers — pure functions", () => {
   describe("mentionUser(id)", () => {
     it("wraps the id in the bold-mention markdown format", () => {
       expect(mentionUser("123456789")).toBe("**<@123456789>**");
+    });
+  });
+
+  describe("formatUptime(seconds)", () => {
+    it("returns just seconds when below a minute", () => {
+      expect(formatUptime(0)).toBe("0s");
+      expect(formatUptime(45)).toBe("45s");
+      expect(formatUptime(59)).toBe("59s");
+    });
+
+    it("returns minutes + seconds when below an hour", () => {
+      expect(formatUptime(60)).toBe("1m 0s");
+      expect(formatUptime(125)).toBe("2m 5s");
+      expect(formatUptime(3599)).toBe("59m 59s");
+    });
+
+    it("returns hours + minutes when below a day", () => {
+      expect(formatUptime(3600)).toBe("1h 0m");
+      expect(formatUptime(3660)).toBe("1h 1m");
+      expect(formatUptime(86399)).toBe("23h 59m");
+    });
+
+    it("returns days + hours + minutes for >= 1 day", () => {
+      expect(formatUptime(86400)).toBe("1d 0h 0m");
+      expect(formatUptime(86400 + 3600 + 60)).toBe("1d 1h 1m");
+      expect(formatUptime(2 * 86400 + 5 * 3600 + 30 * 60)).toBe("2d 5h 30m");
+    });
+
+    it("guards against invalid input", () => {
+      expect(formatUptime(-5)).toBe("0s");
+      expect(formatUptime(NaN)).toBe("0s");
+      expect(formatUptime(Infinity)).toBe("0s");
+    });
+
+    it("floors fractional seconds", () => {
+      expect(formatUptime(45.7)).toBe("45s");
+      expect(formatUptime(125.99)).toBe("2m 5s");
     });
   });
 

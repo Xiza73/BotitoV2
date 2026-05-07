@@ -1,42 +1,92 @@
-import Discord, { ChatInputCommandInteraction } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
+import {
+  BOT_BRAND_NAME,
+  BOT_VERSION,
+  colorForCategory,
+} from "../../shared/constants/branding";
 import { Argument, ISlashCommand } from "../../shared/types";
-import { errorHandler } from "../../shared/utils/helpers";
+import { errorHandler, formatUptime } from "../../shared/utils/helpers";
+
+const buildEmbed = (
+  client: ClientDiscord,
+  roundTripMs: number,
+  apiPingMs: number,
+  uptimeSec: number
+) =>
+  new EmbedBuilder()
+    .setAuthor({
+      name: BOT_BRAND_NAME,
+      iconURL: client.user?.avatarURL() ?? undefined,
+    })
+    .setTitle("🏓 Pong!")
+    .setThumbnail(client.user?.avatarURL() ?? null)
+    .setColor(colorForCategory("info"))
+    .addFields(
+      {
+        name: "🏓 Round-trip",
+        value: `\`${roundTripMs}ms\``,
+        inline: true,
+      },
+      {
+        name: "📡 API",
+        value: `\`${apiPingMs}ms\``,
+        inline: true,
+      },
+      {
+        name: "⏰ Uptime",
+        value: `\`${formatUptime(uptimeSec)}\``,
+        inline: true,
+      },
+      {
+        name: "📦 Versión",
+        value: `\`${BOT_VERSION}\``,
+        inline: true,
+      }
+    )
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
 
 const pull: ISlashCommand = {
   name: "ping",
   category: "info",
-  description: "Check the bot's ping!",
+  description: "Mide la latencia del bot",
   ownerOnly: false,
+  options: [
+    {
+      name: "private",
+      description:
+        "Mostrar la respuesta solo a vos (default: false, lo ve todo el canal)",
+      type: ApplicationCommandOptionType.Boolean,
+      required: false,
+    },
+  ],
+  examples: ["/ping", "/ping private:true"],
   run: async (
     client: ClientDiscord,
     interaction: ChatInputCommandInteraction,
-    _: Argument[]
+    args: Argument[]
   ) => {
     try {
-      if (!interaction.channel?.isSendable()) return;
-      const msg = await interaction.channel.send(`🏓 Pinging...`);
+      const isPrivate =
+        (args.find((a) => a.name === "private")?.value as boolean | undefined) ??
+        false;
 
-      const pingEmbed = new Discord.EmbedBuilder()
-        .setTitle(":signal_strength: Bot Ping")
-        .addFields([
-          {
-            name: "Time",
-            value: `${Math.floor(
-              msg!.createdAt.getTime() - interaction.createdAt.getTime()
-            )}ms`,
-            inline: true,
-          },
-          {
-            name: "API Ping",
-            value: `${client.ws.ping}ms`,
-            inline: true,
-          },
-        ])
-        .setColor("Random");
-      await interaction.reply({ embeds: [pingEmbed] });
+      await interaction.deferReply({
+        flags: isPrivate ? MessageFlags.Ephemeral : undefined,
+      });
 
-      await msg?.delete();
+      const roundTrip = Date.now() - interaction.createdTimestamp;
+      const apiPing = Math.max(0, Math.round(client.ws.ping));
+      const uptime = process.uptime();
+
+      await interaction.editReply({
+        embeds: [buildEmbed(client, roundTrip, apiPing, uptime)],
+      });
     } catch (error) {
       errorHandler(interaction, error);
     }
