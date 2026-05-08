@@ -33,15 +33,18 @@ export default {
 
     const owner = await client.users.fetch(config.ownerId, { cache: false });
 
+    // Layout choice: no title up top so the embed reads like the original
+    // message preserved (avatar + name + content + timestamp). The 'deleted'
+    // hint goes in the footer alongside the brand, so the visual illusion of
+    // 'this is the message' isn't broken at first glance.
     const embed = new EmbedBuilder()
-      .setTitle("🗑️ Mensaje eliminado")
       .setAuthor({
         name: message.author.username || message.author.tag,
         iconURL: message.author.displayAvatarURL(),
       })
       .setColor(DELETE_COLOR)
-      .setTimestamp(new Date())
-      .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+      .setTimestamp(message.createdTimestamp ?? new Date())
+      .setFooter({ text: `🗑️ Eliminado · ${BOT_BRAND_NAME} ${BOT_VERSION}` });
 
     if (trimmedContent) embed.setDescription(trimmedContent);
 

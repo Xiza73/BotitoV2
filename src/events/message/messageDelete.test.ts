@@ -82,11 +82,11 @@ describe("messageDelete", () => {
     const payload = send.mock.calls[0][0];
     expect(payload.embeds).toHaveLength(1);
     const embed = payload.embeds[0].data;
-    expect(embed.title).toBe("🗑️ Mensaje eliminado");
+    expect(embed.title).toBeUndefined();
     expect(embed.description).toBe("test message");
     expect(embed.color).toBe(0xed4245); // mod red
     expect(embed.author.name).toBe("Diego");
-    expect(embed.footer.text).toMatch(/Xiza Bot v\d+/);
+    expect(embed.footer.text).toMatch(/🗑️ Eliminado · Xiza Bot v\d+/);
   });
 
   it("DMs the owner with the file attached AND the same branded embed when the deleted message had an image", async () => {
@@ -104,7 +104,7 @@ describe("messageDelete", () => {
     expect(payload.files).toEqual(["https://example.com/img.png"]);
     // Embed shape consistent with the text-only case
     const embed = payload.embeds[0].data;
-    expect(embed.title).toBe("🗑️ Mensaje eliminado");
+    expect(embed.title).toBeUndefined();
     expect(embed.description).toBe("look at this");
     expect(embed.color).toBe(0xed4245);
   });
