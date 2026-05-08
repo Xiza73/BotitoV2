@@ -147,6 +147,46 @@ describe("/clear", () => {
     expect(interaction.deleteReply).toHaveBeenCalledOnce();
   });
 
+  it("public count notice uses singular Spanish for a 1-message delete ('Se eliminó', not 'Se eliminaron')", async () => {
+    const messages = [
+      fakeMessage({ id: "m1", content: "asf", author: { username: "ana" } }),
+    ];
+    const { channel, send } = setupChannel(messages);
+    const interaction = createMockInteraction({
+      channel,
+      user: {
+        id: "mod-1",
+        createDM: vi.fn().mockResolvedValue({ send: vi.fn() }),
+      },
+    });
+
+    await clear.run(createMockClient(), interaction, [arg("amount", 1)]);
+
+    const description = send.mock.calls[0][0].embeds[0].data.description;
+    expect(description).toBe("Se eliminó **1** mensaje.");
+  });
+
+  it("public count notice uses plural Spanish for a multi-message delete", async () => {
+    const messages = [
+      fakeMessage({ id: "m1", content: "uno" }),
+      fakeMessage({ id: "m2", content: "dos" }),
+      fakeMessage({ id: "m3", content: "tres" }),
+    ];
+    const { channel, send } = setupChannel(messages);
+    const interaction = createMockInteraction({
+      channel,
+      user: {
+        id: "mod-1",
+        createDM: vi.fn().mockResolvedValue({ send: vi.fn() }),
+      },
+    });
+
+    await clear.run(createMockClient(), interaction, [arg("amount", 3)]);
+
+    const description = send.mock.calls[0][0].embeds[0].data.description;
+    expect(description).toBe("Se eliminaron **3** mensajes.");
+  });
+
   it("DOES DM the recap for /clear amount:1 when the single message has an attachment", async () => {
     const att = new Collection<string, any>([
       ["a1", { url: "https://cdn.discordapp.com/x.png", name: "x.png" }],

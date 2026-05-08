@@ -2,11 +2,6 @@ import { EmbedBuilder, Message } from "discord.js";
 
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import {
-  BOT_BRAND_NAME,
-  BOT_VERSION,
-} from "../../shared/constants/branding";
-
 const DELETE_COLOR = 0xed4245; // mod red — signal of removal
 const MAX_DESCRIPTION = 4000;
 
@@ -44,7 +39,9 @@ export default {
       })
       .setColor(DELETE_COLOR)
       .setTimestamp(message.createdTimestamp ?? new Date())
-      .setFooter({ text: `🗑️ Eliminado · ${BOT_BRAND_NAME} ${BOT_VERSION}` });
+      // Footer-only hint (no brand) so the embed reads as the message itself,
+      // not as a Xiza-Bot announcement of a deletion.
+      .setFooter({ text: "🗑️ Eliminado" });
 
     if (trimmedContent) embed.setDescription(trimmedContent);
 

@@ -86,7 +86,7 @@ describe("messageDelete", () => {
     expect(embed.description).toBe("test message");
     expect(embed.color).toBe(0xed4245); // mod red
     expect(embed.author.name).toBe("Diego");
-    expect(embed.footer.text).toMatch(/🗑️ Eliminado · Xiza Bot v\d+/);
+    expect(embed.footer.text).toBe("🗑️ Eliminado");
   });
 
   it("DMs the owner with the file attached AND the same branded embed when the deleted message had an image", async () => {

@@ -32,7 +32,9 @@ const buildPublicNoticeEmbed = (deletedCount: number) =>
   baseEmbed()
     .setTitle("🧹 Chat limpiado")
     .setDescription(
-      `Se eliminaron **${deletedCount}** ${deletedCount === 1 ? "mensaje" : "mensajes"}.`
+      deletedCount === 1
+        ? `Se eliminó **1** mensaje.`
+        : `Se eliminaron **${deletedCount}** mensajes.`
     );
 
 const buildErrorEmbed = (reason: string) =>
