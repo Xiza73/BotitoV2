@@ -209,6 +209,14 @@ const pull: ISlashCommand = {
         return interaction.editReply({ embeds: [buildEmptyEmbed()] });
       }
 
+      // Skip the DM recap when it would just duplicate what the messageDelete
+      // listener (events/message/messageDelete.ts) already DMs the owner.
+      // The listener handles single-message deletes one-by-one with full
+      // fidelity, so /clear only needs to add value when there's bulk context
+      // OR an attachment that the listener might miss.
+      const hasAttachments = downloaded.length > 0;
+      const skipRecap = messageArr.length === 1 && !hasAttachments;
+
       // Recap is built from the messages we captured pre-delete (and their
       // pre-downloaded attachments) — not from bulkDelete's return, which
       // strips message bodies for messages older than 14 days.
@@ -218,15 +226,17 @@ const pull: ISlashCommand = {
       // history, invisible to the rest of the server regardless of who ran
       // the command.
       let dmDelivered = true;
-      try {
-        const dm = await interaction.user.createDM();
-        await dm.send({
-          embeds: [recapEmbed],
-          files,
-          allowedMentions: { parse: [] },
-        });
-      } catch {
-        dmDelivered = false;
+      if (!skipRecap) {
+        try {
+          const dm = await interaction.user.createDM();
+          await dm.send({
+            embeds: [recapEmbed],
+            files,
+            allowedMentions: { parse: [] },
+          });
+        } catch {
+          dmDelivered = false;
+        }
       }
 
       // Public auto-deleting notice in the channel: just the count, no detail.
@@ -240,7 +250,7 @@ const pull: ISlashCommand = {
       // Happy path: drop the deferred ephemeral so the moderator gets no
       // visible reply in the channel — the recap is in their DM, the count
       // notice is in the channel for context. Both already cover the UX.
-      if (dmDelivered) {
+      if (skipRecap || dmDelivered) {
         try {
           await interaction.deleteReply();
         } catch {

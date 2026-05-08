@@ -122,6 +122,66 @@ describe("/clear", () => {
     expect(interaction.editReply).not.toHaveBeenCalled();
   });
 
+  it("skips the DM recap entirely for /clear amount:1 with a text-only message (the messageDelete listener already covers it)", async () => {
+    const messages = [
+      fakeMessage({ id: "m1", content: "asf", author: { username: "ana" } }),
+    ];
+    const { channel } = setupChannel(messages);
+
+    const dmSend = vi.fn().mockResolvedValue({ id: "dm-msg" });
+    const createDM = vi.fn().mockResolvedValue({ send: dmSend });
+    const interaction = createMockInteraction({
+      channel,
+      user: { id: "mod-1", createDM },
+    });
+
+    await clear.run(createMockClient(), interaction, [arg("amount", 1)]);
+
+    // No DM at all — the listener already handles single text deletes
+    expect(createDM).not.toHaveBeenCalled();
+    expect(dmSend).not.toHaveBeenCalled();
+
+    // Public count notice still posts
+    expect(channel.send).toHaveBeenCalledOnce();
+    // Deferred ephemeral cleared
+    expect(interaction.deleteReply).toHaveBeenCalledOnce();
+  });
+
+  it("DOES DM the recap for /clear amount:1 when the single message has an attachment", async () => {
+    const att = new Collection<string, any>([
+      ["a1", { url: "https://cdn.discordapp.com/x.png", name: "x.png" }],
+    ]);
+    const messages = [
+      fakeMessage({ id: "m1", content: "look", attachments: att }),
+    ];
+    const { channel } = setupChannel(messages);
+    const dmSend = vi.fn().mockResolvedValue({ id: "dm-msg" });
+    const interaction = createMockInteraction({
+      channel,
+      user: {
+        id: "mod-1",
+        createDM: vi.fn().mockResolvedValue({ send: dmSend }),
+      },
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        arrayBuffer: () => Promise.resolve(new Uint8Array([1, 2, 3]).buffer),
+      })
+    );
+
+    await clear.run(createMockClient(), interaction, [arg("amount", 1)]);
+
+    // DM with the recap and the re-uploaded file
+    expect(dmSend).toHaveBeenCalledOnce();
+    const dmPayload = dmSend.mock.calls[0][0];
+    expect(dmPayload.files).toHaveLength(1);
+    expect(dmPayload.embeds[0].data.title).toBe("📋 Eliminados (1)");
+    expect(dmPayload.embeds[0].data.description).toContain("look");
+  });
+
   it("downloads attachments via fetch BEFORE bulkDelete and re-uploads them as files in the DM", async () => {
     const att = new Collection<string, any>([
       [
@@ -177,8 +237,11 @@ describe("/clear", () => {
     expect(Buffer.isBuffer(dmPayload.files[0].attachment)).toBe(true);
   });
 
-  it("falls back to inline ephemeral when DMs are disabled", async () => {
-    const messages = [fakeMessage({ id: "m1" })];
+  it("falls back to inline ephemeral when DMs are disabled (multi-message path so DM is actually attempted)", async () => {
+    const messages = [
+      fakeMessage({ id: "m1", content: "uno" }),
+      fakeMessage({ id: "m2", content: "dos" }),
+    ];
     const { channel } = setupChannel(messages);
 
     const interaction = createMockInteraction({
@@ -189,14 +252,14 @@ describe("/clear", () => {
       },
     });
 
-    await clear.run(createMockClient(), interaction, [arg("amount", 1)]);
+    await clear.run(createMockClient(), interaction, [arg("amount", 2)]);
 
     // The deferReply gets edited (not deleted) so the moderator still sees the recap
     expect(interaction.deleteReply).not.toHaveBeenCalled();
     expect(interaction.editReply).toHaveBeenCalledOnce();
     const payload = interaction.editReply.mock.calls[0][0];
     expect(payload.content).toContain("DM");
-    expect(payload.embeds[0].data.title).toBe("📋 Eliminados (1)");
+    expect(payload.embeds[0].data.title).toBe("📋 Eliminados (2)");
   });
 
   it("rejects ephemerally when the member lacks ManageMessages (no defer needed — fast path)", async () => {
