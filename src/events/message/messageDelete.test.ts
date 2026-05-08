@@ -28,9 +28,7 @@ const ownerMock = (overrides: Record<string, any> = {}) => {
   return {
     client: createMockClient({
       users: {
-        fetch: vi
-          .fn()
-          .mockResolvedValue({ send, ...overrides }),
+        fetch: vi.fn().mockResolvedValue({ send, ...overrides }),
       },
     }),
     send,
@@ -55,7 +53,10 @@ describe("messageDelete", () => {
 
   it("ignores messages with no content and no attachment", async () => {
     const { client, send } = ownerMock();
-    const message = createMessage({ content: "", attachments: { at: () => undefined } });
+    const message = createMessage({
+      content: "",
+      attachments: { at: () => undefined },
+    });
 
     await messageDelete.execute(message as any, client);
 
@@ -71,7 +72,7 @@ describe("messageDelete", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it("DMs the owner with a content embed for a regular text message", async () => {
+  it("DMs the owner with a branded embed for a regular text message", async () => {
     const { client, send } = ownerMock();
     const message = createMessage({ content: "test message" });
 
@@ -80,9 +81,35 @@ describe("messageDelete", () => {
     expect(send).toHaveBeenCalledOnce();
     const payload = send.mock.calls[0][0];
     expect(payload.embeds).toHaveLength(1);
+    const embed = payload.embeds[0].data;
+    expect(embed.title).toBeUndefined();
+    expect(embed.description).toBe("test message");
+    expect(embed.color).toBe(0xed4245); // mod red
+    expect(embed.author.name).toBe("Diego");
+    expect(embed.footer.text).toBe("🗑️ Eliminado");
   });
 
-  it("DMs the owner with the file attached when the deleted message had an image", async () => {
+  it("DMs the owner with the file attached AND the same branded embed when the deleted message had an image", async () => {
+    const { client, send } = ownerMock();
+    const message = createMessage({
+      content: "look at this",
+      attachments: { at: () => ({ url: "https://example.com/img.png" }) },
+    });
+
+    await messageDelete.execute(message as any, client);
+
+    expect(send).toHaveBeenCalledOnce();
+    const payload = send.mock.calls[0][0];
+    // Re-uploads the URL as a fresh file so it survives the source delete
+    expect(payload.files).toEqual(["https://example.com/img.png"]);
+    // Embed shape consistent with the text-only case
+    const embed = payload.embeds[0].data;
+    expect(embed.title).toBeUndefined();
+    expect(embed.description).toBe("look at this");
+    expect(embed.color).toBe(0xed4245);
+  });
+
+  it("when the deleted message had ONLY an image (no text), the embed has no description", async () => {
     const { client, send } = ownerMock();
     const message = createMessage({
       content: "",
@@ -91,8 +118,20 @@ describe("messageDelete", () => {
 
     await messageDelete.execute(message as any, client);
 
-    expect(send).toHaveBeenCalledOnce();
     const payload = send.mock.calls[0][0];
     expect(payload.files).toEqual(["https://example.com/img.png"]);
+    expect(payload.embeds[0].data.description).toBeUndefined();
+  });
+
+  it("truncates very long messages to fit the embed description budget", async () => {
+    const { client, send } = ownerMock();
+    const longContent = "x".repeat(5000);
+    const message = createMessage({ content: longContent });
+
+    await messageDelete.execute(message as any, client);
+
+    const desc = send.mock.calls[0][0].embeds[0].data.description;
+    expect(desc.length).toBeLessThanOrEqual(4001);
+    expect(desc.endsWith("…")).toBe(true);
   });
 });

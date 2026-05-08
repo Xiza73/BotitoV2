@@ -1,111 +1,55 @@
-import { readdirSync } from "fs";
+import { ApplicationCommandDataResolvable, ClientEvents } from "discord.js";
+import chalk from "chalk";
 
 import ClientDiscord from "../shared/classes/ClientDiscord";
-import { ApplicationCommandDataResolvable } from "discord.js";
-import path from "path";
-import chalk from "chalk";
+import events from "../events";
+import slashCommands from "../slashCommands";
 import { logger } from "../shared/utils/helpers";
 
-// Match the runtime's source file extension: .ts when running via tsx
-// (npm run dev), .js when running compiled output (npm start). Skip
-// .d.ts declaration files in either case.
-const sourceExt = __filename.endsWith(".ts") ? ".ts" : ".js";
-const isLoadable = (file: string) =>
-  file.endsWith(sourceExt) && !file.endsWith(".d.ts");
+const ok = (type: "Event" | "SlashCommand", name: string) =>
+  ` ✔️  => ${type} '${name}' is ready `;
 
-const checkHandler = (
-  type: "Event" | "SlashCommand",
-  file: string,
-  status: 0 | 1
-) => {
-  if (status === 1)
-    return ` ✔️  => ${type} '${file.substring(0, file.length - 3)}' is ready `;
-  return ` ❌  => ${type} '${file.substring(
-    0,
-    file.length - 3
-  )}' missing a help.name or help.name is not in string `;
-};
+const missing = (type: "Event" | "SlashCommand") =>
+  ` ❌  => ${type} missing a 'name' field or 'name' is not a string `;
 
-export const loadEvents = async (client: ClientDiscord) => {
-  const eventFolders = readdirSync(path.resolve(__dirname, "./../events"));
-  for (const folder of eventFolders) {
-    const eventFiles = readdirSync(
-      path.resolve(__dirname, `./../events/${folder}`)
-    ).filter(isLoadable);
+export const loadEvents = (client: ClientDiscord) => {
+  for (const event of events) {
+    if (!event.name) {
+      logger(chalk.bgRedBright.black(missing("Event")));
+      continue;
+    }
 
-    for (const file of eventFiles) {
-      let event;
-      try {
-        const mod = await import(`../events/${folder}/${file}`);
-        event = mod.default ?? mod;
-      } catch (err) {
-        logger(
-          chalk.bgRedBright.black(
-            ` ❌  => Event '${file.substring(0, file.length - 3)}' failed to load: ${err}`
-          )
-        );
-        continue;
-      }
+    logger(chalk.bgGreen.black(ok("Event", event.name)));
 
-      if (event.name) {
-        logger(chalk.bgGreen.black(checkHandler("Event", file, 1)));
-      } else {
-        logger(chalk.bgRedBright.black(checkHandler("Event", file, 0)));
-        continue;
-      }
+    if (!event.type) continue;
 
-      if (event.type) {
-        if (event.once) {
-          client.once(
-            event.name,
-            async (...args) => await event.execute(...args, client)
-          );
-        } else {
-          client.on(
-            event.name,
-            async (...args) => await event.execute(...args, client)
-          );
-        }
-      }
+    const handler = async (...args: unknown[]) =>
+      await event.execute(...args, client);
+
+    if (event.once) {
+      client.once(event.name as keyof ClientEvents, handler);
+    } else {
+      client.on(event.name as keyof ClientEvents, handler);
     }
   }
 };
 
-export const loadSlashCommands = async (client: ClientDiscord) => {
+export const loadSlashCommands = (client: ClientDiscord) => {
   const slash: ApplicationCommandDataResolvable[] = [];
 
-  const commandFolders = readdirSync(
-    path.resolve(__dirname, "./../slashCommands")
-  );
-  for (const folder of commandFolders) {
-    const commandFiles = readdirSync(
-      path.resolve(__dirname, `./../slashCommands/${folder}`)
-    ).filter(isLoadable);
-
-    for (const file of commandFiles) {
-      let command;
-      try {
-        command = (await import(`../slashCommands/${folder}/${file}`)).default;
-      } catch (err) {
-        logger(
-          chalk.bgRedBright.black(
-            ` ❌  => SlashCommand '${file.substring(0, file.length - 3)}' failed to load: ${err}`
-          )
-        );
-        continue;
-      }
-
-      if (command.name) {
-        client.slashCommands.set(command.name, command);
-        slash.push(command);
-        logger(
-          chalk.bgGreenBright.black(checkHandler("SlashCommand", file, 1))
-        );
-      } else {
-        logger(chalk.bgRedBright.black(checkHandler("SlashCommand", file, 0)));
-        continue;
-      }
+  for (const command of slashCommands) {
+    if (!command.name) {
+      logger(chalk.bgRedBright.black(missing("SlashCommand")));
+      continue;
     }
+
+    client.slashCommands.set(command.name, command);
+    // Cast: ISlashCommand y ApplicationCommandDataResolvable son compatibles en
+    // runtime, pero TS no puede inferir la unión discriminada porque
+    // SlashCommandsOptions.type es opcional. Deuda preexistente que el manifest
+    // estático reveló (antes el `import()` dinámico hacía `command: any`).
+    slash.push(command as unknown as ApplicationCommandDataResolvable);
+    logger(chalk.bgGreenBright.black(ok("SlashCommand", command.name)));
   }
 
   client.on("clientReady", async () => {

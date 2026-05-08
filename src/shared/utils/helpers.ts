@@ -75,24 +75,17 @@ export const channelSender = (
   channel.send(msg);
 };
 
+/**
+ * Returns a shuffled COPY of the input array — the original is untouched.
+ * Uses Fisher-Yates so the distribution is uniform.
+ */
 export const shuffle = <T>(array: T[]): T[] => {
-  let currentIndex = array.length;
-  let randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
   }
-
-  return array;
+  return result;
 };
 
 export const ownerSender = async (
@@ -148,4 +141,40 @@ export const rangeHandler = (
   if (value > max) return max;
   if (value < min) return min;
   return value;
+};
+
+/**
+ * Returns the next occurrence of (day/month) starting from `from`. If the
+ * birthday already happened this year, jumps to next year. Doesn't try to
+ * be clever about Feb 29 in non-leap years — JS Date will roll over (Feb 30
+ * → Mar 2), which is acceptable for a friend-server bot.
+ */
+export const nextBirthdayDate = (
+  day: number,
+  month: number,
+  from: Date = new Date()
+): Date => {
+  const candidate = new Date(from.getFullYear(), month - 1, day);
+  if (candidate.getTime() < from.getTime()) {
+    return new Date(from.getFullYear() + 1, month - 1, day);
+  }
+  return candidate;
+};
+
+/**
+ * Formats a duration in seconds into a compact human-readable string.
+ * Examples: 45s, 5m 30s, 2h 15m, 3d 4h 0m
+ */
+export const formatUptime = (seconds: number): string => {
+  if (!isFinite(seconds) || seconds < 0) return "0s";
+  const totalSec = Math.floor(seconds);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const minutes = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+
+  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${secs}s`;
+  return `${secs}s`;
 };

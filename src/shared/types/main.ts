@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  AutocompleteInteraction,
   ChatInputApplicationCommandData,
   ChatInputCommandInteraction,
   Message,
@@ -31,6 +32,7 @@ export type SlashCommandsOptions = {
   options?: SlashCommandsOptions[];
   type?: TypeCommandOption;
   required?: boolean;
+  autocomplete?: boolean;
 };
 
 /* UserApplicationCommandData
@@ -46,12 +48,24 @@ export type ISlashCommand = {
   options?: SlashCommandsOptions[];
   ownerOnly: boolean;
   defaultMemberPermissions?: PermissionResolvable;
+  examples?: string[];
   run: (
     client: ClientDiscord,
     interaction: ChatInputCommandInteraction,
     args: Argument[],
   ) => Promise<unknown>;
+  autocomplete?: (
+    client: ClientDiscord,
+    interaction: AutocompleteInteraction,
+  ) => Promise<unknown>;
 };
+
+export interface IBotEvent {
+  name: string;
+  type: string;
+  once?: boolean;
+  execute: (...args: any[]) => unknown;
+}
 
 export type Week = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type Month = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;

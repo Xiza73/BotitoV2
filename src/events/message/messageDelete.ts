@@ -1,67 +1,57 @@
 import { EmbedBuilder, Message } from "discord.js";
+
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
+const DELETE_COLOR = 0xed4245; // mod red — signal of removal
+const MAX_DESCRIPTION = 4000;
 
 export default {
   name: "messageDelete",
   type: "message",
-  // just work on the first message update, and just in gmi2 channel
+  /**
+   * Fires for individual message deletions. discord.js emits this event for
+   * every cached message in a bulkDelete too, so /clear's recap code skips
+   * the single-text-only case to avoid duplicating what this listener already
+   * sends.
+   */
   async execute(message: Message, client: ClientDiscord) {
-    if (message?.author?.bot) {
-      console.log("is bot");
+    if (message?.author?.bot) return;
 
-      return;
-    }
+    const attachmentUrl = message?.attachments?.at(0)?.url;
+    if (!message?.content && !attachmentUrl) return;
+    if (message?.channel?.id !== config.gmi2Channel) return;
 
-    if (!message?.content && !message?.attachments?.at(0)?.url) {
-      console.log("no content");
+    const trimmedContent = message.content
+      ? message.content.slice(0, MAX_DESCRIPTION) +
+        (message.content.length > MAX_DESCRIPTION ? "…" : "")
+      : "";
 
-      return;
-    }
+    const owner = await client.users.fetch(config.ownerId, { cache: false });
 
-    if (message?.channel?.id !== config.gmi2Channel) {
-      console.log("not gmi2 channel");
-
-      return;
-    }
-
-    const count = 4096;
-
-    const deletedMesaage =
-      message.content?.slice(0, count) +
-      (message.content?.length > count ? "..." : "") +
-      (message.attachments?.at(0)?.url
-        ? `\n${message.attachments?.at(0)?.url}`
-        : "");
-
-    const image = message.attachments?.at(0)?.url;
-
-    const user = await client.users.fetch(config.ownerId, {
-      cache: false,
-    });
-
-    if (image) {
-      await user.send({
-        content: `**${message.author.username}** ha borrado un mensaje con un imagen.`,
-        files: [image],
-      });
-
-      return;
-    }
-
-    const attachmentUrl = message.attachments?.at(0)?.url;
-    const log = new EmbedBuilder({
-      author: {
+    // Layout choice: no title up top so the embed reads like the original
+    // message preserved (avatar + name + content + timestamp). The 'deleted'
+    // hint goes in the footer alongside the brand, so the visual illusion of
+    // 'this is the message' isn't broken at first glance.
+    const embed = new EmbedBuilder()
+      .setAuthor({
         name: message.author.username || message.author.tag,
         iconURL: message.author.displayAvatarURL(),
-      },
-      description: deletedMesaage,
-      timestamp: new Date().toISOString(),
-      ...(attachmentUrl && {
-        image: { url: attachmentUrl },
-      }),
-    }).setColor("Red");
+      })
+      .setColor(DELETE_COLOR)
+      .setTimestamp(message.createdTimestamp ?? new Date())
+      // Footer-only hint (no brand) so the embed reads as the message itself,
+      // not as a Xiza-Bot announcement of a deletion.
+      .setFooter({ text: "🗑️ Eliminado" });
 
-    await user.send({ embeds: [log] });
+    if (trimmedContent) embed.setDescription(trimmedContent);
+
+    // Re-upload the attachment as a fresh file (not just the URL) so it
+    // survives Discord dropping the deleted-message CDN URL.
+    if (attachmentUrl) {
+      await owner.send({ embeds: [embed], files: [attachmentUrl] });
+      return;
+    }
+
+    await owner.send({ embeds: [embed] });
   },
 };

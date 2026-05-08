@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
@@ -17,7 +21,7 @@ const pull: ISlashCommand = {
       if (!interaction.guild) {
         return interaction.reply({
           content: "Este comando solo funciona en un servidor.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
