@@ -121,6 +121,88 @@ describe("/ruleta", () => {
     expect(interaction.channel.createMessageCollector).not.toHaveBeenCalled();
   });
 
+  it("solo play: works with no extra players (kickoff title shows 'Jugador' singular)", async () => {
+    const interaction = createMockInteraction({ channel: sendableChannel() });
+    const client = createMockClient();
+    vi.mocked(client.users.fetch).mockImplementation((async (id: string) => ({
+      id,
+      bot: false,
+      username: `user-${id}`,
+      toString: () => `<@${id}>`,
+    })) as any);
+
+    await ruleta.run(client, interaction, []); // no player2
+
+    expect(interaction.reply).toHaveBeenCalledOnce();
+    const embed = interaction.reply.mock.calls[0][0].embeds[0].data;
+    expect(embed.fields[0].name).toBe("👤 Jugador");
+    expect(embed.description).toContain("juega solo");
+    expect(interaction.channel.createMessageCollector).toHaveBeenCalled();
+  });
+
+  it("rejects when the same user appears more than once across player slots", async () => {
+    const interaction = createMockInteraction({ channel: sendableChannel() });
+
+    await ruleta.run(createMockClient(), interaction, [
+      arg("player2", "duplicate"),
+      arg("player3", "duplicate"),
+    ]);
+
+    expect(interaction.reply).toHaveBeenCalledOnce();
+    const payload = interaction.reply.mock.calls[0][0];
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
+    expect(payload.content).toContain("dos veces");
+    // No collector since we bailed early
+    expect(interaction.channel.createMessageCollector).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the initiator lists themself as player2", async () => {
+    const interaction = createMockInteraction({ channel: sendableChannel() });
+
+    await ruleta.run(createMockClient(), interaction, [
+      // discord-mocks defaults the interaction.user.id to 'user-1'
+      arg("player2", "user-1"),
+    ]);
+
+    const payload = interaction.reply.mock.calls[0][0];
+    expect(payload.flags).toBe(MessageFlags.Ephemeral);
+    expect(payload.content).toContain("dos veces");
+  });
+
+  it("alive update is sent as a branded embed (not plain text)", async () => {
+    const interaction = createMockInteraction({ channel: sendableChannel() });
+    const client = createMockClient();
+    vi.mocked(client.users.fetch).mockResolvedValue({
+      id: "player-2",
+      bot: false,
+      username: "Player2",
+      toString: () => "<@player-2>",
+    } as any);
+
+    await ruleta.run(client, interaction, [arg("player2", "player-2")]);
+
+    // Capture the collect handler that was registered on the collector
+    const collectorMock = interaction.channel.createMessageCollector.mock
+      .results[0].value;
+    const collectHandler = collectorMock.on.mock.calls.find(
+      (c: any) => c[0] === "collect"
+    )[1];
+
+    // Simulate a 'roll' message from the current-turn player
+    await collectHandler({
+      author: { id: "user-1", toString: () => "<@user-1>" },
+      content: "roll",
+    });
+
+    // channel.send should have been called with an embeds payload
+    const sendArg = interaction.channel.send.mock.calls[0][0];
+    expect(sendArg.embeds).toBeDefined();
+    expect(sendArg.embeds).toHaveLength(1);
+    const aliveEmbed = sendArg.embeds[0].data;
+    expect(aliveEmbed.color).toBe(0xfee75c);
+    expect(aliveEmbed.footer.text).toMatch(/Xiza Bot v\d+/);
+  });
+
   it("collector filter only matches the current player typing 'roll'", async () => {
     const interaction = createMockInteraction({ channel: sendableChannel() });
     const client = createMockClient();

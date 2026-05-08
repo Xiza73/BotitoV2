@@ -36,14 +36,39 @@ const DEATH_COLOR = 0xed4245;
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
 const buildKickoffEmbed = (users: User[]) => {
+  const isSolo = users.length === 1;
   const playersList = users.map((u, i) => `${i + 1}. <@${u.id}>`).join("\n");
+  const description = isSolo
+    ? `<@${users[0].id}> juega solo — escribí \`roll\` cuando estés listo.`
+    : `Empieza <@${users[0].id}> — escribí \`roll\` en el chat cuando sea tu turno.`;
+
   return new EmbedBuilder()
     .setTitle("🔫 Ruleta rusa")
-    .setDescription(
-      `Empieza <@${users[0].id}> — escribí \`roll\` en el chat cuando sea tu turno.`
-    )
+    .setDescription(description)
     .setColor(colorForCategory("fun"))
-    .addFields({ name: "👥 Jugadores", value: playersList })
+    .addFields({
+      name: isSolo ? "👤 Jugador" : "👥 Jugadores",
+      value: playersList,
+    })
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+};
+
+const buildAliveEmbed = (
+  rollerMention: string,
+  aliveMsg: string,
+  nextUserMention: string | null,
+  position: number
+) => {
+  const lines = [
+    `${rollerMention}${aliveMsg}`,
+    nextUserMention ? `Turno de ${nextUserMention}` : null,
+    `Escribí \`roll\` para probar suerte`,
+    `Posición actual: **${position}**`,
+  ].filter((s): s is string => Boolean(s));
+
+  return new EmbedBuilder()
+    .setDescription(lines.join("\n"))
+    .setColor(colorForCategory("fun"))
     .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
 };
 
@@ -67,14 +92,15 @@ const buildAbandonedEmbed = () =>
 const pull: ISlashCommand = {
   name: "ruleta",
   category: "fun",
-  description: "Ruleta rusa. Cada jugador escribe `roll` cuando es su turno.",
+  description:
+    "Ruleta rusa. Cada jugador escribe `roll` cuando es su turno. Podés jugar solo.",
   ownerOnly: false,
   options: [
     {
       name: "player2",
-      description: "Segundo jugador (obligatorio)",
+      description: "Segundo jugador (opcional — sin esto jugás solo)",
       type: ApplicationCommandOptionType.User,
-      required: true,
+      required: false,
     },
     {
       name: "player3",
@@ -96,6 +122,7 @@ const pull: ISlashCommand = {
     },
   ],
   examples: [
+    "/ruleta",
     "/ruleta player2:@bob",
     "/ruleta player2:@bob player3:@carla player4:@diego",
   ],
@@ -124,6 +151,14 @@ const pull: ISlashCommand = {
         if (id) playerIds.push(id);
       }
 
+      // Reject duplicates — including someone listing themselves as player2.
+      if (new Set(playerIds).size !== playerIds.length) {
+        return interaction.reply({
+          content: "No podés agregar al mismo jugador dos veces.",
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
       const users = await Promise.all(
         playerIds.map((id) => client.users.fetch(id))
       );
@@ -135,6 +170,7 @@ const pull: ISlashCommand = {
       }
 
       const ruleta = new Death.Roulette({ jugadores: playerIds });
+      const isSolo = playerIds.length === 1;
 
       await interaction.reply({ embeds: [buildKickoffEmbed(users)] });
 
@@ -158,19 +194,23 @@ const pull: ISlashCommand = {
         }
 
         const nextUser = users.find((u) => u.id === ruleta.game.turno);
-        await channel.send(
-          msg.author.toString() +
-            ALIVE_MSGS[getRandom(0, ALIVE_MSGS.length - 1)] +
-            "\nTurno de " +
-            (nextUser?.toString() ?? "?") +
-            "\nEscribe `roll` en el chat para probar suerte\n" +
-            "Posición actual: " +
-            ruleta.game.posicion
-        );
+        // In solo mode the next turn is always the same player — skip the
+        // 'Turno de' line so we don't repeat the player's name twice per roll.
+        const nextMention = isSolo ? null : (nextUser?.toString() ?? "?");
+
+        await channel.send({
+          embeds: [
+            buildAliveEmbed(
+              msg.author.toString(),
+              ALIVE_MSGS[getRandom(0, ALIVE_MSGS.length - 1)],
+              nextMention,
+              ruleta.game.posicion
+            ),
+          ],
+        });
       });
 
       collector.on("end", async (_, reason) => {
-        // 'dead' is our explicit stop above; anything else is a timeout/idle.
         if (reason === "idle") {
           await channel.send({ embeds: [buildAbandonedEmbed()] });
         }
