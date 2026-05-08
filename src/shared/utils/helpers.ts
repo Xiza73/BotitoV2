@@ -144,6 +144,24 @@ export const rangeHandler = (
 };
 
 /**
+ * Returns the next occurrence of (day/month) starting from `from`. If the
+ * birthday already happened this year, jumps to next year. Doesn't try to
+ * be clever about Feb 29 in non-leap years — JS Date will roll over (Feb 30
+ * → Mar 2), which is acceptable for a friend-server bot.
+ */
+export const nextBirthdayDate = (
+  day: number,
+  month: number,
+  from: Date = new Date()
+): Date => {
+  const candidate = new Date(from.getFullYear(), month - 1, day);
+  if (candidate.getTime() < from.getTime()) {
+    return new Date(from.getFullYear() + 1, month - 1, day);
+  }
+  return candidate;
+};
+
+/**
  * Formats a duration in seconds into a compact human-readable string.
  * Examples: 45s, 5m 30s, 2h 15m, 3d 4h 0m
  */
