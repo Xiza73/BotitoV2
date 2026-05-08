@@ -39,8 +39,8 @@ const buildKickoffEmbed = (users: User[]) => {
   const isSolo = users.length === 1;
   const playersList = users.map((u, i) => `${i + 1}. <@${u.id}>`).join("\n");
   const description = isSolo
-    ? `<@${users[0].id}> juega solo — escribí \`roll\` cuando estés listo.`
-    : `Empieza <@${users[0].id}> — escribí \`roll\` en el chat cuando sea tu turno.`;
+    ? `<@${users[0].id}> juega solo — escribe \`roll\` cuando estés listo.`
+    : `Empieza <@${users[0].id}> — escribe \`roll\` en el chat cuando sea tu turno.`;
 
   return new EmbedBuilder()
     .setTitle("🔫 Ruleta rusa")
@@ -62,7 +62,7 @@ const buildAliveEmbed = (
   const lines = [
     `${rollerMention}${aliveMsg}`,
     nextUserMention ? `Turno de ${nextUserMention}` : null,
-    `Escribí \`roll\` para probar suerte`,
+    `Escribe \`roll\` para probar suerte`,
     `Posición actual: **${position}**`,
   ].filter((s): s is string => Boolean(s));
 
@@ -98,7 +98,7 @@ const pull: ISlashCommand = {
   options: [
     {
       name: "player2",
-      description: "Segundo jugador (opcional — sin esto jugás solo)",
+      description: "Segundo jugador (opcional — sin esto juegas solo)",
       type: ApplicationCommandOptionType.User,
       required: false,
     },
@@ -154,7 +154,7 @@ const pull: ISlashCommand = {
       // Reject duplicates — including someone listing themselves as player2.
       if (new Set(playerIds).size !== playerIds.length) {
         return interaction.reply({
-          content: "No podés agregar al mismo jugador dos veces.",
+          content: "No puedes agregar al mismo jugador dos veces.",
           flags: MessageFlags.Ephemeral,
         });
       }

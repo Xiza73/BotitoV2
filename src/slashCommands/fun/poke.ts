@@ -158,7 +158,7 @@ const fetchJson = async (url: string): Promise<any | null> => {
 // Note: no `flags` field — editReply can't change ephemerality after defer.
 // The error inherits the visibility chosen at deferReply time.
 const apiErrorPayload = () => ({
-  content: "La PokéAPI no respondió bien. Intentá de nuevo en un rato.",
+  content: "La PokéAPI no respondió bien. Intenta de nuevo en un rato.",
 });
 
 type SubArg = NonNullable<Argument["args"]>[number];
@@ -179,7 +179,7 @@ const pull: ISlashCommand = {
       options: [
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: público)",
+          description: "Mostrar la respuesta solo a ti (default: público)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
@@ -192,7 +192,7 @@ const pull: ISlashCommand = {
       options: [
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: público)",
+          description: "Mostrar la respuesta solo a ti (default: público)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
@@ -212,7 +212,7 @@ const pull: ISlashCommand = {
         },
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: público)",
+          description: "Mostrar la respuesta solo a ti (default: público)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },

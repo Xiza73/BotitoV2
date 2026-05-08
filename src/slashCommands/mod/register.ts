@@ -55,7 +55,7 @@ const pull: ISlashCommand = {
         )?.has(PermissionFlagsBits.Administrator)
       ) {
         return interaction.reply({
-          content: "Necesitás permiso de Administrator para usar este comando.",
+          content: "Necesitas permiso de Administrator para usar este comando.",
           flags: MessageFlags.Ephemeral,
         });
       }

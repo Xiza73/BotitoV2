@@ -135,7 +135,7 @@ const pull: ISlashCommand = {
         },
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: público)",
+          description: "Mostrar la respuesta solo a ti (default: público)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
@@ -154,7 +154,7 @@ const pull: ISlashCommand = {
         },
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: público)",
+          description: "Mostrar la respuesta solo a ti (default: público)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },

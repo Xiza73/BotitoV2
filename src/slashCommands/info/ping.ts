@@ -56,7 +56,7 @@ const pull: ISlashCommand = {
     {
       name: "private",
       description:
-        "Mostrar la respuesta solo a vos (default: false, lo ve todo el canal)",
+        "Mostrar la respuesta solo a ti (default: false, lo ve todo el canal)",
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
