@@ -24,7 +24,7 @@ const fakeBulkDeleteResult = (messages: any[]) => {
 };
 
 describe("/clear", () => {
-  it("replies ephemerally with a recap embed listing each deleted message, then posts a public auto-deleting count notice", async () => {
+  it("DMs the recap to the invoker, replies with a brief ephemeral confirmation, and posts a public auto-deleting count notice", async () => {
     vi.useFakeTimers();
     const noticeDelete = vi.fn().mockResolvedValue(undefined);
     const send = vi.fn().mockResolvedValue({ delete: noticeDelete });
@@ -37,29 +37,41 @@ describe("/clear", () => {
     const bulkDelete = vi
       .fn()
       .mockResolvedValue(fakeBulkDeleteResult(messages));
+    const dmSend = vi.fn().mockResolvedValue({ id: "dm-msg" });
     const interaction = createMockInteraction({
       channel: { isSendable: () => true, send, bulkDelete },
+      user: {
+        id: "mod-1",
+        createDM: vi.fn().mockResolvedValue({ send: dmSend }),
+      },
     });
 
     await clear.run(createMockClient(), interaction, [arg("amount", 4)]);
 
     expect(bulkDelete).toHaveBeenCalledWith(4, true);
 
-    // Ephemeral recap reply to the moderator
-    const replyPayload = interaction.reply.mock.calls[0][0];
-    expect(replyPayload.flags).toBe(MessageFlags.Ephemeral);
-    expect(replyPayload.allowedMentions).toEqual({ parse: [] });
-    const recap = replyPayload.embeds[0].data;
+    // Recap delivered via DM, NOT in the channel and NOT in the ephemeral reply
+    expect(interaction.user.createDM).toHaveBeenCalledOnce();
+    expect(dmSend).toHaveBeenCalledOnce();
+    const dmPayload = dmSend.mock.calls[0][0];
+    expect(dmPayload.allowedMentions).toEqual({ parse: [] });
+    const recap = dmPayload.embeds[0].data;
     expect(recap.title).toBe("📋 Eliminados (4)");
     expect(recap.description).toContain("ana");
     expect(recap.description).toContain("bob");
     expect(recap.description).toContain("carla");
 
+    // Brief ephemeral confirmation (no embed — the data went to DM)
+    const replyPayload = interaction.reply.mock.calls[0][0];
+    expect(replyPayload.flags).toBe(MessageFlags.Ephemeral);
+    expect(replyPayload.content).toContain("DM");
+    expect(replyPayload.embeds).toBeUndefined();
+
     // Public count notice posted to the channel
     expect(send).toHaveBeenCalledOnce();
     const sentEmbed = send.mock.calls[0][0].embeds[0].data;
     expect(sentEmbed.title).toBe("🧹 Chat limpiado");
-    expect(sentEmbed.color).toBe(0xed4245); // mod red
+    expect(sentEmbed.color).toBe(0xed4245);
     expect(sentEmbed.footer.text).toMatch(/Xiza Bot v\d+/);
 
     // After 5s the public notice deletes itself
@@ -67,6 +79,30 @@ describe("/clear", () => {
     expect(noticeDelete).toHaveBeenCalled();
 
     vi.useRealTimers();
+  });
+
+  it("falls back to ephemeral recap when the moderator's DMs are disabled", async () => {
+    const noticeDelete = vi.fn().mockResolvedValue(undefined);
+    const send = vi.fn().mockResolvedValue({ delete: noticeDelete });
+    const bulkDelete = vi
+      .fn()
+      .mockResolvedValue(fakeBulkDeleteResult([fakeMessage()]));
+    const interaction = createMockInteraction({
+      channel: { isSendable: () => true, send, bulkDelete },
+      user: {
+        id: "mod-1",
+        createDM: vi.fn().mockRejectedValue(new Error("DMs blocked")),
+      },
+    });
+
+    await clear.run(createMockClient(), interaction, [arg("amount", 1)]);
+
+    const replyPayload = interaction.reply.mock.calls[0][0];
+    expect(replyPayload.flags).toBe(MessageFlags.Ephemeral);
+    expect(replyPayload.content).toContain("DM");
+    // Recap embed shown inline as fallback
+    expect(replyPayload.embeds).toBeDefined();
+    expect(replyPayload.embeds[0].data.title).toBe("📋 Eliminados (1)");
   });
 
   it("public count notice uses singular phrasing for a 1-message delete", async () => {
@@ -84,7 +120,7 @@ describe("/clear", () => {
     expect(description).toMatch(/\*\*1\*\*\s+mensaje\.$/);
   });
 
-  it("re-uploads image attachments as files (not URLs) so the recap survives the source delete", async () => {
+  it("re-uploads image attachments as files in the DM recap (not URLs) so they survive the source delete", async () => {
     const fakeAttachment = {
       url: "https://cdn.discordapp.com/example.png",
       name: "example.png",
@@ -96,11 +132,15 @@ describe("/clear", () => {
         fakeMessage({ content: "look at this", attachments: att }),
       ])
     );
+    const dmSend = vi.fn().mockResolvedValue({ id: "dm-msg" });
     const interaction = createMockInteraction({
       channel: { isSendable: () => true, send, bulkDelete },
+      user: {
+        id: "mod-1",
+        createDM: vi.fn().mockResolvedValue({ send: dmSend }),
+      },
     });
 
-    // Mock global fetch to return a tiny buffer
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -111,10 +151,10 @@ describe("/clear", () => {
 
     await clear.run(createMockClient(), interaction, [arg("amount", 1)]);
 
-    const replyPayload = interaction.reply.mock.calls[0][0];
-    expect(replyPayload.files).toHaveLength(1);
-    expect(replyPayload.files[0].name).toBe("example.png");
-    expect(Buffer.isBuffer(replyPayload.files[0].attachment)).toBe(true);
+    const dmPayload = dmSend.mock.calls[0][0];
+    expect(dmPayload.files).toHaveLength(1);
+    expect(dmPayload.files[0].name).toBe("example.png");
+    expect(Buffer.isBuffer(dmPayload.files[0].attachment)).toBe(true);
 
     vi.unstubAllGlobals();
   });

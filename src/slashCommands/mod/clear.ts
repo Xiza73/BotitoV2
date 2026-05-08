@@ -181,15 +181,39 @@ const pull: ISlashCommand = {
 
       const { embed: recapEmbed, files } = await buildRecap(deletedMessages);
 
-      // Ephemeral recap to the moderator (so they can review what got nuked).
-      // Mentions inside the recap are neutralized: this is a private review,
-      // not a re-broadcast.
-      await interaction.reply({
-        embeds: [recapEmbed],
-        files,
-        flags: MessageFlags.Ephemeral,
-        allowedMentions: { parse: [] },
-      });
+      // Recap goes by DM — it's an internal log of what got nuked, persists
+      // in the moderator's DM history, and stays invisible to the rest of
+      // the server regardless of who ran the command.
+      let dmDelivered = true;
+      try {
+        const dm = await interaction.user.createDM();
+        await dm.send({
+          embeds: [recapEmbed],
+          files,
+          allowedMentions: { parse: [] },
+        });
+      } catch {
+        dmDelivered = false;
+      }
+
+      // Ephemeral confirmation to the invoker. If the DM made it through,
+      // it's just a 'done'. If it didn't (DMs disabled), fall back to
+      // showing the recap inline so the moderator still has the data.
+      if (dmDelivered) {
+        await interaction.reply({
+          content: "✅ Listo. Te envié el detalle por DM.",
+          flags: MessageFlags.Ephemeral,
+        });
+      } else {
+        await interaction.reply({
+          content:
+            "No te pude enviar DM (¿los tenés desactivados?). Te dejo el detalle acá:",
+          embeds: [recapEmbed],
+          files,
+          flags: MessageFlags.Ephemeral,
+          allowedMentions: { parse: [] },
+        });
+      }
 
       // Public auto-deleting notice in the channel: just the count, no detail.
       const notice = await channel.send({

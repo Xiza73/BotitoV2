@@ -28,6 +28,9 @@ export const createMockInteraction = (overrides: Record<string, any> = {}) => {
       id: "user-1",
       tag: "tester#0001",
       displayAvatarURL: () => "https://example.com/avatar.png",
+      createDM: vi.fn().mockResolvedValue({
+        send: vi.fn().mockResolvedValue({ id: "dm-msg" }),
+      }),
     },
     member: {
       permissions: {
