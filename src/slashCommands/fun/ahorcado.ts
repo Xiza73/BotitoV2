@@ -214,7 +214,15 @@ const pull: ISlashCommand = {
           flags: MessageFlags.Ephemeral,
         });
       }
-      const usernames = users.map((u) => u.username);
+
+      // death-games' Hangman requires >= 2 player IDs. For solo play we
+      // duplicate the lone ID so the library is happy; the bot's collector
+      // filter (msg.author.id === game.turno) keeps matching the same user
+      // every round, so it plays as a real solo game.
+      const libPlayerIds = isSolo ? [playerIds[0], playerIds[0]] : playerIds;
+      const libUsernames = libPlayerIds.map(
+        (id) => users.find((u) => u.id === id)?.username ?? "?"
+      );
 
       let word = "hola";
       if (botPicks) {
@@ -273,7 +281,7 @@ const pull: ISlashCommand = {
       }
 
       const hangman = new Death.Hangman(word, {
-        jugadores: playerIds,
+        jugadores: libPlayerIds,
         lowerCase: true,
         vidas: LIVES,
       });
@@ -282,14 +290,14 @@ const pull: ISlashCommand = {
 
       hangman.on("end", (game: any) => {
         // The library hasn't rotated yet for the final player — undo our
-        // pre-rotation so usernames[turn] = the player who actually moved.
-        turn = rotate(turn, usernames.length - 1, -1);
+        // pre-rotation so libUsernames[turn] = the player who actually moved.
+        turn = rotate(turn, libUsernames.length - 1, -1);
         channel.send({
           embeds: [
             buildEndEmbed(
               game.winned,
               game.palabra,
-              usernames[turn],
+              libUsernames[turn],
               game.ascii
             ),
           ],
@@ -298,10 +306,15 @@ const pull: ISlashCommand = {
 
       await channel.send({
         embeds: [
-          buildKickoffEmbed(hangman.game.ascii, usernames[turn], isSolo, botPicks),
+          buildKickoffEmbed(
+            hangman.game.ascii,
+            libUsernames[turn],
+            isSolo,
+            botPicks
+          ),
         ],
       });
-      turn = rotate(turn, usernames.length - 1, 1);
+      turn = rotate(turn, libUsernames.length - 1, 1);
 
       const collector = channel.createMessageCollector({
         filter: (msg) =>
@@ -335,12 +348,12 @@ const pull: ISlashCommand = {
           }
         }
 
-        turn = rotate(turn, usernames.length - 1, 1);
+        turn = rotate(turn, libUsernames.length - 1, 1);
         channel.send({
           embeds: [
             buildTurnEmbed(
               hangman.game.ascii,
-              usernames[turn],
+              libUsernames[turn],
               hangman.game.vidas,
               hangman.game.letrasIncorrectas,
               detail,
