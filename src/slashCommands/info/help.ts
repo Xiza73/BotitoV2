@@ -77,7 +77,7 @@ const buildListEmbed = (
     .setTitle(filterCategory ? `Comandos de ${capitalize(filterCategory)}` : "Help")
     .setThumbnail(client.user?.avatarURL() ?? null)
     .setDescription(
-      `Hola **<@${userId}>** — elegí un comando del menú o usa \`/help command:<nombre>\` para ver el detalle.\n` +
+      `Hola **<@${userId}>** — elige un comando del menú o usa \`/help command:<nombre>\` para ver el detalle.\n` +
         `**Total:** ${filtered.length} ${filtered.length === 1 ? "comando" : "comandos"}`
     )
     .setColor(filterCategory ? colorForCategory(filterCategory) : colorForCategory("info"))
@@ -136,7 +136,7 @@ const buildSelectRow = (commands: ISlashCommand[]) => {
   return new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
     new StringSelectMenuBuilder()
       .setCustomId(SELECT_CUSTOM_ID)
-      .setPlaceholder("Elegí un comando para ver el detalle…")
+      .setPlaceholder("Elige un comando para ver el detalle…")
       .addOptions(options)
   );
 };
@@ -239,7 +239,7 @@ const pull: ISlashCommand = {
     },
     {
       name: "public",
-      description: "Mostrar la respuesta a todo el canal (default: solo a vos)",
+      description: "Mostrar la respuesta a todo el canal (default: solo a ti)",
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },

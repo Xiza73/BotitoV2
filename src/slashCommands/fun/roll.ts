@@ -90,7 +90,7 @@ const pull: ISlashCommand = {
     },
     {
       name: OPTIONS.private,
-      description: "Mostrar la respuesta solo a vos (default: público)",
+      description: "Mostrar la respuesta solo a ti (default: público)",
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },

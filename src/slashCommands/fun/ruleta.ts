@@ -1,11 +1,18 @@
 import {
+  ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
   MessageFlags,
+  User,
 } from "discord.js";
 import Death from "death-games";
+
 import ClientDiscord from "../../shared/classes/ClientDiscord";
-import { ApplicationCommandOptionType } from "discord.js";
+import {
+  BOT_BRAND_NAME,
+  BOT_VERSION,
+  colorForCategory,
+} from "../../shared/constants/branding";
 import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler, random as getRandom } from "../../shared/utils/helpers";
 
@@ -20,17 +27,80 @@ const ALIVE_MSGS = [
   " se ha salvado!",
 ];
 
+// Mod-red — signal of death/game-over, intentional deviation from fun yellow
+// (same logic as /imc keeping its data-driven status colors).
+const DEATH_COLOR = 0xed4245;
+
+// 5 min of silence → game gets cleaned up so a forgotten roulette doesn't hang
+// the channel with a dangling collector.
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+
+const buildKickoffEmbed = (users: User[]) => {
+  const isSolo = users.length === 1;
+  const playersList = users.map((u, i) => `${i + 1}. <@${u.id}>`).join("\n");
+  const description = isSolo
+    ? `<@${users[0].id}> juega solo — escribe \`roll\` cuando estés listo.`
+    : `Empieza <@${users[0].id}> — escribe \`roll\` en el chat cuando sea tu turno.`;
+
+  return new EmbedBuilder()
+    .setTitle("🔫 Ruleta rusa")
+    .setDescription(description)
+    .setColor(colorForCategory("fun"))
+    .addFields({
+      name: isSolo ? "👤 Jugador" : "👥 Jugadores",
+      value: playersList,
+    })
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+};
+
+const buildAliveEmbed = (
+  rollerMention: string,
+  aliveMsg: string,
+  nextUserMention: string | null,
+  position: number
+) => {
+  const lines = [
+    `${rollerMention}${aliveMsg}`,
+    nextUserMention ? `Turno de ${nextUserMention}` : null,
+    `Escribe \`roll\` para probar suerte`,
+    `Posición actual: **${position}**`,
+  ].filter((s): s is string => Boolean(s));
+
+  return new EmbedBuilder()
+    .setDescription(lines.join("\n"))
+    .setColor(colorForCategory("fun"))
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+};
+
+const buildDeathEmbed = (deadUserMention: string) =>
+  new EmbedBuilder()
+    .setTitle("💀 Los soplones, pum pum pum, al agua!")
+    .setDescription(`${deadUserMention} ha muerto! Se acabó la ronda!`)
+    .setColor(DEATH_COLOR)
+    .setImage(
+      `https://res.cloudinary.com/dnbgxu47a/image/upload/v1612981070/roulette/${getRandom(1, 5)}.gif`
+    )
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+
+const buildAbandonedEmbed = () =>
+  new EmbedBuilder()
+    .setTitle("⌛ Juego abandonado")
+    .setDescription("La ruleta se quedó sin movimientos por 5 minutos.")
+    .setColor(colorForCategory("fun"))
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+
 const pull: ISlashCommand = {
   name: "ruleta",
   category: "fun",
-  description: "Ruleta rusa. Cada jugador escribe `roll` cuando es su turno.",
+  description:
+    "Ruleta rusa. Cada jugador escribe `roll` cuando es su turno. Podés jugar solo.",
   ownerOnly: false,
   options: [
     {
       name: "player2",
-      description: "Segundo jugador (obligatorio)",
+      description: "Segundo jugador (opcional — sin esto juegas solo)",
       type: ApplicationCommandOptionType.User,
-      required: true,
+      required: false,
     },
     {
       name: "player3",
@@ -51,13 +121,21 @@ const pull: ISlashCommand = {
       required: false,
     },
   ],
+  examples: [
+    "/ruleta",
+    "/ruleta player2:@bob",
+    "/ruleta player2:@bob player3:@carla player4:@diego",
+  ],
   run: async (
     client: ClientDiscord,
     interaction: ChatInputCommandInteraction,
     args: Argument[]
   ) => {
     try {
-      if (!interaction.channel?.isTextBased() || !interaction.channel.isSendable()) {
+      if (
+        !interaction.channel?.isTextBased() ||
+        !interaction.channel.isSendable()
+      ) {
         return interaction.reply({
           content: "Este canal no soporta el juego.",
           flags: MessageFlags.Ephemeral,
@@ -73,6 +151,14 @@ const pull: ISlashCommand = {
         if (id) playerIds.push(id);
       }
 
+      // Reject duplicates — including someone listing themselves as player2.
+      if (new Set(playerIds).size !== playerIds.length) {
+        return interaction.reply({
+          content: "No puedes agregar al mismo jugador dos veces.",
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
       const users = await Promise.all(
         playerIds.map((id) => client.users.fetch(id))
       );
@@ -84,17 +170,15 @@ const pull: ISlashCommand = {
       }
 
       const ruleta = new Death.Roulette({ jugadores: playerIds });
+      const isSolo = playerIds.length === 1;
 
-      await interaction.reply({
-        content:
-          `Empieza ${interaction.user}\n` +
-          `Escribe \`roll\` en el chat para probar suerte`,
-      });
+      await interaction.reply({ embeds: [buildKickoffEmbed(users)] });
 
       const collector = channel.createMessageCollector({
         filter: (msg) =>
           ruleta.game.turno === msg.author.id &&
           msg.content.toLowerCase() === "roll",
+        idle: IDLE_TIMEOUT_MS,
       });
 
       collector.on("collect", async (msg) => {
@@ -102,30 +186,34 @@ const pull: ISlashCommand = {
         const dead = ruleta.elegir(roll);
 
         if (dead) {
-          const e = new EmbedBuilder()
-            .setColor("Random")
-            .setTitle("Los soplones, pum pum pum, al agua!")
-            .setDescription(
-              msg.author.toString() + " ha muerto! Se acabó la ronda!"
-            )
-            .setImage(
-              `https://res.cloudinary.com/dnbgxu47a/image/upload/v1612981070/roulette/${getRandom(1, 5)}.gif`
-            );
-          await channel.send({ embeds: [e] });
-          collector.stop();
+          await channel.send({
+            embeds: [buildDeathEmbed(msg.author.toString())],
+          });
+          collector.stop("dead");
           return;
         }
 
         const nextUser = users.find((u) => u.id === ruleta.game.turno);
-        await channel.send(
-          msg.author.toString() +
-            ALIVE_MSGS[getRandom(0, ALIVE_MSGS.length - 1)] +
-            "\nTurno de " +
-            (nextUser?.toString() ?? "?") +
-            "\nEscribe `roll` en el chat para probar suerte\n" +
-            "Posición actual: " +
-            ruleta.game.posicion
-        );
+        // In solo mode the next turn is always the same player — skip the
+        // 'Turno de' line so we don't repeat the player's name twice per roll.
+        const nextMention = isSolo ? null : (nextUser?.toString() ?? "?");
+
+        await channel.send({
+          embeds: [
+            buildAliveEmbed(
+              msg.author.toString(),
+              ALIVE_MSGS[getRandom(0, ALIVE_MSGS.length - 1)],
+              nextMention,
+              ruleta.game.posicion
+            ),
+          ],
+        });
+      });
+
+      collector.on("end", async (_, reason) => {
+        if (reason === "idle") {
+          await channel.send({ embeds: [buildAbandonedEmbed()] });
+        }
       });
     } catch (error) {
       errorHandler(interaction, error);

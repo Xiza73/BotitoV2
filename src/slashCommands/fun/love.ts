@@ -130,7 +130,7 @@ const handleShip = async (
   const pair = await loveService.getOrCreatePair(user1, user2);
   if (!pair) {
     return interaction.reply({
-      content: "No pude calcular la compatibilidad. Probá de nuevo en un rato.",
+      content: "No pude calcular la compatibilidad. Prueba de nuevo en un rato.",
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -255,7 +255,7 @@ const pull: ISlashCommand = {
         },
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: público)",
+          description: "Mostrar la respuesta solo a ti (default: público)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
@@ -292,7 +292,7 @@ const pull: ISlashCommand = {
         },
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: sí)",
+          description: "Mostrar la respuesta solo a ti (default: sí)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
@@ -317,7 +317,7 @@ const pull: ISlashCommand = {
         },
         {
           name: OPT.private,
-          description: "Mostrar la respuesta solo a vos (default: sí)",
+          description: "Mostrar la respuesta solo a ti (default: sí)",
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },

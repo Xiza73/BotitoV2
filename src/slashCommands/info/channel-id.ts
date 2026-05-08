@@ -86,7 +86,7 @@ const pull: ISlashCommand = {
     },
     {
       name: "public",
-      description: "Mostrar la respuesta a todo el canal (default: solo a vos)",
+      description: "Mostrar la respuesta a todo el canal (default: solo a ti)",
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },

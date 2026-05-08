@@ -69,13 +69,13 @@ const pull: ISlashCommand = {
     },
     {
       name: "altura",
-      description: "Altura en metros (o cm si pasás un valor mayor a 3)",
+      description: "Altura en metros (o cm si pasas un valor mayor a 3)",
       type: ApplicationCommandOptionType.Number,
       required: true,
     },
     {
       name: "private",
-      description: "Mostrar la respuesta solo a vos (default: público)",
+      description: "Mostrar la respuesta solo a ti (default: público)",
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
