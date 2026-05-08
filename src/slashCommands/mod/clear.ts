@@ -20,13 +20,18 @@ import { Argument, ISlashCommand } from "../../shared/types";
 import { errorHandler } from "../../shared/utils/helpers";
 
 const NOTICE_TTL_MS = 5_000;
+// Discord caps a single message at 10 attachments. We cap our recap there too.
+const MAX_RECAP_ATTACHMENTS = 10;
+// Embed description max is 4096; leave a margin for the trailing truncation
+// notice and any markdown overhead.
+const MAX_RECAP_DESCRIPTION = 3800;
 
 const baseEmbed = () =>
   new EmbedBuilder()
     .setColor(colorForCategory("mod"))
     .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
 
-const buildNoticeEmbed = (deletedCount: number) =>
+const buildPublicNoticeEmbed = (deletedCount: number) =>
   baseEmbed()
     .setTitle("🧹 Chat limpiado")
     .setDescription(
@@ -37,6 +42,71 @@ const buildErrorEmbed = (reason: string) =>
   baseEmbed()
     .setTitle("❌ No se pudo limpiar el chat")
     .setDescription(reason);
+
+const buildEmptyEmbed = () =>
+  baseEmbed()
+    .setTitle("🧹 Nada para limpiar")
+    .setDescription(
+      "No había mensajes recientes para eliminar (Discord no permite borrar mensajes de más de 14 días en bloque)."
+    );
+
+/**
+ * Build the moderator-only recap of what got deleted: an embed listing each
+ * message and a list of File payloads to re-upload its image attachments
+ * (downloaded into Buffers because Discord's CDN URLs expire shortly after
+ * the source message is deleted).
+ *
+ * Returns: { embed, files } ready to drop into interaction.reply().
+ */
+const buildRecap = async (deleted: Message[]) => {
+  const lines: string[] = [];
+  const files: { attachment: Buffer; name: string }[] = [];
+  let truncated = false;
+
+  for (const msg of deleted) {
+    const ts = `<t:${Math.floor(msg.createdTimestamp / 1000)}:t>`;
+    const author = `**${msg.author.username}**`;
+    const body =
+      msg.content?.trim() ||
+      (msg.attachments.size > 0 ? "_(solo adjuntos)_" : "_(mensaje vacío)_");
+    const line = `${ts} ${author}: ${body}`;
+
+    // Stop adding text lines once we'd overflow the embed description.
+    if (lines.join("\n").length + line.length + 1 > MAX_RECAP_DESCRIPTION) {
+      truncated = true;
+      break;
+    }
+    lines.push(line);
+
+    // Re-upload image/file attachments as fresh files so the mod can still
+    // see them after Discord drops the original CDN URLs.
+    for (const att of msg.attachments.values()) {
+      if (files.length >= MAX_RECAP_ATTACHMENTS) {
+        truncated = true;
+        break;
+      }
+      try {
+        const res = await fetch(att.url);
+        if (!res.ok) continue;
+        const buf = Buffer.from(await res.arrayBuffer());
+        files.push({ attachment: buf, name: att.name });
+      } catch {
+        // CDN URL expired or download failed — skip silently.
+      }
+    }
+    if (files.length >= MAX_RECAP_ATTACHMENTS) truncated = true;
+  }
+
+  if (truncated) {
+    lines.push("\n_(recap truncado por límites de Discord)_");
+  }
+
+  const embed = baseEmbed()
+    .setTitle(`📋 Eliminados (${deleted.length})`)
+    .setDescription(lines.join("\n") || "_(sin contenido)_");
+
+  return { embed, files };
+};
 
 const pull: ISlashCommand = {
   name: "clear",
@@ -70,14 +140,13 @@ const pull: ISlashCommand = {
         });
       }
 
-      const requested = (args.find((a) => a.name === "amount")?.value as
-        | number
-        | undefined) ?? 1;
+      const requested =
+        (args.find((a) => a.name === "amount")?.value as number | undefined) ??
+        1;
 
       if (requested <= 0) {
         return interaction.reply({
-          content:
-            "La cantidad debe ser un número mayor a 0.",
+          content: "La cantidad debe ser un número mayor a 0.",
           flags: MessageFlags.Ephemeral,
         });
       }
@@ -85,27 +154,10 @@ const pull: ISlashCommand = {
       const amountToDelete = Math.min(requested, config.maxDeleteMessages);
       const channel = interaction.channel as TextChannel;
 
-      // bulkDelete first, then confirm. If it throws (eg. messages older than
-      // 14 days, or bot missing perms), the catch fires and errorHandler can
-      // still reply because the interaction hasn't been replied yet.
+      let deletedCollection;
       try {
-        const deleted = await channel.bulkDelete(amountToDelete, true);
-        await interaction.reply({
-          embeds: [buildNoticeEmbed(deleted.size)],
-          flags: MessageFlags.Ephemeral,
-        });
-
-        // Public, auto-deleting confirmation in the channel so users see what
-        // happened without the moderator having to repeat it.
-        const notice = await channel.send({
-          embeds: [buildNoticeEmbed(deleted.size)],
-        });
-        setTimeout(() => {
-          (notice as Message).delete().catch(() => {});
-        }, NOTICE_TTL_MS);
+        deletedCollection = await channel.bulkDelete(amountToDelete, true);
       } catch (bulkErr: any) {
-        // Discord throws when trying to bulk-delete >14d old messages or when
-        // the bot lacks ManageMessages itself.
         return interaction.reply({
           embeds: [
             buildErrorEmbed(
@@ -116,6 +168,36 @@ const pull: ISlashCommand = {
           flags: MessageFlags.Ephemeral,
         });
       }
+
+      // bulkDelete returns newest-first; show the recap chronologically.
+      const deletedMessages = [...deletedCollection.values()].reverse() as Message[];
+
+      if (deletedMessages.length === 0) {
+        return interaction.reply({
+          embeds: [buildEmptyEmbed()],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const { embed: recapEmbed, files } = await buildRecap(deletedMessages);
+
+      // Ephemeral recap to the moderator (so they can review what got nuked).
+      // Mentions inside the recap are neutralized: this is a private review,
+      // not a re-broadcast.
+      await interaction.reply({
+        embeds: [recapEmbed],
+        files,
+        flags: MessageFlags.Ephemeral,
+        allowedMentions: { parse: [] },
+      });
+
+      // Public auto-deleting notice in the channel: just the count, no detail.
+      const notice = await channel.send({
+        embeds: [buildPublicNoticeEmbed(deletedMessages.length)],
+      });
+      setTimeout(() => {
+        (notice as Message).delete().catch(() => {});
+      }, NOTICE_TTL_MS);
     } catch (error) {
       errorHandler(interaction, error);
     }

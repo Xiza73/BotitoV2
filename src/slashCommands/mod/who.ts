@@ -2,6 +2,7 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  GuildMember,
   MessageFlags,
 } from "discord.js";
 
@@ -17,7 +18,44 @@ import {
   getUserByName,
 } from "../../shared/services/user.service";
 import { Argument, ISlashCommand, Month } from "../../shared/types";
-import { errorHandler, mentionUser } from "../../shared/utils/helpers";
+import { errorHandler } from "../../shared/utils/helpers";
+
+/**
+ * Returns the next occurrence of (day/month) starting from `from`. If the
+ * birthday already happened this year, jumps to next year. Doesn't try to
+ * be clever about Feb 29 in non-leap years — JS Date will roll over (Feb 30
+ * → Mar 2), which is acceptable for a friend-server bot.
+ */
+const nextBirthdayDate = (day: number, month: number, from: Date): Date => {
+  const candidate = new Date(from.getFullYear(), month - 1, day);
+  if (candidate.getTime() < from.getTime()) {
+    return new Date(from.getFullYear() + 1, month - 1, day);
+  }
+  return candidate;
+};
+
+const discordRelative = (date: Date | number) => {
+  const seconds = Math.floor(
+    (typeof date === "number" ? date : date.getTime()) / 1000
+  );
+  return `<t:${seconds}:R>`;
+};
+
+const discordDate = (date: Date | number) => {
+  const seconds = Math.floor(
+    (typeof date === "number" ? date : date.getTime()) / 1000
+  );
+  return `<t:${seconds}:D>`;
+};
+
+const formatTopRoles = (member: GuildMember): string | null => {
+  const roles = member.roles.cache
+    .filter((r) => r.name !== "@everyone")
+    .sort((a, b) => b.position - a.position)
+    .first(3);
+  if (roles.length === 0) return null;
+  return roles.map((r) => `<@&${r.id}>`).join(" ");
+};
 
 const pull: ISlashCommand = {
   name: "who",
@@ -74,24 +112,69 @@ const pull: ISlashCommand = {
       if (!res) throw new Error("No se encontró usuario");
 
       const user = await client.users.fetch(res.discordId);
+      const guildMember = interaction.guild
+        ? await interaction.guild.members.fetch(res.discordId).catch(() => null)
+        : null;
 
-      const monthIndex = (parseInt(res.birthdayMonth) - 1) as Month;
-      const monthName = calendar.months[monthIndex] ?? "?";
+      const day = parseInt(res.birthdayDay);
+      const month = parseInt(res.birthdayMonth);
+      const monthName = calendar.months[(month - 1) as Month] ?? "?";
+      const nextBday = nextBirthdayDate(day, month, new Date());
+
+      const fields: { name: string; value: string; inline?: boolean }[] = [
+        {
+          name: "👤 Discord",
+          value: `<@${res.discordId}> (\`${user.tag ?? user.username}\`)`,
+          inline: false,
+        },
+        {
+          name: "🎂 Cumpleaños",
+          value: `\`${day} de ${monthName}\``,
+          inline: true,
+        },
+        {
+          name: "📅 Próximo cumple",
+          value: discordRelative(nextBday),
+          inline: true,
+        },
+        {
+          name: "📆 Cuenta creada",
+          value: discordDate(user.createdTimestamp),
+          inline: true,
+        },
+      ];
+
+      if (guildMember?.joinedTimestamp) {
+        fields.push({
+          name: "🎉 En el servidor desde",
+          value: discordDate(guildMember.joinedTimestamp),
+          inline: true,
+        });
+      }
+
+      if (guildMember) {
+        const topRoles = formatTopRoles(guildMember);
+        if (topRoles) {
+          fields.push({
+            name: "✨ Roles principales",
+            value: topRoles,
+            inline: false,
+          });
+        }
+      }
 
       const embed = new EmbedBuilder()
-        .setTitle("🎂 CUMpleaños")
+        .setTitle(res.name)
         .setThumbnail(user.avatarURL() ?? null)
-        .setDescription(`${mentionUser(res.discordId)} — **${res.name}**`)
-        .addFields({
-          name: "📅 Fecha",
-          value: `\`${res.birthdayDay} de ${monthName}\``,
-        })
+        .setDescription(`<@${res.discordId}>`)
+        .addFields(fields)
         .setColor(colorForCategory("mod"))
         .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
 
       return interaction.reply({
         embeds: [embed],
         flags: isPrivate ? MessageFlags.Ephemeral : undefined,
+        allowedMentions: { parse: [] },
       });
     } catch (error) {
       errorHandler(interaction, error);
