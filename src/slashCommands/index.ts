@@ -19,13 +19,19 @@ import poke from "./fun/poke";
 import roll from "./fun/roll";
 import ruleta from "./fun/ruleta";
 import shuffle from "./fun/shuffle";
+import team from "./fun/team";
 
+import about from "./info/about";
+import changelog from "./info/changelog";
 import channelId from "./info/channel-id";
+import feedback from "./info/feedback";
 import gmi2 from "./info/gmi2";
 import help from "./info/help";
 import ping from "./info/ping";
+import uptime from "./info/uptime";
 
 import clear from "./mod/clear";
+import cum from "./mod/cum";
 import cums from "./mod/cums";
 import nextcum from "./mod/nextcum";
 import register from "./mod/register";
@@ -42,13 +48,19 @@ const slashCommands: ISlashCommand[] = [
   roll,
   ruleta,
   shuffle,
+  team,
   // info
+  about,
+  changelog,
   channelId,
+  feedback,
   gmi2,
   help,
   ping,
+  uptime,
   // mod
   clear,
+  cum,
   cums,
   nextcum,
   register,
