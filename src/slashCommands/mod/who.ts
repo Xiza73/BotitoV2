@@ -163,10 +163,12 @@ const pull: ISlashCommand = {
         }
       }
 
+      // No setDescription here on purpose: the '👤 Discord' field already
+      // carries the mention (and the tag), so a description with just the
+      // mention was redundant.
       const embed = new EmbedBuilder()
         .setTitle(res.name)
         .setThumbnail(user.avatarURL() ?? null)
-        .setDescription(`<@${res.discordId}>`)
         .addFields(fields)
         .setColor(colorForCategory("mod"))
         .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
