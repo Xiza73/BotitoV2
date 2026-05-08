@@ -74,7 +74,7 @@ describe("/ahorcado", () => {
     expect(collectorOpts.idle).toBe(5 * 60 * 1000);
   });
 
-  it("solo play: allows playing alone if bot_picks_word=true", async () => {
+  it("solo play: works with no args (bot_picks_word defaults to true)", async () => {
     const interaction = createMockInteraction({ channel: sendableChannel() });
     const client = createMockClient();
     vi.mocked(client.users.fetch).mockImplementation((async (id: string) => ({
@@ -84,7 +84,7 @@ describe("/ahorcado", () => {
       toString: () => `<@${id}>`,
     })) as any);
 
-    await ahorcado.run(client, interaction, [arg("bot_picks_word", true)]);
+    await ahorcado.run(client, interaction, []);
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     expect(interaction.channel.send).toHaveBeenCalled();
@@ -93,10 +93,12 @@ describe("/ahorcado", () => {
     expect(desc).toContain("jugando solo");
   });
 
-  it("rejects solo + bot_picks_word=false (would be guessing your own word)", async () => {
+  it("rejects solo + bot_picks_word=false explicit (would be guessing your own word)", async () => {
     const interaction = createMockInteraction({ channel: sendableChannel() });
 
-    await ahorcado.run(createMockClient(), interaction, []);
+    await ahorcado.run(createMockClient(), interaction, [
+      arg("bot_picks_word", false),
+    ]);
 
     expect(interaction.reply).toHaveBeenCalledOnce();
     const payload = interaction.reply.mock.calls[0][0];

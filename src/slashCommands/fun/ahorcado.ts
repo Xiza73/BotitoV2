@@ -116,7 +116,7 @@ const pull: ISlashCommand = {
   name: "ahorcado",
   category: "fun",
   description:
-    "Ahorcado. Eliges la palabra (DM con menú) o el bot la elige (bot_picks_word).",
+    "Ahorcado. El bot elige la palabra; pasa bot_picks_word:false para elegirla por DM.",
   ownerOnly: false,
   options: [
     {
@@ -145,15 +145,15 @@ const pull: ISlashCommand = {
     },
     {
       name: "bot_picks_word",
-      description: "Si está en true, el bot elige la palabra",
+      description: "El bot elige la palabra (default: true). Pon false para elegirla por DM.",
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
   ],
   examples: [
-    "/ahorcado bot_picks_word:true",
+    "/ahorcado",
     "/ahorcado player2:@bob",
-    "/ahorcado player2:@bob player3:@carla bot_picks_word:true",
+    "/ahorcado player2:@bob bot_picks_word:false",
   ],
   run: async (
     client: ClientDiscord,
@@ -179,10 +179,12 @@ const pull: ISlashCommand = {
           | undefined;
         if (id) playerIds.push(id);
       }
+      // Default true: most plays just want to start a game without the DM
+      // dance. Pass bot_picks_word:false to opt into picking the word yourself.
       const botPicks =
         (args.find((a) => a.name === "bot_picks_word")?.value as
           | boolean
-          | undefined) ?? false;
+          | undefined) ?? true;
       const isSolo = playerIds.length === 1;
 
       // Solo play only makes sense if the bot picks the word — otherwise the
@@ -190,7 +192,7 @@ const pull: ISlashCommand = {
       if (isSolo && !botPicks) {
         return interaction.reply({
           content:
-            "Para jugar solo necesitas que el bot elija la palabra. Usa `bot_picks_word:true`.",
+            "Para jugar solo necesitas que el bot elija la palabra. No pongas `bot_picks_word:false`.",
           flags: MessageFlags.Ephemeral,
         });
       }
