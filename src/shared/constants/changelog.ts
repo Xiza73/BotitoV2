@@ -15,6 +15,13 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.4.1",
+    date: "2026-05-08",
+    highlights: [
+      "Documentación post-v0.4.0: README reescrito con la tabla actual de comandos, stack, setup, scripts y convenciones.",
+    ],
+  },
+  {
     version: "0.4.0",
     date: "2026-05-08",
     highlights: [
