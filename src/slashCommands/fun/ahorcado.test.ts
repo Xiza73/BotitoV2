@@ -10,7 +10,8 @@ vi.mock("death-games", () => ({
         turno: "user-1",
         ended: false,
         vidas: 7,
-        letrasIncorrectas: [],
+        letrasUsadas: [] as string[],
+        letrasIncorrectas: [] as string[],
       };
       on = vi.fn();
       find = vi.fn().mockReturnValue(true);
@@ -172,5 +173,33 @@ describe("/ahorcado", () => {
     const payload = interaction.reply.mock.calls[0][0];
     expect(payload.flags).toBe(MessageFlags.Ephemeral);
     expect(payload.content).toContain("dos veces");
+  });
+
+  it("collector filter matches the CURRENT turn's player (no pre-rotation bug)", async () => {
+    const interaction = createMockInteraction({ channel: sendableChannel() });
+    const client = createMockClient();
+    vi.mocked(client.users.fetch).mockImplementation((async (id: string) => ({
+      id,
+      bot: false,
+      username: `user-${id}`,
+      toString: () => `<@${id}>`,
+    })) as any);
+
+    await ahorcado.run(client, interaction, [
+      arg("player2", "player-2"),
+      arg("bot_picks_word", true),
+    ]);
+
+    const collectorCall =
+      interaction.channel.createMessageCollector.mock.calls[0][0];
+    const filter = collectorCall.filter;
+
+    // turn = 0 → initiator (user-1) plays first, kickoff embed says
+    // 'Empieza user-1', so the filter must match user-1 (not the pre-rotated
+    // player-2 — that was the bug the rewrite fixes).
+    expect(filter({ author: { id: "user-1" }, content: "b" })).toBe(true);
+    expect(filter({ author: { id: "player-2" }, content: "b" })).toBe(false);
+    expect(filter({ author: { id: "user-1" }, content: "123" })).toBe(false); // not a letter
+    expect(filter({ author: { id: "intruder" }, content: "b" })).toBe(false);
   });
 });

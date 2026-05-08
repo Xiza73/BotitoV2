@@ -112,6 +112,38 @@ const buildAbandonedEmbed = () =>
     .setTitle("⌛ Ahorcado abandonado")
     .setDescription("La partida se quedó sin movimientos por 5 minutos.");
 
+const buildSkipEmbed = (
+  playerMention: string,
+  letter: string,
+  asciiTokens: string[]
+) =>
+  baseEmbed()
+    .setTitle("🎯 Ahorcado")
+    .setDescription(
+      `${playerMention} ya probó la letra **${letter}** — sigue su turno.\n${fmtBoard(asciiTokens)}`
+    );
+
+const buildEliminationEmbed = (
+  playerMention: string,
+  attempt: string,
+  asciiTokens: string[]
+) =>
+  baseEmbed()
+    .setColor(LOSE_COLOR)
+    .setTitle("☠️ Jugador eliminado")
+    .setDescription(
+      `${playerMention} intentó adivinar **${attempt}** — palabra incorrecta.\nQueda fuera de la partida.\n${fmtBoard(asciiTokens)}`
+    );
+
+const buildAllEliminatedEmbed = (word: string, finalAscii: string[]) =>
+  new EmbedBuilder()
+    .setTitle("💀 Ahorcado — Todos eliminados")
+    .setDescription(
+      `Todos quedaron fuera tras intentos fallidos de adivinar la palabra.\nLa palabra era: **${word}**\n${fmtBoard(finalAscii)}`
+    )
+    .setColor(LOSE_COLOR)
+    .setFooter({ text: `${BOT_BRAND_NAME} ${BOT_VERSION}` });
+
 const pull: ISlashCommand = {
   name: "ahorcado",
   category: "fun",
@@ -286,18 +318,31 @@ const pull: ISlashCommand = {
         vidas: LIVES,
       });
 
+      // Semantics: `turn` is the index of the player whose turn it is RIGHT
+      // NOW (the one we're waiting on). After a guess we advance to the next
+      // alive player. Decoupled from the library's internal turn tracker so
+      // we can skip eliminated players that the library doesn't know about.
       let turn = 0;
 
+      // Players knocked out by guessing the wrong full word. Their messages
+      // are ignored by the filter and turn rotation skips them.
+      const eliminated = new Set<string>();
+
+      const peekNextTurn = (from: number) => {
+        let idx = from;
+        do {
+          idx = rotate(idx, libUsernames.length - 1, 1);
+        } while (eliminated.has(libPlayerIds[idx]));
+        return idx;
+      };
+
       hangman.on("end", (game: any) => {
-        // The library hasn't rotated yet for the final player — undo our
-        // pre-rotation so libUsernames[turn] = the player who actually moved.
-        turn = rotate(turn, libUsernames.length - 1, -1);
         channel.send({
           embeds: [
             buildEndEmbed(
               game.winned,
               game.palabra,
-              libUsernames[turn],
+              libUsernames[turn], // the player who just moved
               game.ascii
             ),
           ],
@@ -314,46 +359,105 @@ const pull: ISlashCommand = {
           ),
         ],
       });
-      turn = rotate(turn, libUsernames.length - 1, 1);
 
       const collector = channel.createMessageCollector({
         filter: (msg) =>
-          msg.author.id === hangman.game.turno &&
+          msg.author.id === libPlayerIds[turn] &&
+          !eliminated.has(msg.author.id) &&
           /[A-Za-záéíóúñ]/.test(msg.content),
         idle: IDLE_TIMEOUT_MS,
       });
 
       collector.on("collect", (msg) => {
-        let found = false;
-        if (msg.content.length > 1 && word === msg.content.toLowerCase()) {
-          // Full-word guess — reveal every letter.
-          for (let i = 0; i < word.length; i++) {
-            if (!hangman.game.ascii.includes(word[i])) hangman.find(word[i]);
+        const text = msg.content.toLowerCase();
+        const isFullWord = text.length > 1;
+
+        // === Dedup: single-letter guesses already tried ===
+        // The library decrements vidas every time `find()` sees a letter that's
+        // already in letrasUsadas (covers both correct and incorrect repeats),
+        // so we have to short-circuit BEFORE calling find().
+        if (!isFullWord && hangman.game.letrasUsadas.includes(text)) {
+          channel.send({
+            embeds: [
+              buildSkipEmbed(msg.author.toString(), text, hangman.game.ascii),
+            ],
+          });
+          return; // No life lost, no turn rotation — same player keeps the turn.
+        }
+
+        // === Full-word guess ===
+        if (isFullWord) {
+          if (text === word) {
+            // Correct! Reveal every still-hidden letter.
+            for (let i = 0; i < word.length; i++) {
+              if (!hangman.game.ascii.includes(word[i])) hangman.find(word[i]);
+            }
+            // The win triggers 'end' inside find() via the embed handler.
+            if (hangman.game.ended) return collector.stop("end");
+          } else {
+            // Wrong full-word → eliminate this player (no life consumed; the
+            // word was wrong, but it's also a one-shot: they get knocked out).
+            eliminated.add(msg.author.id);
+            channel.send({
+              embeds: [
+                buildEliminationEmbed(
+                  msg.author.toString(),
+                  msg.content,
+                  hangman.game.ascii
+                ),
+              ],
+            });
+
+            const aliveUnique = new Set(
+              libPlayerIds.filter((id) => !eliminated.has(id))
+            );
+            if (aliveUnique.size === 0) {
+              channel.send({
+                embeds: [
+                  buildAllEliminatedEmbed(word, hangman.game.ascii),
+                ],
+              });
+              return collector.stop("everyone-eliminated");
+            }
+
+            // Someone still alive — rotate the turn (skipping eliminated)
+            // and prompt the next player.
+            const nextTurnIdx = peekNextTurn(turn);
+            channel.send({
+              embeds: [
+                buildTurnEmbed(
+                  hangman.game.ascii,
+                  libUsernames[nextTurnIdx],
+                  hangman.game.vidas,
+                  hangman.game.letrasIncorrectas,
+                  "",
+                  `${IMG_BASE}/${hangman.game.vidas}.png`
+                ),
+              ],
+            });
+            turn = nextTurnIdx;
+            return;
           }
         } else {
-          found = !!hangman.find(msg.content);
+          // === Single-letter guess ===
+          hangman.find(text);
+          if (hangman.game.ended) return collector.stop("end");
         }
 
-        if (hangman.game.ended) return collector.stop("end");
-
+        // Build the detail line for the next-turn embed.
         let detail = "";
-        if (!found) {
-          if (hangman.game.ascii.includes(msg.content)) {
-            detail = `- La letra "${msg.content}" ya se encuentra en la palabra.`;
-          } else {
-            detail =
-              msg.content.length > 1
-                ? `- Vaya, la palabra **${msg.content}** no es correcta.`
-                : `- Vaya, la letra **${msg.content}** no se encontraba en la palabra.`;
-          }
+        if (!isFullWord) {
+          detail = hangman.game.letrasIncorrectas.includes(text)
+            ? `- Vaya, la letra **${text}** no se encontraba en la palabra.`
+            : `- ¡La letra **${text}** está en la palabra!`;
         }
 
-        turn = rotate(turn, libUsernames.length - 1, 1);
+        const nextTurnIdx = peekNextTurn(turn);
         channel.send({
           embeds: [
             buildTurnEmbed(
               hangman.game.ascii,
-              libUsernames[turn],
+              libUsernames[nextTurnIdx],
               hangman.game.vidas,
               hangman.game.letrasIncorrectas,
               detail,
@@ -361,6 +465,7 @@ const pull: ISlashCommand = {
             ),
           ],
         });
+        turn = nextTurnIdx;
       });
 
       collector.on("end", async (_, reason) => {
