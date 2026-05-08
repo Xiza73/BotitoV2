@@ -18,21 +18,7 @@ import {
   getUserByName,
 } from "../../shared/services/user.service";
 import { Argument, ISlashCommand, Month } from "../../shared/types";
-import { errorHandler } from "../../shared/utils/helpers";
-
-/**
- * Returns the next occurrence of (day/month) starting from `from`. If the
- * birthday already happened this year, jumps to next year. Doesn't try to
- * be clever about Feb 29 in non-leap years — JS Date will roll over (Feb 30
- * → Mar 2), which is acceptable for a friend-server bot.
- */
-const nextBirthdayDate = (day: number, month: number, from: Date): Date => {
-  const candidate = new Date(from.getFullYear(), month - 1, day);
-  if (candidate.getTime() < from.getTime()) {
-    return new Date(from.getFullYear() + 1, month - 1, day);
-  }
-  return candidate;
-};
+import { errorHandler, nextBirthdayDate } from "../../shared/utils/helpers";
 
 const discordRelative = (date: Date | number) => {
   const seconds = Math.floor(
@@ -119,7 +105,7 @@ const pull: ISlashCommand = {
       const day = parseInt(res.birthdayDay);
       const month = parseInt(res.birthdayMonth);
       const monthName = calendar.months[(month - 1) as Month] ?? "?";
-      const nextBday = nextBirthdayDate(day, month, new Date());
+      const nextBday = nextBirthdayDate(day, month);
 
       const fields: { name: string; value: string; inline?: boolean }[] = [
         {
