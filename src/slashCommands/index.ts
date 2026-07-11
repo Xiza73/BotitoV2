@@ -12,6 +12,7 @@
 import { ISlashCommand } from "../shared/types";
 
 import ahorcado from "./fun/ahorcado";
+import bet from "./fun/bet";
 import flip from "./fun/flip";
 import imc from "./fun/imc";
 import love from "./fun/love";
@@ -41,6 +42,7 @@ import who from "./mod/who";
 const slashCommands: ISlashCommand[] = [
   // fun
   ahorcado,
+  bet,
   flip,
   imc,
   love,
