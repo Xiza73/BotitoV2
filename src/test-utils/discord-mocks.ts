@@ -15,6 +15,10 @@ export const createMockInteraction = (overrides: Record<string, any> = {}) => {
   const deferReply = vi.fn().mockResolvedValue(undefined);
   const editReply = vi.fn().mockResolvedValue({ id: "edited-msg" });
   const deleteReply = vi.fn().mockResolvedValue(undefined);
+  const fetchReply = vi.fn().mockResolvedValue({
+    id: "reply-msg",
+    createMessageComponentCollector: vi.fn(() => ({ on: vi.fn() })),
+  });
   const channelSend = vi.fn().mockResolvedValue({
     id: "channel-msg",
     createdAt: new Date(),
@@ -26,6 +30,7 @@ export const createMockInteraction = (overrides: Record<string, any> = {}) => {
     deferReply,
     editReply,
     deleteReply,
+    fetchReply,
     user: {
       id: "user-1",
       tag: "tester#0001",
