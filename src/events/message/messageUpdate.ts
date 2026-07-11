@@ -1,52 +1,52 @@
 import { EmbedBuilder, Message } from "discord.js";
+
 import config from "../../config";
 import ClientDiscord from "../../shared/classes/ClientDiscord";
+
+const EDIT_COLOR = 0xfee75c; // yellow — signal of change (vs red for delete)
+const MAX_DESCRIPTION = 4000; // embed description ceiling (real max 4096)
+const MAX_FIELD = 1000; // embed field value ceiling (real max 1024)
+
+const trim = (s: string, max: number) =>
+  s.length > max ? s.slice(0, max) + "…" : s;
 
 export default {
   name: "messageUpdate",
   type: "message",
-  // just work on the first message update, and just in gmi2 channel
+  // Mirror of messageDelete: DM the owner a preview that reads like the
+  // original message (author + original content), with the edit details below.
   async execute(
     oldMessage: Message,
     newMessage: Message,
     client: ClientDiscord
   ) {
     if (oldMessage?.author?.bot) return;
-
-    if (oldMessage?.content === newMessage?.content) return;
-
     if (!oldMessage?.content) return;
-
+    if (oldMessage.content === newMessage?.content) return; // embed/pin updates fire this too
     if (oldMessage?.channel?.id !== config.gmi2Channel) return;
 
-    const count = 1950;
+    const owner = await client.users.fetch(config.ownerId, { cache: false });
 
-    const original =
-      oldMessage.content.slice(0, count) +
-      (oldMessage.content.length > count ? "..." : "");
-    const edited =
-      newMessage.content.slice(0, count) +
-      (newMessage.content.length > count ? "..." : "");
-
-    const log = new EmbedBuilder()
+    const embed = new EmbedBuilder()
       .setAuthor({
-        name: oldMessage.author.tag,
+        name: oldMessage.author.username || oldMessage.author.tag,
         iconURL: oldMessage.author.displayAvatarURL(),
       })
-      .setDescription(
-        `Message sent by ${oldMessage.author} **edited** in ${oldMessage.channel}`
-      )
+      .setDescription(trim(oldMessage.content, MAX_DESCRIPTION))
       .addFields(
-        { name: "Original", value: original },
-        { name: "Edited", value: edited }
+        {
+          name: "📝 Editado a",
+          value: trim(newMessage.content || "_(vacío)_", MAX_FIELD),
+        },
+        {
+          name: "🔗 Mensaje",
+          value: `[Ir al mensaje](${newMessage.url})`,
+        }
       )
-      .setTimestamp()
-      .setColor("Yellow");
+      .setColor(EDIT_COLOR)
+      .setTimestamp(oldMessage.createdTimestamp ?? new Date())
+      .setFooter({ text: "✏️ Editado" });
 
-    const user = await client.users.fetch(config.ownerId, {
-      cache: false,
-    });
-
-    await user.send({ embeds: [log] });
+    await owner.send({ embeds: [embed] });
   },
 };

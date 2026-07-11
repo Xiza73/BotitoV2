@@ -27,6 +27,7 @@ const baseOldMessage = (overrides: Record<string, any> = {}) => ({
 
 const baseNewMessage = (overrides: Record<string, any> = {}) => ({
   content: "edited",
+  url: "https://discord.com/channels/1/2/3",
   ...overrides,
 });
 
@@ -95,7 +96,10 @@ describe("messageUpdate", () => {
       client
     );
     expect(send).toHaveBeenCalledOnce();
-    const payload = send.mock.calls[0][0];
-    expect(payload.embeds).toHaveLength(1);
+    const embed = send.mock.calls[0][0].embeds[0].data;
+    expect(embed.description).toBe("original"); // original as the body
+    expect(embed.fields[0].value).toBe("edited"); // new content below
+    expect(embed.fields[1].value).toContain("Ir al mensaje");
+    expect(embed.footer.text).toBe("✏️ Editado");
   });
 });
