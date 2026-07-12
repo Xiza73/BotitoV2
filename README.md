@@ -5,28 +5,30 @@ Bot de Discord para el server de amigos **Gmi2**. Originalmente conocido como Bo
 Hosteado en [Railway](https://railway.app/), deploy automático en cada push a `master`.
 
 [![CI](https://github.com/Xiza73/BotitoV2/actions/workflows/ci.yml/badge.svg)](https://github.com/Xiza73/BotitoV2/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-284%2F284-brightgreen)
+![Tests](https://img.shields.io/badge/tests-304%2F304-brightgreen)
 
 ---
 
-## Comandos (24)
+## Comandos (25)
 
 | Categoría | Comandos |
 |---|---|
 | **info** (8) | `/about` · `/changelog` · `/channel-id` · `/feedback` · `/gmi2` · `/help` · `/ping` · `/uptime` |
-| **fun** (9) | `/ahorcado` · `/flip` · `/imc` · `/love` · `/poke` · `/roll` · `/ruleta` · `/shuffle` · `/team` |
+| **fun** (10) | `/ahorcado` · `/bet` · `/flip` · `/imc` · `/love` · `/poke` · `/roll` · `/ruleta` · `/shuffle` · `/team` |
 | **mod** (7) | `/clear` · `/cum` · `/cums` · `/nextcum` · `/register` · `/say` · `/who` |
 
 Para ver el detalle de cualquier comando dentro del bot: `/help command:<nombre>`.
 
 ### Highlights
 
-- **Cumpleaños persistentes** con cron diario que saluda automáticamente.
+- **Cumpleaños persistentes** con cron diario que saluda automáticamente. `/nextcum` navega los próximos con flechas `⬅️`/`➡️`.
+- **`/bet`** — apuestas de pozo compartido (parimutuel) con la moneda ficticia **gmicoins**: `create`, `place`, `status` (muestra multiplicadores), `resolve`, `balance`, `grant`.
 - **`/love`** con persistencia en Mongo y subcomandos owner para curar overrides (`set` / `reset`).
 - **`/help`** con autocomplete, dropdown y botón "Volver al listado".
 - **`/clear`** que DMea al moderador un recap con texto y archivos de los mensajes eliminados.
 - **`/poke`** que matchea el color del embed con el tipo del Pokémon.
 - **`/team`** divide listas en N equipos balanceados (round-robin).
+- **Log de moderación** por DM al owner: mensajes eliminados y editados en el canal principal.
 
 ---
 
@@ -96,7 +98,7 @@ src/
 │   └── models/              # Schemas Mongoose
 ├── slashCommands/           # Slash commands organizados por categoría
 │   ├── index.ts             # Manifest estático
-│   ├── fun/                 # 9 comandos
+│   ├── fun/                 # 10 comandos
 │   ├── info/                # 8 comandos
 │   └── mod/                 # 7 comandos
 ├── events/                  # Discord event handlers
@@ -134,4 +136,4 @@ Resumen rápido:
 
 Ver [`/changelog`](src/shared/constants/changelog.ts) o el comando `/changelog` dentro del bot.
 
-**v0.4.0** — Facelift completo de los 18 comandos heredados + 6 comandos nuevos. 284 tests.
+**v0.5.0** — `/bet` (apuestas parimutuel con gmicoins), flechas en `/nextcum`, log de mensajes editados, `.env.example`. 304 tests.

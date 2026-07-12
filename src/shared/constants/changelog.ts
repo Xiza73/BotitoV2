@@ -15,6 +15,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.5.0",
+    date: "2026-07-11",
+    highlights: [
+      "/bet: apuestas de pozo compartido (parimutuel) con la moneda gmicoins — create, place, status (con multiplicadores), resolve, balance, grant.",
+      "/nextcum navega los cumpleaños con flechas ⬅️/➡️.",
+      "Log de mensajes editados por DM al owner (espejo del de eliminados).",
+      "Agregado .env.example.",
+    ],
+  },
+  {
     version: "0.4.1",
     date: "2026-05-08",
     highlights: [
