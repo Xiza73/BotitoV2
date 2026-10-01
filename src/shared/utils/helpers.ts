@@ -7,7 +7,6 @@ import {
   CommandInteraction,
 } from "discord.js";
 import ClientDiscord from "../classes/ClientDiscord";
-import { IDate, Week, Month } from "../types";
 import _config from "./../../config";
 
 export const logger = (...msgs: any[]) => console.log(...msgs);
@@ -37,31 +36,6 @@ export const setParams = (params: {
   return param;
 };
 
-export const dateToUTC5 = (date: Date) => {
-  let day, hours, week;
-
-  if (date.getUTCHours() < 5) {
-    week = date.getDay() - 1;
-    day = date.getUTCDate() - 1;
-    hours = date.getUTCHours() + 19;
-  } else {
-    week = date.getDay();
-    day = date.getUTCDate();
-    hours = date.getUTCHours() - 5;
-  }
-
-  const utc5: IDate = {
-    day,
-    month: (date.getUTCMonth() + 1) as Month,
-    year: date.getUTCFullYear(),
-    hours,
-    minutes: date.getUTCMinutes(),
-    week: week as Week,
-  };
-
-  return utc5;
-};
-
 export const channelSender = (
   client: ClientDiscord,
   idChannel: string,
@@ -72,7 +46,7 @@ export const channelSender = (
   );
   if (!channel || !channel.isTextBased() || !channel.isSendable()) return;
 
-  channel.send(msg);
+  return channel.send(msg);
 };
 
 /**
