@@ -15,6 +15,15 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.6.0",
+    date: "2026-10-01",
+    highlights: [
+      "/greetings: activa o desactiva el saludo de cumpleaños de cada miembro.",
+      "Los crons ya no se disparan dos veces en un redeploy y un miembro con error no deja sin saludo a los demás.",
+      "API protegida con x-api-key y documentada con Swagger en /api-docs.",
+    ],
+  },
+  {
     version: "0.5.0",
     date: "2026-07-11",
     highlights: [

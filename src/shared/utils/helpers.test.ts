@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   capitalize,
-  dateToUTC5,
   formatUptime,
   mentionUser,
   random,
@@ -56,26 +55,6 @@ describe("helpers — pure functions", () => {
 
     it("supports boolean values", () => {
       expect(setParams({ flag: true })).toBe("?flag=true");
-    });
-  });
-
-  describe("dateToUTC5(date)", () => {
-    it("subtracts 5 hours from a UTC date past 05:00", () => {
-      // 2026-01-15 12:00:00 UTC → 2026-01-15 07:00 in UTC-5
-      const utc = new Date(Date.UTC(2026, 0, 15, 12, 0, 0));
-      const result = dateToUTC5(utc);
-      expect(result.year).toBe(2026);
-      expect(result.month).toBe(1); // january, +1 from getUTCMonth
-      expect(result.day).toBe(15);
-      expect(result.hours).toBe(7);
-    });
-
-    it("rolls back the day when UTC hours < 5 (puts hours into 19-23 range of previous day)", () => {
-      // 2026-01-15 03:00:00 UTC → 2026-01-14 22:00 in UTC-5
-      const utc = new Date(Date.UTC(2026, 0, 15, 3, 0, 0));
-      const result = dateToUTC5(utc);
-      expect(result.day).toBe(14);
-      expect(result.hours).toBe(22); // 3 + 19 = 22
     });
   });
 

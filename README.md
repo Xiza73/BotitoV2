@@ -9,13 +9,13 @@ Hosteado en [Railway](https://railway.app/), deploy automático en cada push a `
 
 ---
 
-## Comandos (25)
+## Comandos (26)
 
 | Categoría | Comandos |
 |---|---|
 | **info** (8) | `/about` · `/changelog` · `/channel-id` · `/feedback` · `/gmi2` · `/help` · `/ping` · `/uptime` |
 | **fun** (10) | `/ahorcado` · `/bet` · `/flip` · `/imc` · `/love` · `/poke` · `/roll` · `/ruleta` · `/shuffle` · `/team` |
-| **mod** (7) | `/clear` · `/cum` · `/cums` · `/nextcum` · `/register` · `/say` · `/who` |
+| **mod** (8) | `/clear` · `/cum` · `/cums` · `/greetings` · `/nextcum` · `/register` · `/say` · `/who` |
 
 Para ver el detalle de cualquier comando dentro del bot: `/help command:<nombre>`.
 
@@ -40,7 +40,7 @@ Para ver el detalle de cualquier comando dentro del bot: `/help command:<nombre>
 | Lenguaje | TypeScript 5.9 |
 | Discord | discord.js 14 |
 | Base de datos | MongoDB + Mongoose 8 |
-| HTTP server | Express 4 (health-check para Railway) |
+| HTTP server | Express 4 (health-check para Railway + API con `x-api-key`, docs en `/api-docs`) |
 | Tests | Vitest 4 + mongodb-memory-server |
 | Package manager | pnpm 10 |
 | Deploy | Railway (CD desde `master`) |
@@ -64,6 +64,7 @@ pnpm dev              # tsx watch — recarga al guardar
 | `OWNERID` | — | Discord ID del owner del bot (para comandos owner-only) |
 | `GMI2_CHANNEL` | — | ID del canal principal del server (para crons y listeners) |
 | `PORT` | `3000` | Puerto Express (Railway lo usa para health-check) |
+| `API_KEY` | — | Header `x-api-key` para `/api/*`. Sin ella, `/api` responde 401 a todo |
 | `MAX_DELETE_MESSAGES` | `20` | Cap de `/clear` |
 | `PHOTO_ROOT` | — | Base URL de Cloudinary para GIFs/imágenes |
 

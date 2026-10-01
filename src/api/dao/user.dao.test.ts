@@ -198,3 +198,25 @@ describe("user.dao (against in-memory mongo)", () => {
     });
   });
 });
+
+describe("user.dao greetings", () => {
+  it("readBirthdayUsers skips users with greetings disabled, keeps legacy docs", async () => {
+    await User.create([
+      { name: "On", discordId: "1", telegramId: "1", birthdayDay: 1, birthdayMonth: 10 },
+      { name: "Off", discordId: "2", telegramId: "2", birthdayDay: 1, birthdayMonth: 10, enableGreetings: false },
+      { name: "Other", discordId: "3", telegramId: "3", birthdayDay: 2, birthdayMonth: 10 },
+    ]);
+    await User.collection.insertOne({ name: "Legacy", discordId: "4", birthdayDay: 1, birthdayMonth: 10 });
+
+    const res: any = await userDao.readBirthdayUsers(1, 10);
+    expect(res.data.map((u: any) => u.name).sort()).toEqual(["Legacy", "On"]);
+  });
+
+  it("setGreetings toggles the flag and 404s on unknown users", async () => {
+    await userDao.addUser(validBody);
+    expect((await userDao.setGreetings("111", false)).statusCode).toBe(200);
+    expect((await User.findOne({ discordId: "111" }))?.enableGreetings).toBe(false);
+    expect((await userDao.setGreetings("nope", true)).statusCode).toBe(404);
+    expect((await userDao.setGreetings("111", "yes" as any)).statusCode).toBe(422);
+  });
+});

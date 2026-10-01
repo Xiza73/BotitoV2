@@ -11,9 +11,9 @@ export default {
   once: true,
   type: "client",
   execute(client: ClientDiscord) {
-    ScheduleMessage(goodMorning, client, { hour: 8 });
-    ScheduleMessage(reminder, client, { hour: 7 });
-    ScheduleMessage(messaryController, client, { day: 7, hour: 22 });
+    ScheduleMessage("goodMorning", goodMorning, client, { hour: 8 });
+    ScheduleMessage("birthdayReminder", reminder, client, { hour: 7 });
+    ScheduleMessage("messary", messaryController, client, { day: 7, hour: 22 });
     // Puts an activity
     client.user!.setPresence({
       status: "online",
