@@ -3,7 +3,9 @@ import mongoose from "../database";
 import _config from "../config";
 import cors from "cors";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 import _router from "./router";
+import openapi from "./openapi";
 import ErrorHandler from "../handlers/ErrorHandler";
 import { requireApiKey } from "./middleware/requireApiKey";
 import { logger } from "../shared/utils/helpers";
@@ -20,6 +22,13 @@ _app.use(express.json());
 _app.use(cors());
 
 // routes
+// Docs are public on purpose: the page holds no data, every "Try it out"
+// call still goes through requireApiKey.
+_app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openapi, { swaggerOptions: { persistAuthorization: true } })
+);
 _app.use("/api", requireApiKey, _router);
 _app.use((err: ErrorHandler, req: Request, res: Response, _: NextFunction) => {
   return res.status(err.statusCode || 500).json({
