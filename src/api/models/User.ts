@@ -7,6 +7,7 @@ export interface IUser extends Document {
   birthdayDay: number | null;
   birthdayMonth: number | null;
   month: number | null;
+  enableGreetings: boolean;
 }
 
 const User = new Schema(
@@ -45,6 +46,10 @@ const User = new Schema(
       type: Number,
       required: false,
       default: false,
+    },
+    enableGreetings: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }

@@ -4,7 +4,8 @@ import _config from "../../config";
 import * as userDao from "../../api/dao/user.dao";
 import { ResponseData } from "../../handlers/ResponseData";
 import ClientDiscord from "../classes/ClientDiscord";
-import { channelSender, dateToUTC5 } from "./helpers";
+import { getNewDate } from "./dayjs";
+import { channelSender, logger } from "./helpers";
 
 /**
  * Builds the birthday-greeting embed used by both the daily cron and the
@@ -23,35 +24,31 @@ export const buildBirthdayGreetingEmbed = (user: User): EmbedBuilder =>
     .setTimestamp(new Date());
 
 /**
- * Walks the registered users, fires the greeting for everyone whose birthday
- * matches today's date in UTC-5. Returns the number of greetings sent so the
- * caller (the cron, or the /cum slash command) can report it.
+ * Greets every user with greetings enabled whose birthday is today in Lima.
+ * Returns the number of greetings sent so the caller (the cron, or the /cum
+ * slash command) can report it.
  */
 export const reminder = async (
   client: ClientDiscord
 ): Promise<{ count: number }> => {
+  const today = getNewDate("lima");
+  const res = await userDao.readBirthdayUsers(today.date(), today.month() + 1);
+  if (res.statusCode !== 200) return { count: 0 };
+
   let count = 0;
-  try {
-    const today = dateToUTC5(new Date());
-
-    const res = await userDao.readUsers();
-    if (res.statusCode !== 200) return { count: 0 };
-
-    const users: any = (res as ResponseData).data;
-
-    for (const e of users) {
-      if (today.day !== e.birthdayDay || today.month !== e.birthdayMonth) {
-        continue;
-      }
+  for (const e of (res as ResponseData).data) {
+    // One failing user (left the server, deleted account) must not cost the
+    // rest of today's birthdays their greeting.
+    try {
       const user = await client.users.fetch(e.discordId);
-      channelSender(client, _config.gmi2Channel, {
+      const sent = await channelSender(client, _config.gmi2Channel, {
         embeds: [buildBirthdayGreetingEmbed(user)],
         allowedMentions: { repliedUser: true },
       });
-      count++;
+      if (sent) count++;
+    } catch (err) {
+      logger(`[CRON] birthday greeting failed for ${e.discordId}`, err);
     }
-  } catch {
-    // best-effort cron — don't blow up the daily run
   }
   return { count };
 };

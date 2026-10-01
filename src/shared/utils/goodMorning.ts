@@ -2,11 +2,12 @@ import { EmbedBuilder } from "discord.js";
 import _config from "../../config";
 import ClientDiscord from "../classes/ClientDiscord";
 import images from "../constants/images";
-import { IDate, Week } from "../types";
-import { channelSender, dateToUTC5 } from "./helpers";
+import { Week } from "../types";
+import { getNewDate } from "./dayjs";
+import { channelSender } from "./helpers";
 
-export const goodMorning = (client: ClientDiscord) => {
-  const { week }: IDate = dateToUTC5(new Date());
+export const goodMorning = async (client: ClientDiscord) => {
+  const week = getNewDate("lima").day() as Week;
 
   const embed = new EmbedBuilder()
     .setColor(0xecff07)
@@ -15,7 +16,7 @@ export const goodMorning = (client: ClientDiscord) => {
     .setThumbnail(images.willy)
     .setImage(images.stars[week]);
 
-  channelSender(client, _config.gmi2Channel, {
+  await channelSender(client, _config.gmi2Channel, {
     embeds: [
       embed,
       thursdayEmbedController(week)!,

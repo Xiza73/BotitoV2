@@ -34,6 +34,7 @@ import uptime from "./info/uptime";
 import clear from "./mod/clear";
 import cum from "./mod/cum";
 import cums from "./mod/cums";
+import greetings from "./mod/greetings";
 import nextcum from "./mod/nextcum";
 import register from "./mod/register";
 import say from "./mod/say";
@@ -64,6 +65,7 @@ const slashCommands: ISlashCommand[] = [
   clear,
   cum,
   cums,
+  greetings,
   nextcum,
   register,
   say,

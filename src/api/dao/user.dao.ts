@@ -144,3 +144,38 @@ export const updateMonth = async (discordId: string, month: number) => {
     return new ErrorHandler(400, "Error al actualizar mes");
   }
 };
+
+export const setGreetings = async (discordId: string, enabled: boolean) => {
+  try {
+    if (!discordId || typeof enabled !== "boolean")
+      return new ErrorHandler(422, "Datos insuficientes");
+
+    const data = await User.findOneAndUpdate(
+      { discordId },
+      { enableGreetings: enabled },
+      { new: true },
+    );
+
+    if (!data) return new ErrorHandler(404, "Usuario no encontrado");
+
+    return ResponseData(200, "Saludo de cumpleaños actualizado", data);
+  } catch (error) {
+    return new ErrorHandler(400, "Error al actualizar saludo");
+  }
+};
+
+// Users created before enableGreetings existed have no field: `$ne: false`
+// treats them as enabled without a migration.
+export const readBirthdayUsers = async (day: number, month: number) => {
+  try {
+    const data = await User.find({
+      birthdayDay: day,
+      birthdayMonth: month,
+      enableGreetings: { $ne: false },
+    });
+
+    return ResponseData(200, "Usuarios obtenidos correctamente", data);
+  } catch (err) {
+    return new ErrorHandler(404, "Error al obtener usuarios");
+  }
+};

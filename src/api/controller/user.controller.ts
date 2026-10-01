@@ -87,3 +87,16 @@ export const updateMonth = async (
   if (response.statusCode === 200) return res.status(200).json(response);
   next(response);
 };
+
+export const setGreetings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const response = await _dao.setGreetings(
+    req.params.discordId,
+    req.body?.enabled,
+  );
+  if (response.statusCode === 200) return res.status(200).json(response);
+  next(response);
+};
