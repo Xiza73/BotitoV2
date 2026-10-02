@@ -202,9 +202,9 @@ describe("user.dao (against in-memory mongo)", () => {
 describe("user.dao greetings", () => {
   it("readBirthdayUsers skips users with greetings disabled, keeps legacy docs", async () => {
     await User.create([
-      { name: "On", discordId: "1", telegramId: "1", birthdayDay: 1, birthdayMonth: 10 },
-      { name: "Off", discordId: "2", telegramId: "2", birthdayDay: 1, birthdayMonth: 10, enableGreetings: false },
-      { name: "Other", discordId: "3", telegramId: "3", birthdayDay: 2, birthdayMonth: 10 },
+      { name: "On", discordId: "1", birthdayDay: 1, birthdayMonth: 10 },
+      { name: "Off", discordId: "2", birthdayDay: 1, birthdayMonth: 10, enableGreetings: false },
+      { name: "Other", discordId: "3", birthdayDay: 2, birthdayMonth: 10 },
     ]);
     await User.collection.insertOne({ name: "Legacy", discordId: "4", birthdayDay: 1, birthdayMonth: 10 });
 
@@ -218,5 +218,29 @@ describe("user.dao greetings", () => {
     expect((await User.findOne({ discordId: "111" }))?.enableGreetings).toBe(false);
     expect((await userDao.setGreetings("nope", true)).statusCode).toBe(404);
     expect((await userDao.setGreetings("111", "yes" as any)).statusCode).toBe(422);
+  });
+});
+
+describe("cleanLegacyUserFields", () => {
+  it("removes telegramId, unsets discordId 'false' and rebuilds discordId as sparse", async () => {
+    await User.collection.dropIndexes().catch(() => {});
+    await User.collection.createIndex({ telegramId: 1 }, { unique: true });
+    await User.collection.createIndex({ discordId: 1 }, { unique: true });
+    await User.collection.insertOne({ name: "Legacy", discordId: "false", telegramId: "false" });
+
+    await userDao.cleanLegacyUserFields();
+    await userDao.cleanLegacyUserFields(); // idempotent
+
+    const raw = await User.collection.findOne({ name: "Legacy" });
+    expect(raw).not.toHaveProperty("telegramId");
+    expect(raw).not.toHaveProperty("discordId");
+
+    const indexes = await User.collection.indexes();
+    expect(indexes.find((i) => i.name === "telegramId_1")).toBeUndefined();
+    expect(indexes.find((i) => i.name === "discordId_1")?.sparse).toBe(true);
+
+    // Two users without discordId used to collide on "false".
+    await User.create({ name: "SinDiscord", birthdayDay: 1, birthdayMonth: 1 });
+    expect(await User.countDocuments({ discordId: { $exists: false } })).toBe(2);
   });
 });

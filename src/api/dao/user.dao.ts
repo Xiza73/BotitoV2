@@ -21,7 +21,6 @@ export const addUser = async (body: {
       birthdayDay: parseInt(birthdayDay),
       birthdayMonth: parseInt(birthdayMonth),
       discordId,
-      telegramId: discordId,
     });
 
     await user.save();
@@ -178,4 +177,22 @@ export const readBirthdayUsers = async (day: number, month: number) => {
   } catch (err) {
     return new ErrorHandler(404, "Error al obtener usuarios");
   }
+};
+
+/**
+ * Idempotent cleanup of the old `default: false` schema: drops the dead
+ * telegramId field and unsets discordId "false", then lets syncIndexes drop
+ * telegramId_1 and rebuild discordId_1 as sparse. Uses the raw collection
+ * because mongoose strips $unset on paths no longer in the schema.
+ */
+export const cleanLegacyUserFields = async () => {
+  await User.collection.updateMany(
+    { telegramId: { $exists: true } },
+    { $unset: { telegramId: "" } },
+  );
+  await User.collection.updateMany(
+    { discordId: "false" },
+    { $unset: { discordId: "" } },
+  );
+  await User.syncIndexes();
 };

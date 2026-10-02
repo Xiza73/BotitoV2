@@ -15,6 +15,13 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.6.1",
+    date: "2026-10-01",
+    highlights: [
+      "Fix: registrar más de un miembro sin Discord ID ya no falla por clave duplicada.",
+    ],
+  },
+  {
     version: "0.6.0",
     date: "2026-10-01",
     highlights: [
