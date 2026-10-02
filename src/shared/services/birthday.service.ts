@@ -1,6 +1,5 @@
 import * as birthdayDao from "../../api/dao/birthday.dao";
 import { ResponseData } from "../../handlers/ResponseData";
-import { Month } from "../types";
 
 export const getBirthdays = async () => {
   const response = await birthdayDao.getBirthdays();
@@ -10,7 +9,7 @@ export const getBirthdays = async () => {
   return (response as ResponseData).data;
 };
 
-export const getBirthdaysByMonth = async (month: Month) => {
+export const getBirthdaysByMonth = async (month: number) => {
   const response = await birthdayDao.getBirthdaysByMonth(month);
 
   if (response.statusCode !== 200) return {};

@@ -154,9 +154,9 @@ export default {
         tags: ["birthday"],
         summary: "Cumpleaños de un mes",
         parameters: [
-          query("month", { type: "integer", minimum: 0, maximum: 11 }, "0 = enero, 11 = diciembre"),
+          query("month", { type: "integer", minimum: 1, maximum: 12 }, "1 = enero, 12 = diciembre"),
         ],
-        responses: { 200: ok("Cumpleaños"), 401: errors[401] },
+        responses: { 200: ok("Cumpleaños"), ...errors },
       },
     },
     "/birthday/next": {

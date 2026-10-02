@@ -15,6 +15,13 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.7.0",
+    date: "2026-10-01",
+    highlights: [
+      "API: GET /api/birthday/month ahora usa meses 1-12 (1 = enero), igual que el resto del bot. Un mes fuera de rango responde 422.",
+    ],
+  },
+  {
     version: "0.6.1",
     date: "2026-10-01",
     highlights: [
