@@ -105,9 +105,8 @@ const pull: ISlashCommand = {
             flags: MessageFlags.Ephemeral,
           });
         }
-        const monthIdx = (monthInput - 1) as Month;
-        monthName = calendar.months[monthIdx];
-        response = await getBirthdaysByMonth(monthIdx);
+        monthName = calendar.months[(monthInput - 1) as Month];
+        response = await getBirthdaysByMonth(monthInput);
         if (Object.keys(response).length === 0) {
           return interaction.reply({
             embeds: [buildEmptyMonthEmbed(monthName)],
