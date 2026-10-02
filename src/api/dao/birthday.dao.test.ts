@@ -53,6 +53,12 @@ describe("birthday.dao (against in-memory mongo)", () => {
       const result = await birthdayDao.getBirthdays();
       expect((result as any).data).toEqual({});
     });
+
+    it("rejects months outside 1-12 (including the old 0-based 0 and NaN)", async () => {
+      for (const month of [0, 13, NaN, 1.5]) {
+        expect((await birthdayDao.getBirthdaysByMonth(month)).statusCode).toBe(422);
+      }
+    });
   });
 
   describe("getBirthdaysByMonth", () => {
@@ -61,8 +67,7 @@ describe("birthday.dao (against in-memory mongo)", () => {
       await seedUser({ name: "Feb2", discordId: "2", day: "10", month: "2" });
       await seedUser({ name: "May1", discordId: "3", day: "1", month: "5" });
 
-      // getBirthdaysByMonth uses (birthdayMonth - 1 !== month) so we pass 1 (Feb) here
-      const result = await birthdayDao.getBirthdaysByMonth(1);
+      const result = await birthdayDao.getBirthdaysByMonth(2); // February, 1-12 like birthdayMonth
       const data = (result as any).data;
 
       expect(result.statusCode).toBe(200);
@@ -73,7 +78,7 @@ describe("birthday.dao (against in-memory mongo)", () => {
     it("returns empty data when no users match", async () => {
       await seedUser({ name: "Solo", discordId: "1", day: "5", month: "2" });
 
-      const result = await birthdayDao.getBirthdaysByMonth(11); // December
+      const result = await birthdayDao.getBirthdaysByMonth(12); // December
       expect((result as any).data).toEqual({});
     });
   });

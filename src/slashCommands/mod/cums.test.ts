@@ -32,7 +32,7 @@ describe("/cums", () => {
     expect(embed.description).toContain("**2** personas registradas");
   });
 
-  it("filters by month when the option is provided (passes 0-indexed month to the service)", async () => {
+  it("filters by month when the option is provided (passes the 1-12 month through)", async () => {
     vi.mocked(birthdayService.getBirthdaysByMonth).mockResolvedValue({
       Febrero: [{ name: "Diego", discordId: "111", birthdayDay: 17 }],
     });
@@ -40,7 +40,7 @@ describe("/cums", () => {
     const interaction = createMockInteraction();
     await cums.run(createMockClient(), interaction, [arg("month", 2)]);
 
-    expect(birthdayService.getBirthdaysByMonth).toHaveBeenCalledWith(1); // Feb is 0-indexed 1
+    expect(birthdayService.getBirthdaysByMonth).toHaveBeenCalledWith(2);
     const embed = interaction.reply.mock.calls[0][0].embeds[0].data;
     expect(embed.title).toBe("🎂 Cumpleaños de Febrero");
   });

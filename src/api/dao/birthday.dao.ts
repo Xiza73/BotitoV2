@@ -31,24 +31,25 @@ export const getBirthdays = async () => {
   }
 };
 
-export const getBirthdaysByMonth = async (month: Month) => {
+// month is 1-12, same as User.birthdayMonth.
+export const getBirthdaysByMonth = async (month: number) => {
   try {
-    const response = await User.find();
-    const data = response.reduce((acc: CumData, user: IUser) => {
-      const { name, discordId, birthdayDay, birthdayMonth } = user;
-      if ((birthdayMonth || 0) - 1 !== month) return acc;
+    if (!Number.isInteger(month) || month < 1 || month > 12)
+      return new ErrorHandler(422, "El mes debe estar entre 1 y 12");
 
-      const userBirthday: CumUser = { name, discordId, birthdayDay };
-      const monthWord = capitalize(calendar.months[month]);
-
-      if (!acc[monthWord]) {
-        acc[monthWord] = [userBirthday];
-      } else {
-        acc[monthWord].push(userBirthday);
-      }
-
-      return acc;
-    }, {});
+    const users = await User.find({ birthdayMonth: month });
+    const monthWord = capitalize(calendar.months[(month - 1) as Month]);
+    const data: CumData = users.length
+      ? {
+          [monthWord]: users.map(
+            ({ name, discordId, birthdayDay }): CumUser => ({
+              name,
+              discordId,
+              birthdayDay,
+            })
+          ),
+        }
+      : {};
 
     return ResponseData(200, "Cumpleaños obtenidos correctamente", data);
   } catch (err) {

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { Month } from "../../shared/types";
 import * as _dao from "../dao/birthday.dao";
 
 export const getBirthdays = async (
@@ -18,7 +17,7 @@ export const getBirthdaysByMonth = async (
   next: NextFunction
 ) => {
   const response = await _dao.getBirthdaysByMonth(
-    parseInt(req.query.month! as string) as Month
+    Number(req.query.month)
   );
   if (response.statusCode === 200) return res.status(200).json(response);
   next(response);
